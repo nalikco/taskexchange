@@ -20,6 +20,19 @@ app.config.globalProperties.$filters = {
     },
     currencyFormat(value) {
         return new Intl.NumberFormat().format(value) + ' руб.'
+    },
+    dateToHuman(date) {
+        // date = new Date(date.toLocaleString() + " GMT+06:00")
+        // let time = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        // if (date.toLocaleDateString() === new Date().toLocaleDateString()) return 'Сегодня в ' + time;
+        //
+        // let yesterday = new Date()
+        // yesterday.setDate(yesterday.getDate() - 1)
+        // if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return 'Вчера в ' + time;
+
+        let dateString = ""
+
+        return dateString
     }
 }
 

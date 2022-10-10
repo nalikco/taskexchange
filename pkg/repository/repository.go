@@ -16,12 +16,21 @@ type Users interface {
 	UpdateOnline(id int) error
 }
 
-type Option interface {
+type Options interface {
 	Create(parentId int, option taskexchange.Option) (int, error)
 	GetAll() ([]taskexchange.Option, error)
 	GetById(id int) (taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
+}
+
+type Events interface {
+	Create(event taskexchange.Event) (int, error)
+	FindPolling(userId, id int) ([]taskexchange.Event, error)
+	FindNew(userId int) ([]taskexchange.Event, error)
+	FindLastUser(userId int) (taskexchange.Event, error)
+	View(userId, id int) error
+	Delete(userId, id int) error
 }
 
 type Task interface {
@@ -38,7 +47,8 @@ type Order interface {
 
 type Repository struct {
 	Users
-	Option
+	Events
+	Options
 	Task
 	TaskOption
 	Offer
@@ -47,7 +57,8 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		Users:  NewUsersPostgres(db),
-		Option: NewOptionPostgres(db),
+		Users:   NewUsersPostgres(db),
+		Options: NewOptionsPostgres(db),
+		Events:  NewEventsPostgres(db),
 	}
 }

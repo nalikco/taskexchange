@@ -8,4 +8,7 @@ DROP TABLE tasks;
 
 DROP TABLE options;
 
+DROP TABLE events;
+
 DROP TABLE users;
+

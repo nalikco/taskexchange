@@ -123,7 +123,6 @@ func (r *UsersPostgres) Update(id int, input taskexchange.UpdateUserInput) error
 
 func (r *UsersPostgres) UpdateOnline(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET last_online=now() WHERE id=$1", usersTable)
-
 	_, err := r.db.Exec(query, id)
 
 	return err
@@ -131,7 +130,6 @@ func (r *UsersPostgres) UpdateOnline(id int) error {
 
 func (r *UsersPostgres) Delete(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1", usersTable)
-
 	_, err := r.db.Exec(query, id)
 
 	return err

@@ -7,15 +7,15 @@ import (
 	"taskexchange"
 )
 
-type OptionPostgres struct {
+type OptionsPostgres struct {
 	db *sqlx.DB
 }
 
-func NewOptionPostgres(db *sqlx.DB) *OptionPostgres {
-	return &OptionPostgres{db: db}
+func NewOptionsPostgres(db *sqlx.DB) *OptionsPostgres {
+	return &OptionsPostgres{db: db}
 }
 
-func (r *OptionPostgres) Create(parentId int, option taskexchange.Option) (int, error) {
+func (r *OptionsPostgres) Create(parentId int, option taskexchange.Option) (int, error) {
 	var id int
 
 	if parentId == 0 {
@@ -35,7 +35,7 @@ func (r *OptionPostgres) Create(parentId int, option taskexchange.Option) (int, 
 	return id, nil
 }
 
-func (r *OptionPostgres) GetAll() ([]taskexchange.Option, error) {
+func (r *OptionsPostgres) GetAll() ([]taskexchange.Option, error) {
 	var options []taskexchange.Option
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at IS NULL ORDER BY created_at DESC", optionsTable)
@@ -44,7 +44,7 @@ func (r *OptionPostgres) GetAll() ([]taskexchange.Option, error) {
 	return options, err
 }
 
-func (r *OptionPostgres) GetById(id int) (taskexchange.Option, error) {
+func (r *OptionsPostgres) GetById(id int) (taskexchange.Option, error) {
 	var option taskexchange.Option
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", optionsTable)
@@ -53,7 +53,7 @@ func (r *OptionPostgres) GetById(id int) (taskexchange.Option, error) {
 	return option, err
 }
 
-func (r *OptionPostgres) Update(id int, input taskexchange.UpdateOptionInput) error {
+func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -85,7 +85,7 @@ func (r *OptionPostgres) Update(id int, input taskexchange.UpdateOptionInput) er
 	return err
 }
 
-func (r *OptionPostgres) Delete(id int) error {
+func (r *OptionsPostgres) Delete(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1", optionsTable)
 	_, err := r.db.Exec(query, id)
 

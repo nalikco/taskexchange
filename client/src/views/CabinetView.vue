@@ -69,8 +69,7 @@
             <div class="mt-4 flex flex-wrap">
               <RouterLink :to="{ name: 'home' }" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои задачи</RouterLink>
               <RouterLink :to="{ name: 'home' }" v-if="user.type === 1" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Найти задачу</RouterLink>
-              <RouterLink :to="{ name: 'home' }" v-if="user.type === 2" class="text-gray-800 text-white py-1 text-center w-full font-medium hover:underline">Добавить задачу</RouterLink>
-              <RouterLink :to="{ name: 'home' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои заказы</RouterLink>
+              <RouterLink :to="{ name: 'home' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Добавить задачу</RouterLink>
               <RouterLink :to="{ name: 'home' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои заказы</RouterLink>
               <a href="#" @click="logout" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Выйти</a>
 

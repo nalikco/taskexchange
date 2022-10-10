@@ -7,6 +7,7 @@ import (
 
 const (
 	usersTable       = "users"
+	eventsTable      = "events"
 	optionsTable     = "options"
 	tasksTable       = "tasks"
 	taskOptionsTable = "task_options"

@@ -25,6 +25,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			AllowAllOrigins: true,
 			AllowHeaders:    []string{"Authorization", "content-type"},
 			ExposeHeaders:   []string{"Content-Length"},
+			AllowMethods:    []string{"GET", "POST", "PUT", "DELETE"},
 		}))
 	}
 
@@ -62,6 +63,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			tasks.GET("/:id", h.getTaskById)
 			tasks.PUT("/:id", h.userIdentity, h.updateTask)
 			tasks.DELETE("/:id", h.userIdentity, h.deleteTask)
+		}
+
+		events := api.Group("/events")
+		{
+			events.GET("/", h.userIdentity, h.pollingEvents)
+			events.GET("/new", h.userIdentity, h.findNewEvents)
+			events.PUT("/:id/view", h.userIdentity, h.viewEvent)
+			events.DELETE("/:id/delete", h.userIdentity, h.deleteEvent)
 		}
 	}
 

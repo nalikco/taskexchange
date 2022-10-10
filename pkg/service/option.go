@@ -5,27 +5,27 @@ import (
 	"taskexchange/pkg/repository"
 )
 
-type OptionService struct {
-	repo repository.Option
+type OptionsService struct {
+	repo repository.Options
 }
 
-func NewOptionService(repo repository.Option) *OptionService {
-	return &OptionService{repo: repo}
+func NewOptionService(repo repository.Options) *OptionsService {
+	return &OptionsService{repo: repo}
 }
 
-func (s *OptionService) Create(parentId int, option taskexchange.Option) (int, error) {
+func (s *OptionsService) Create(parentId int, option taskexchange.Option) (int, error) {
 	return s.repo.Create(parentId, option)
 }
 
-func (s *OptionService) GetAll() ([]taskexchange.Option, error) {
+func (s *OptionsService) GetAll() ([]taskexchange.Option, error) {
 	return s.repo.GetAll()
 }
 
-func (s *OptionService) GetById(id int) (taskexchange.Option, error) {
+func (s *OptionsService) GetById(id int) (taskexchange.Option, error) {
 	return s.repo.GetById(id)
 }
 
-func (s *OptionService) Update(id int, input taskexchange.UpdateOptionInput) error {
+func (s *OptionsService) Update(id int, input taskexchange.UpdateOptionInput) error {
 	if err := input.Validate(); err != nil {
 		return err
 	}
@@ -33,6 +33,6 @@ func (s *OptionService) Update(id int, input taskexchange.UpdateOptionInput) err
 	return s.repo.Update(id, input)
 }
 
-func (s *OptionService) Delete(id int) error {
+func (s *OptionsService) Delete(id int) error {
 	return s.repo.Delete(id)
 }

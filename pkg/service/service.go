@@ -28,32 +28,43 @@ type Option interface {
 	Delete(id int) error
 }
 
-type Task interface {
+type Events interface {
+	CreateEvent(userId int, message, link string) (int, error)
+	PollingEvents(userId, id int) ([]taskexchange.Event, error)
+	GetNewEvents(userId int) ([]taskexchange.Event, error)
+	GetLastUserEventId(userId int) (int, error)
+	ViewEvent(userId, id int) error
+	DeleteEvent(userId, id int) error
 }
 
-type TaskOption interface {
+type Tasks interface {
 }
 
-type Offer interface {
+type TaskOptions interface {
 }
 
-type Order interface {
+type Offers interface {
+}
+
+type Orders interface {
 }
 
 type Service struct {
 	Authorization
 	Users
+	Events
 	Option
-	Task
-	TaskOption
-	Offer
-	Order
+	Tasks
+	TaskOptions
+	Offers
+	Orders
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Users),
 		Users:         NewUsersService(repos.Users),
-		Option:        NewOptionService(repos.Option),
+		Option:        NewOptionService(repos.Options),
+		Events:        NewEventsService(repos.Events),
 	}
 }

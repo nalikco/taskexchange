@@ -23,6 +23,11 @@ const router = createRouter({
       name: 'cabinet',
       component: () => import('../views/CabinetView.vue'),
       meta: { requiredAuth: true }
+    }, {
+      path: '/events',
+      name: 'events',
+      component: () => import('../views/EventsView.vue'),
+      meta: { requiredAuth: true }
     },
   ]
 })

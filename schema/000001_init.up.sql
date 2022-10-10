@@ -32,7 +32,7 @@ CREATE TABLE tasks
     link varchar(255) not null,
     description text not null,
     created_at timestamp default(now()) not null,
-    deleted_at date
+    deleted_at timestamp
 );
 
 CREATE TABLE task_options
@@ -49,7 +49,7 @@ CREATE TABLE offers
     task_id int references tasks(id) on delete cascade not null,
     status int default(0) not null,
     created_at timestamp default(now()) not null,
-    deleted_at date
+    deleted_at timestamp
 );
 
 CREATE TABLE orders
@@ -62,5 +62,16 @@ CREATE TABLE orders
     surrender_comment text,
     cancel_comment text,
     created_at timestamp default(now()) not null,
-    deleted_at date
+    deleted_at timestamp
+);
+
+CREATE TABLE events
+(
+    id serial not null unique,
+    user_id int references users(id) on delete cascade not null,
+    message text not null,
+    link text not null,
+    viewed_at timestamp,
+    created_at timestamp default(now()) not null,
+    deleted_at timestamp
 );

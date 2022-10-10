@@ -37,7 +37,12 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                 </svg>
               </button>
 
-              <NotificationsPopup v-if="user.type !== 0" :show-notifications="showNotifications" is-mobile="false" />
+              <NotificationsPopup
+                  v-if="user.type !== 0"
+                  :show-notifications="showNotifications"
+                  :events="events" is-mobile="false"
+                  @closePopup="showNotifications = false"
+                  @updateEvents="getNewEvents" />
 
               <div class="relative ml-3">
                 <div>
@@ -111,7 +116,14 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                 </svg>
               </button>
-              <NotificationsPopup v-if="user.type !== 0" :show-notifications="showNotifications" is-mobile="true" />
+              <NotificationsPopup
+                  v-if="user.type !== 0"
+                  :show-notifications="showNotifications"
+                  :events="events"
+                  is-mobile="true"
+                  @closePopup="showNotifications = false"
+                  @updateEvents="getNewEvents"
+              />
             </div>
             <div class="mt-3 space-y-1 px-2">
               <RouterLink v-for="elem in profileMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">{{ elem.title }}</RouterLink>
@@ -136,7 +148,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
 
 <script>
 import {emitter} from "@/emitter";
-import {mapActions, mapGetters, mapState, mapStores} from "pinia";
+import {mapActions, mapState} from "pinia";
 import {useUserStore} from "@/stores/user";
 import axios from "axios";
 
@@ -152,6 +164,7 @@ export default {
       showProfileMenu: false,
       showNotifications: false,
       e: emitter,
+      events: []
     }
   },
   computed: {
@@ -178,7 +191,7 @@ export default {
         ]
       }
     },
-    ...mapState(useUserStore, ['token', 'user']),
+    ...mapState(useUserStore, ['token', 'user', 'eventsAfter']),
   },
   mounted() {
     this.e.on('alert', (alert, e) => {
@@ -190,9 +203,11 @@ export default {
     })
 
     this.updateUser(false)
+
+    this.eventsPolling()
   },
   methods: {
-    ...mapActions(useUserStore, ['setToken', 'setUser']),
+    ...mapActions(useUserStore, ['setToken', 'setUser', 'setEventsAfter']),
     toggleNotifications() {
       this.showNotifications = !this.showNotifications
       this.showProfileMenu = false
@@ -205,6 +220,7 @@ export default {
       let alertClasses = ''
 
       if (alertType === 1) alertClasses = 'text-green-700 bg-green-100 dark:bg-green-200 dark:text-green-800'
+      if (alertType === 3) alertClasses = 'text-blue-700 bg-blue-100 dark:bg-blue-200 dark:text-blue-800'
       else alertClasses = 'text-red-700 bg-red-100 dark:bg-red-200 dark:text-red-800'
 
       let alert = {
@@ -225,6 +241,7 @@ export default {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
           this.setUser(res.data.Data)
+          this.getNewEvents()
 
           if(redirect) this.e.emit('redirectAfterLogin')
         })
@@ -243,6 +260,43 @@ export default {
       if(this.$route.meta.requiredAuth) {
         return this.$router.push({ name: 'sign-in' })
       }
+    },
+    getNewEvents() {
+      axios.get(import.meta.env.VITE_API_URL + 'events/new', {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        if (res.data.data && res.data.data.length > 0) {
+          this.events = []
+
+          for (let i = 0; i < res.data.data.length; i++){
+            this.events.push({
+              id: res.data.data[i].id,
+              message: res.data.data[i].message,
+              link: res.data.data[i].link,
+              created_at: res.data.data[i].created_at
+            })
+          }
+        }
+      })
+    },
+    eventsPolling() {
+      axios.get(import.meta.env.VITE_API_URL + 'events/?after=' + this.eventsAfter, {
+        headers: { Authorization: `Bearer ${this.token}` },
+        timeout: 25000,
+      }).then(res => {
+        if(res.data.data.length > 0) {
+          this.setEventsAfter(res.data.data[0].id)
+          this.getNewEvents()
+
+          for(let i = 0; i < res.data.data.length; i++) {
+            this.addAlert('Новое уведомление:', res.data.data[i].message, 3)
+          }
+        }
+
+        this.eventsPolling()
+      }).catch(err => {
+        setTimeout(this.eventsPolling, 10000)
+      })
     }
   }
 }

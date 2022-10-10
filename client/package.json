@@ -10,6 +10,7 @@
     "@vueuse/core": "^9.3.0",
     "axios": "^1.1.2",
     "flowbite": "^1.5.3",
+    "moment": "^2.29.4",
     "pinia": "^2.0.21",
     "tiny-emitter": "^2.1.0",
     "vue": "^3.2.38",
