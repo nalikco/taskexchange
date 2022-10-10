@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -30,6 +34,19 @@ func main() {
 	})
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
+	}
+
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://schema",
+		"postgres", driver)
+	if err != nil {
+		logrus.Fatalf("failed to apply migrations: %s", err.Error())
+	}
+
+	err = m.Up()
+	if err != nil && err.Error() != "no change" {
+		logrus.Fatalf("failed to apply migrations: %s", err.Error())
 	}
 
 	repos := repository.NewRepository(db)
