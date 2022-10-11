@@ -72,7 +72,7 @@ func (h *Handler) getMyUser(c *gin.Context) {
 
 	// FOR TEST
 	//if id == 3 {
-	//	_, _ = h.services.Events.CreateEvent(1, "Пользователь обновил страницу", "asdasd")
+	//	_, _ = h.services.Events.Create(2, "Пользователь обновил страницу", "/cabinet")
 	//}
 	//
 

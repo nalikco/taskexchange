@@ -219,9 +219,17 @@ export default {
     addAlert(title, message, alertType) {
       let alertClasses = ''
 
-      if (alertType === 1) alertClasses = 'text-green-700 bg-green-100 dark:bg-green-200 dark:text-green-800'
-      if (alertType === 3) alertClasses = 'text-blue-700 bg-blue-100 dark:bg-blue-200 dark:text-blue-800'
-      else alertClasses = 'text-red-700 bg-red-100 dark:bg-red-200 dark:text-red-800'
+      switch(alertType){
+        case 1:
+          alertClasses = 'text-green-700 bg-green-100 dark:bg-green-200 dark:text-green-800'
+          break;
+        case 3:
+          alertClasses = 'text-blue-700 bg-blue-100 dark:bg-blue-200 dark:text-blue-800'
+          break;
+        default:
+          alertClasses = 'text-red-700 bg-red-100 dark:bg-red-200 dark:text-red-800'
+          break;
+      }
 
       let alert = {
         title: title,
@@ -240,7 +248,7 @@ export default {
         axios.get(import.meta.env.VITE_API_URL + 'users/me', {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
-          this.setUser(res.data.Data)
+          this.setUser(res.data.data)
           this.getNewEvents()
 
           if(redirect) this.e.emit('redirectAfterLogin')
@@ -280,7 +288,7 @@ export default {
       })
     },
     eventsPolling() {
-      axios.get(import.meta.env.VITE_API_URL + 'events/?after=' + this.eventsAfter, {
+      axios.get(import.meta.env.VITE_API_URL + 'events/polling?after=' + this.eventsAfter, {
         headers: { Authorization: `Bearer ${this.token}` },
         timeout: 25000,
       }).then(res => {

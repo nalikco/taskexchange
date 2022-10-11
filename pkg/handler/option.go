@@ -25,7 +25,7 @@ func (h *Handler) createOption(c *gin.Context) {
 		return
 	}
 
-	id, err := h.services.Create(input.ParentId, taskexchange.Option{
+	id, err := h.services.Options.Create(input.ParentId, taskexchange.Option{
 		Title: input.Title,
 		Price: input.Price,
 	})
@@ -44,7 +44,7 @@ type getAllOptionsResponse struct {
 }
 
 func (h *Handler) getAllOptions(c *gin.Context) {
-	options, err := h.services.Option.GetAll()
+	options, err := h.services.Options.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -66,7 +66,7 @@ func (h *Handler) getOptionById(c *gin.Context) {
 		return
 	}
 
-	option, err := h.services.Option.GetById(id)
+	option, err := h.services.Options.GetById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -95,7 +95,7 @@ func (h *Handler) updateOption(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Option.Update(id, input)
+	err = h.services.Options.Update(id, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -118,7 +118,7 @@ func (h *Handler) deleteOption(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Option.Delete(id)
+	err = h.services.Options.Delete(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

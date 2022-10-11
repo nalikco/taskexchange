@@ -28,7 +28,10 @@ type Events interface {
 	Create(event taskexchange.Event) (int, error)
 	FindPolling(userId, id int) ([]taskexchange.Event, error)
 	FindNew(userId int) ([]taskexchange.Event, error)
+	FindAll(userId, limit, offset int) ([]taskexchange.Event, error)
+	CountAll(userId int) (int, error)
 	FindLastUser(userId int) (taskexchange.Event, error)
+	ViewAll(userId int) error
 	View(userId, id int) error
 	Delete(userId, id int) error
 }

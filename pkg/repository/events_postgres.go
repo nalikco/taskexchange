@@ -42,6 +42,26 @@ func (r *EventsPostgres) FindNew(userId int) ([]taskexchange.Event, error) {
 	return events, err
 }
 
+func (r *EventsPostgres) FindAll(userId, limit, offset int) ([]taskexchange.Event, error) {
+	var events []taskexchange.Event
+	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at is null AND user_id=$1 ORDER BY id DESC LIMIT %d OFFSET %d", eventsTable, limit, offset)
+	err := r.db.Select(&events, query, userId)
+
+	return events, err
+}
+
+func (r *EventsPostgres) CountAll(userId int) (int, error) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null AND user_id=$1", eventsTable)
+	err := r.db.QueryRow(query, userId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *EventsPostgres) FindLastUser(userId int) (taskexchange.Event, error) {
 	var event taskexchange.Event
 
@@ -50,6 +70,13 @@ func (r *EventsPostgres) FindLastUser(userId int) (taskexchange.Event, error) {
 	err := r.db.Get(&event, query, userId)
 
 	return event, err
+}
+
+func (r *EventsPostgres) ViewAll(userId int) error {
+	query := fmt.Sprintf("UPDATE %s SET viewed_at=now() WHERE user_id=$1 AND deleted_at is null AND viewed_at is null", eventsTable)
+	_, err := r.db.Exec(query, userId)
+
+	return err
 }
 
 func (r *EventsPostgres) View(userId, id int) error {

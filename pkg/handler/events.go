@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"taskexchange"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type findEventsResponse struct {
@@ -28,7 +29,7 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 	}
 
 	if after == 0 {
-		after, err = h.services.Events.GetLastUserEventId(userId)
+		after, err = h.services.Events.GetLastId(userId)
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
@@ -41,7 +42,7 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 	}
 
 	for i := 0; i < 9; i++ {
-		events, err := h.services.Events.PollingEvents(userId, after)
+		events, err := h.services.Events.Polling(userId, after)
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
@@ -60,7 +61,6 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, findEventsResponse{
 		Data: []taskexchange.Event{},
 	})
-	return
 }
 
 func (h *Handler) findNewEvents(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h *Handler) findNewEvents(c *gin.Context) {
 		return
 	}
 
-	events, err := h.services.Events.GetNewEvents(userId)
+	events, err := h.services.Events.GetNew(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -78,6 +78,56 @@ func (h *Handler) findNewEvents(c *gin.Context) {
 
 	c.JSON(http.StatusOK, findEventsResponse{
 		Data: events,
+	})
+}
+
+type findAllEventsResponse struct {
+	Pagination paginationResponse   `json:"pagination"`
+	Data       []taskexchange.Event `json:"data"`
+}
+
+func (h *Handler) findAllEvents(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	pagination := taskexchange.NewPagination(c, 1, 20)
+
+	events, pagination, err := h.services.Events.GetAll(userId, pagination)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, findAllEventsResponse{
+		Pagination: paginationResponse{
+			Count:       pagination.Count,
+			Pages:       pagination.Pages,
+			CurrentPage: pagination.CurrentPage,
+			PerPage:     pagination.PerPage,
+			Offset:      pagination.Offset,
+		},
+		Data: events,
+	})
+}
+
+func (h *Handler) viewAllEvents(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = h.services.Events.ViewAll(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
 	})
 }
 
@@ -94,7 +144,7 @@ func (h *Handler) viewEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Events.ViewEvent(userId, id)
+	err = h.services.Events.View(userId, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -118,7 +168,7 @@ func (h *Handler) deleteEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Events.DeleteEvent(userId, id)
+	err = h.services.Events.Delete(userId, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

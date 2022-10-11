@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"taskexchange"
+
+	"github.com/gin-gonic/gin"
 )
 
 type createUserInput struct {
@@ -47,7 +48,7 @@ func (h *Handler) createUser(c *gin.Context) {
 }
 
 type getAllUsersResponse struct {
-	Data []taskexchange.User
+	Data []taskexchange.User `json:"data"`
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
@@ -63,7 +64,7 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 }
 
 type getOneUserResponse struct {
-	Data taskexchange.User
+	Data taskexchange.User `json:"data"`
 }
 
 func (h *Handler) getUserById(c *gin.Context) {

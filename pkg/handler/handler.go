@@ -3,10 +3,11 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"os"
 	"taskexchange/pkg/service"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -67,8 +68,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		events := api.Group("/events")
 		{
-			events.GET("/", h.userIdentity, h.pollingEvents)
+			events.GET("/", h.userIdentity, h.findAllEvents)
+			events.GET("/polling", h.userIdentity, h.pollingEvents)
 			events.GET("/new", h.userIdentity, h.findNewEvents)
+			events.PUT("/view-all", h.userIdentity, h.viewAllEvents)
 			events.PUT("/:id/view", h.userIdentity, h.viewEvent)
 			events.DELETE("/:id/delete", h.userIdentity, h.deleteEvent)
 		}

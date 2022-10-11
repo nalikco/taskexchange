@@ -20,7 +20,7 @@ type Users interface {
 	Delete(id int) error
 }
 
-type Option interface {
+type Options interface {
 	Create(parentId int, option taskexchange.Option) (int, error)
 	GetAll() ([]taskexchange.Option, error)
 	GetById(id int) (taskexchange.Option, error)
@@ -29,12 +29,14 @@ type Option interface {
 }
 
 type Events interface {
-	CreateEvent(userId int, message, link string) (int, error)
-	PollingEvents(userId, id int) ([]taskexchange.Event, error)
-	GetNewEvents(userId int) ([]taskexchange.Event, error)
-	GetLastUserEventId(userId int) (int, error)
-	ViewEvent(userId, id int) error
-	DeleteEvent(userId, id int) error
+	Create(userId int, message, link string) (int, error)
+	Polling(userId, id int) ([]taskexchange.Event, error)
+	GetNew(userId int) ([]taskexchange.Event, error)
+	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Event, taskexchange.Pagination, error)
+	GetLastId(userId int) (int, error)
+	ViewAll(userId int) error
+	View(userId, id int) error
+	Delete(userId, id int) error
 }
 
 type Tasks interface {
@@ -53,7 +55,7 @@ type Service struct {
 	Authorization
 	Users
 	Events
-	Option
+	Options
 	Tasks
 	TaskOptions
 	Offers
@@ -64,7 +66,7 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Users),
 		Users:         NewUsersService(repos.Users),
-		Option:        NewOptionService(repos.Options),
+		Options:       NewOptionService(repos.Options),
 		Events:        NewEventsService(repos.Events),
 	}
 }
