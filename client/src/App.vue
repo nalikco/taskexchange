@@ -7,7 +7,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
   <div class="min-h-full">
     <div class="absolute right-5 top-5 z-50">
       <transition-group name="slide-fade">
-          <div v-for="(alert, i) in alerts" v-bind:key="i" @click="this.alerts.splice(i, 1)" class="p-4 mb-4 cursor-pointer shadow-lg text-sm rounded-lg bg-opacity-95" :class="[alert.classes]">
+          <div v-for="(alert, i) in alerts" v-bind:key="i" @click="alerts.splice(i, 1)" class="p-4 mb-4 cursor-pointer shadow-lg text-sm rounded-lg bg-opacity-95" :class="[alert.classes]">
             <span class="font-medium">{{ alert.title }}</span>
             {{ alert.message }}
           </div>

@@ -11,7 +11,7 @@ import {moment} from "@/moment";
     <main>
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <div v-if="events.length > 0" class="text-gray-500 text-sm px-3 pb-4 text-center">
-          При нажатии на уведомление Вы перейдете на источник уведомления.
+          При нажатии на уведомление Вы перейдете на источник уведомления
         </div>
         <transition name="slide-fade" mode="out-in">
           <div v-if="loading" class="text-center mb-5">
