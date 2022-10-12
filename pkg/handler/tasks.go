@@ -41,7 +41,17 @@ func (h *Handler) createTask(c *gin.Context) {
 
 	var tasks []taskexchange.Task
 
+	if len(tasksInput.Tasks) == 0 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong tasks length")
+		return
+	}
+
 	for _, input := range tasksInput.Tasks {
+		if len(input.Options) == 0 {
+			newErrorResponse(c, http.StatusBadRequest, "wrong options length")
+			return
+		}
+
 		if input.Status != 0 && input.Status != 1 {
 			newErrorResponse(c, http.StatusBadRequest, "wrong status")
 			return
@@ -206,6 +216,11 @@ func (h *Handler) updateTask(c *gin.Context) {
 	var input taskexchange.UpdateTaskInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if len(*input.Options) == 0 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong options length")
 		return
 	}
 

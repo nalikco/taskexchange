@@ -1,5 +1,6 @@
 <script setup>
 import ProfileInfo from "@/components/ProfileInfo.vue";
+import {moment} from "@/moment";
 </script>
 <template>
   <main>
@@ -57,7 +58,7 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                 </svg>
               </div>
               <div class="ml-20 py-3 font-medium">
-                Большая
+                Большая задача
                 <br>
                 <span v-if="selectedType === 2" class="text-white text-sm">Выбрано</span>
                 <span v-else class="text-gray-500 text-sm">Выбрать</span>
@@ -78,7 +79,66 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
             </div>
           </div>
           <transition name="slide-fade">
-            <div v-if="selectedType === 1 || selectedType === 2">
+            <div v-if="selectedType === 2" class="mt-10">
+              <h2 class="text-2xl font-medium mt-10">Добавленные задачи</h2>
+              <div v-if="tasks.length === 0" class="text-slate-500 mt-2">
+                Вы ещё не добавили ни одной задачи
+              </div>
+              <transition-group name="slide-fade">
+                <div @click="editTask(i)" v-for="(task, i) in tasks" v-bind:key="(i + 1)" @mouseenter="showTask = (i + 1)" @mouseleave="showTask = 0" class="cursor-pointer relative bg-white shadow hover:shadow-xl mt-3 transition duration-300" :class="{'rounded-none rounded-t-xl': showTask === (i + 1), 'rounded-xl': showTask !== (i + 1)}">
+                  <div class="py-3 px-4 font-medium">
+                    {{ task.taskOptions.title }},
+                    <span class="text-slate-500">итого: {{ $filters.currencyFormat(task.taskOptions.amountPrice) }}</span>
+                    <span class="float-right text-sm text-slate-500">Дата сдачи: {{ moment(task.delivery_date).calendar() }}</span>
+                  </div>
+                  <transition name="slide-fade">
+                    <div v-if="showTask === (i + 1)" class="absolute w-full z-20 bg-slate-100 shadow-lg rounded-b-lg pb-4 pt-2 px-3 flex flex-col">
+                      <div>
+                        Ссылка: <a :href="task.link" class="text-blue-500 font-medium" target="_blank">{{ task.link }}</a>
+                      </div>
+                      <div>
+                        Количество: <span class="font-medium">{{ task.amount }} шт.</span>
+                      </div>
+                      <div>
+                        Описание: {{ task.description }}
+                      </div>
+                      <div>
+                        <h3 class="text-lg text-center">Опции:</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div class="text-sm py-2 px-4 mt-2 rounded-full bg-slate-500 text-white shadow-lg">
+                            Категория: <span class="font-medium">{{ task.taskOptions.title }}</span> <span class="text-white">{{ $filters.currencyFormat(task.taskOptions.price) }}</span>
+                          </div>
+                          <div v-for="option in task.taskOptions.options" class="text-sm py-2 px-4 mt-2 rounded-full bg-blue-500 text-white shadow-lg">
+                            <span class="font-medium">{{ option.title }}</span> <span class="text-white">{{ $filters.currencyFormat(option.price) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+              </transition-group>
+              <div class="text-center text-slate-500 mt-5">
+                Итого: <span class="font-medium">{{ $filters.currencyFormat(calculateAllTasksPrice) }}</span>
+              </div>
+              <div v-if="closeSubmitForm">
+                <button @click="closeSubmitForm = false" class="mt-5 text-white w-full bg-blue-600 transition duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center hover:bg-blue-800 mr-2 mb-2">
+                  Добавить ещё одну задачу
+                </button>
+                <div class="text-center text-slate-500">
+                  или
+                </div>
+                <button @click="onFormAllTasksSubmit" :disabled="!showSubmitAllTasksButton" class="mt-3 text-white w-full bg-blue-600 transition duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" :class="{'hover:bg-blue-800': showSubmitAllTasksButton,'opacity-50': !showSubmitAllTasksButton }">
+                  Сохранить добавленные задачи
+                  <br>
+                  <p class="text-xs -mt-1 text-blue-200">
+                    Итоговая стоимость всех задач: {{ $filters.currencyFormat(calculateAllTasksPrice) }}
+                  </p>
+                </button>
+              </div>
+            </div>
+          </transition>
+          <transition name="slide-fade">
+            <div v-if="selectedType === 1 && !closeSubmitForm || selectedType === 2 && !closeSubmitForm">
               <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
               <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
                 <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
@@ -127,7 +187,8 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                       </div>
                     </transition>
                     <button type="submit" :disabled="!showSubmitButton" class="text-white w-full bg-blue-600 transition duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" :class="{'hover:bg-blue-800': showSubmitButton,'opacity-50': !showSubmitButton }">
-                      Добавить
+                      <span v-if="editTaskIndex !== null">Сохранить задачу</span>
+                      <span v-else>Добавить</span>
                       <br>
                       <p class="text-xs -mt-1 text-blue-200">
                         Итоговая стоимость данной задачи: {{ $filters.currencyFormat(priceForCurrentTask) }}
@@ -154,41 +215,25 @@ import {emitter} from "@/emitter";
 export default {
   data() {
     return {
-      selectedType: 1,
+      selectedType: 0,
       options: [],
       selectedParent: 0,
       showOptions: 0,
       link: "",
       description: "",
-      amount: 0,
+      amount: 1,
       selectedOptions: [],
       deliveryDate: "",
+      tasks: [],
+      showTask: 0,
+      editTaskIndex: null,
+      closeSubmitForm: false,
       userBalance: 0,
       loading: false,
       e: emitter
     }
   },
   computed: {
-    optionsToShow() {
-      let parents = []
-
-      for (let i = 0; i < this.options.length; i++) {
-        if(!this.options[i].parent_id) {
-          let parent = this.options[i]
-          parent.options = []
-
-          for (let i = 0; i < this.options.length; i++) {
-            if(this.options[i].parent_id && this.options[i].parent_id === parent.id) {
-              parent.options.push(this.options[i])
-            }
-          }
-
-          parents.push(parent)
-        }
-      }
-
-      return parents
-    },
     showSubmitButton() {
       if(this.selectedParent === 0) return false
       if (this.link === '') return false
@@ -196,6 +241,12 @@ export default {
       if (this.deliveryDate === '') return false
       if (this.amount <= 0) return false
       if (this.userBalance < this.priceForCurrentTask) return false
+      if (this.loading) return false
+
+      return true
+    },
+    showSubmitAllTasksButton() {
+      if (this.userBalance < this.calculateAllTasksPrice) return false
       if (this.loading) return false
 
       return true
@@ -222,6 +273,35 @@ export default {
 
       return price * this.amount
     },
+    optionsToShow() {
+      let parents = []
+
+      for (let i = 0; i < this.options.length; i++) {
+        if(!this.options[i].parent_id) {
+          let parent = this.options[i]
+          parent.options = []
+
+          for (let i = 0; i < this.options.length; i++) {
+            if(this.options[i].parent_id && this.options[i].parent_id === parent.id) {
+              parent.options.push(this.options[i])
+            }
+          }
+
+          parents.push(parent)
+        }
+      }
+
+      return parents
+    },
+    calculateAllTasksPrice() {
+      let price = 0
+
+      for (let i = 0; i < this.tasks.length; i++) {
+        price += this.tasks[i].taskOptions.amountPrice
+      }
+
+      return price
+    },
     ...mapState(useUserStore, ['user', 'token']),
   },
   mounted() {
@@ -232,6 +312,41 @@ export default {
     this.userBalance = this.user.balance
   },
   methods: {
+    editTask(taskIndex) {
+      this.editTaskIndex = taskIndex
+      this.selectedParent = this.tasks[taskIndex].taskOptions.id
+
+      for (let i = 0; i < this.tasks[taskIndex].taskOptions.options.length; i++) {
+        this.selectedOptions.push(this.tasks[taskIndex].taskOptions.options[i].id)
+      }
+      this.amount = this.tasks[taskIndex].amount
+      this.link = this.tasks[taskIndex].link
+      this.description = this.tasks[taskIndex].description
+      this.deliveryDate = this.tasks[taskIndex].delivery_date
+
+      this.closeSubmitForm = false
+    },
+    taskOptionsToShow(taskOptions) {
+      let parent = {}
+      let options = []
+      let amountPrice = 0
+
+      for (let t = 0; t < taskOptions.length; t++) {
+        for (let o = 0; o < this.options.length; o++) {
+          if(taskOptions[t] === this.options[o].id) {
+            if(!this.options[o].parent_id) {
+              parent = this.options[o]
+            } else options.push(this.options[o])
+            amountPrice += this.options[o].price
+          }
+        }
+      }
+
+      parent.options = options
+      parent.amountPrice = amountPrice * this.amount
+
+      return parent
+    },
     selectParent(parent) {
       if(this.selectedParent === 0 || this.selectedParent !== parent.id) this.selectedParent = parent.id
       else this.selectedParent = 0
@@ -269,13 +384,78 @@ export default {
 
       NProgress.done()
     },
+    onFormAllTasksSubmit() {
+      this.loading = true
+      NProgress.start()
+      let tasksForRequest = []
+
+      for (let i = 0; i < this.tasks.length; i++) {
+        tasksForRequest.push({
+          status: 1,
+          amount: this.tasks[i].amount,
+          delivery_date: this.tasks[i].delivery_date,
+          link: this.tasks[i].link,
+          description: this.tasks[i].description,
+          options: this.tasks[i].options,
+        })
+      }
+
+      console.log(tasksForRequest)
+
+      axios.post(import.meta.env.VITE_API_URL + 'tasks/', {
+        tasks: tasksForRequest
+      }, {
+        headers: { Authorization: `Bearer ${this.token}` }
+      }).then(res => {
+        if(res.data.status) {
+          this.e.emit('alert', {
+            title: 'Успешно!',
+            message: 'Задачи созданы.',
+            alertType: 1
+          })
+          this.e.emit('updateUser', false)
+
+          this.$router.push({'name': 'tasks-list'})
+        }
+      }).catch(err => {
+        if(err.response.data.message) this.e.emit('alert', {
+          title: 'Ошибка.',
+          message: err.response.data.message,
+          alertType: 2
+        })
+        else this.e.emit('alert', {
+          title: 'Ошибка.',
+          message: 'Произошла внутренняя ошибка сервера.',
+          alertType: 2
+        })
+
+        NProgress.done()
+      })
+    },
     onFormSubmit(e) {
       e.preventDefault()
 
-      this.loading = true
-      NProgress.start()
+      if(this.editTaskIndex !== null) {
+        this.tasks[this.editTaskIndex] = {
+          status: 1,
+          amount: this.amount,
+          delivery_date: this.deliveryDate,
+          link: this.link,
+          description: this.description,
+          options: this.collectSelectedOptions(),
+          taskOptions: this.taskOptionsToShow(this.collectSelectedOptions())
+        }
+
+        this.closeSubmitForm = true
+        this.editTaskIndex = null
+
+        return
+      }
 
       if(this.selectedType === 1) {
+        this.loading = true
+        NProgress.start()
+
         axios.post(import.meta.env.VITE_API_URL + 'tasks/', {
           tasks: [
             {
@@ -314,7 +494,30 @@ export default {
 
           NProgress.done()
         })
+      } else if (this.selectedType === 2) {
+        let task = {
+          status: 1,
+          amount: this.amount,
+          delivery_date: this.deliveryDate,
+          link: this.link,
+          description: this.description,
+          options: this.collectSelectedOptions(),
+          taskOptions: this.taskOptionsToShow(this.collectSelectedOptions())
+        }
+
+        this.tasks.push(task)
+        this.closeSubmitForm = true
+
+        this.clearForm()
       }
+    },
+    clearForm() {
+      this.amount = 1
+      this.deliveryDate = ''
+      this.link = ''
+      this.description = ''
+      this.selectedParent = 0
+      this.selectedOptions = []
     }
   }
 }
