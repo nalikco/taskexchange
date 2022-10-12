@@ -77,8 +77,15 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 		}
 	}()
 
+	customer, err := s.usersRepo.GetById(userId, true)
+	if err != nil {
+		return err
+	}
+
 	sheetMap := f.GetSheetMap()
 
+	var tasks []taskexchange.Task
+	var price float64 = 0
 	for _, sheetName := range sheetMap {
 		task := taskexchange.Task{}
 
@@ -123,11 +130,34 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 			}
 		}
 
-		_, err = s.Create(task)
+		price += task.CalculatePrice()
+		tasks = append(tasks, task)
+	}
+
+	if customer.Balance < price {
+		return errors.New("wrong user balance")
+	}
+	userNewBalance := customer.Balance - price
+
+	for _, task := range tasks {
+		taskId, err := s.tasksRepo.Create(task)
 		if err != nil {
 			return err
 		}
+
+		for _, option := range task.Options {
+			_, err = s.taskOptionsRepo.Create(taskId, option.Id)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
+	updateUserInput := taskexchange.UpdateUserInput{
+		Balance: &userNewBalance,
+	}
+
+	err = s.usersRepo.Update(customer.Id, updateUserInput)
 
 	return nil
 }
@@ -265,6 +295,25 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 		tasks, err = s.tasksRepo.FindAll(pagination.Limit, pagination.Offset)
 	} else {
 		tasks, err = s.tasksRepo.FindAllByUser(userId, pagination.Limit, pagination.Offset)
+	}
+
+	for i, task := range tasks {
+		taskOptions, err := s.taskOptionsRepo.GetByTaskId(task.Id)
+		if err != nil {
+			return []taskexchange.Task{}, pagination, err
+		}
+		var taskOptionsIds []int
+
+		for _, taskOption := range taskOptions {
+			taskOptionsIds = append(taskOptionsIds, taskOption.OptionId)
+		}
+
+		options, err := s.optionsRepo.GetByIds(taskOptionsIds)
+		if err != nil {
+			return []taskexchange.Task{}, pagination, err
+		}
+
+		tasks[i].Options = options
 	}
 
 	return tasks, pagination, err
