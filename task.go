@@ -38,5 +38,5 @@ func (t *Task) CalculatePrice() float64 {
 		price += option.Price
 	}
 
-	return price
+	return price * float64(t.Amount)
 }

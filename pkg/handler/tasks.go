@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-type inputCreateTask struct {
+type inputCreateTasks struct {
+	Tasks []inputCreateOneTask `json:"tasks" binding:"required"`
+}
+
+type inputCreateOneTask struct {
 	Status       int    `json:"status" binding:"required"`
 	Amount       int    `json:"amount" binding:"required"`
 	DeliveryDate string `json:"delivery_date" binding:"required"`
@@ -29,73 +33,81 @@ func (h *Handler) createTask(c *gin.Context) {
 		return
 	}
 
-	var input inputCreateTask
-	if err := c.BindJSON(&input); err != nil {
+	var tasksInput inputCreateTasks
+	if err := c.BindJSON(&tasksInput); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if input.Status != 0 && input.Status != 1 {
-		newErrorResponse(c, http.StatusBadRequest, "wrong status")
-		return
-	}
+	var tasks []taskexchange.Task
 
-	if input.Amount <= 0 {
-		newErrorResponse(c, http.StatusBadRequest, "wrong amount")
-		return
-	}
-
-	deliveryDate, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", input.DeliveryDate))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	var options []taskexchange.Option
-
-	for _, optionId := range input.Options {
-		option, err := h.services.Options.GetById(optionId)
-		if err != nil {
-			newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("wrong option id: %d", optionId))
+	for _, input := range tasksInput.Tasks {
+		if input.Status != 0 && input.Status != 1 {
+			newErrorResponse(c, http.StatusBadRequest, "wrong status")
 			return
 		}
 
-		if option.ParentId != nil {
-			var parentIdFound = false
+		if input.Amount <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "wrong amount")
+			return
+		}
 
-			for _, parentId := range input.Options {
-				if parentId == *option.ParentId {
-					parentIdFound = true
+		deliveryDate, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", input.DeliveryDate))
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		var options []taskexchange.Option
+
+		for _, optionId := range input.Options {
+			option, err := h.services.Options.GetById(optionId)
+			if err != nil {
+				newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("wrong option id: %d", optionId))
+				return
+			}
+
+			if option.ParentId != nil {
+				var parentIdFound = false
+
+				for _, parentId := range input.Options {
+					if parentId == *option.ParentId {
+						parentIdFound = true
+					}
+				}
+
+				if !parentIdFound {
+					newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
+					return
 				}
 			}
 
-			if !parentIdFound {
-				newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
-				return
-			}
+			options = append(options, option)
 		}
 
-		options = append(options, option)
+		task := taskexchange.Task{
+			CustomerId:   userId,
+			Status:       input.Status,
+			Amount:       input.Amount,
+			DeliveryDate: deliveryDate,
+			Link:         input.Link,
+			Description:  input.Description,
+			Options:      options,
+		}
+
+		tasks = append(tasks, task)
 	}
 
-	task := taskexchange.Task{
-		CustomerId:   userId,
-		Status:       input.Status,
-		Amount:       input.Amount,
-		DeliveryDate: deliveryDate,
-		Link:         input.Link,
-		Description:  input.Description,
-		Options:      options,
+	for _, task := range tasks {
+		_, err = h.services.Tasks.Create(task)
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
-	id, err := h.services.Tasks.Create(task)
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
 	})
 }
 

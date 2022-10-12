@@ -78,6 +78,7 @@ import axios from "axios";
 import {emitter} from "@/emitter";
 import {mapActions} from "pinia";
 import {useUserStore} from "@/stores/user";
+import NProgress from "nprogress";
 
 export default {
   data() {
@@ -97,6 +98,8 @@ export default {
     this.e.on('redirectAfterLogin', e => {
       this.$router.push({ name: 'cabinet' })
     })
+
+    NProgress.done()
   },
   methods: {
     ...mapActions(useUserStore, ['setToken']),
@@ -114,6 +117,8 @@ export default {
           password: this.password,
         }).then(res => {
           if(res.data.token) {
+            NProgress.start()
+
             this.setToken(res.data.token)
 
             this.e.emit('alert', {

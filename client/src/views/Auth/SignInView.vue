@@ -61,6 +61,7 @@ import {mapActions} from "pinia";
 import {useUserStore} from "@/stores/user";
 import axios from "axios";
 import {emitter} from "@/emitter";
+import NProgress from "nprogress";
 
 export default {
   data() {
@@ -72,6 +73,7 @@ export default {
     }
   },
   mounted() {
+    NProgress.done()
     document.title = 'Вход'
 
     this.e.on('redirectAfterLogin', e => {
@@ -84,6 +86,7 @@ export default {
     onSubmit(e) {
       e.preventDefault()
 
+      NProgress.start()
       axios.post(import.meta.env.VITE_API_URL + "auth/sign-in", {
         email: this.email,
         password: this.password,

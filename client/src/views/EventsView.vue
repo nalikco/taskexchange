@@ -50,7 +50,8 @@ import {moment} from "@/moment";
                   <RouterLink :to="'?page=' + (currentPage - 1)" reload class="py-2 px-3 ml-0 leading-tight rounded-l-lg text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Назад</RouterLink>
                 </li>
                 <li v-for="page in pages">
-                  <RouterLink :to="'?page=' + page" @click="currentPage = page" :class="{'py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white': page === currentPage, 'py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== currentPage }">{{ page }}</RouterLink>
+                  <RouterLink v-if="page === 1" :to="{ 'name': 'events' }" @click="currentPage = page" :class="{'py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white': page === currentPage, 'py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== currentPage }">{{ page }}</RouterLink>
+                  <RouterLink v-else :to="'?page=' + page" @click="currentPage = page" :class="{'py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white': page === currentPage, 'py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== currentPage }">{{ page }}</RouterLink>
                 </li>
                 <li v-if="currentPage < pages">
                   <RouterLink :to="'#'" class="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Вперед</RouterLink>
@@ -68,6 +69,7 @@ import {moment} from "@/moment";
 import axios from "axios"
 import {mapState} from "pinia";
 import {useUserStore} from "@/stores/user";
+import NProgress from "nprogress";
 
 export default {
   data() {
@@ -102,7 +104,7 @@ export default {
   },
   methods: {
     getEvents() {
-      this.loading = true
+      NProgress.start();
 
       axios.get(import.meta.env.VITE_API_URL + 'events/?page=' + this.currentPage + '&per_page=' + this.perPage, {
         headers: { Authorization: `Bearer ${this.token}` },
@@ -115,7 +117,7 @@ export default {
 
         }
 
-        this.loading = false
+        NProgress.done();
       })
     },
     viewAllEvents() {

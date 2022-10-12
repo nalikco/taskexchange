@@ -182,7 +182,8 @@ export default {
       } else if (this.user.type === 2) {
         return [
           {'to': 'cabinet', 'title': 'Кабинет заказчика'},
-          {'to': 'home', 'title': 'Мои задачи'},
+          {'to': 'create-task', 'title': 'Добавить задачу'},
+          {'to': 'tasks-list', 'title': 'Мои задачи'},
           {'to': 'home', 'title': 'Мои заказы'},
         ]
       } else if (this.user.type === 3) {
@@ -266,6 +267,10 @@ export default {
       this.showNotifications = false
 
       if(this.$route.meta.requiredAuth) {
+        return this.$router.push({ name: 'sign-in' })
+      }
+
+      if(this.$route.meta.requiredCustomer) {
         return this.$router.push({ name: 'sign-in' })
       }
     },

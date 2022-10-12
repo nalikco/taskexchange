@@ -1,0 +1,335 @@
+<script setup>
+import ProfileInfo from "@/components/ProfileInfo.vue";
+</script>
+<template>
+  <main>
+    <header class="bg-white shadow">
+      <div class="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Добавление задачи</h1>
+      </div>
+    </header>
+    <main>
+      <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+        <ProfileInfo />
+        <div class="mt-10 mx-3 md:mx-0">
+          <transition name="slide-fade">
+            <div v-if="selectedType === 1 || selectedType === 0">
+              <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для разовой задачи</span></h2>
+              <p class="text-gray-700 mt-3">
+                Краткое описание для разовой задачи
+              </p>
+            </div>
+          </transition>
+          <transition name="slide-fade">
+            <div v-if="selectedType === 2">
+              <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для большой задачи</span></h2>
+              <p class="text-gray-700 mt-3">
+                Краткое описание для большой задачи
+              </p>
+            </div>
+          </transition>
+          <transition name="slide-fade">
+            <div v-if="selectedType === 3">
+              <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для Excel-файла</span></h2>
+              <p class="text-gray-700 mt-3">
+                Краткое описание для Excel-файла
+              </p>
+            </div>
+          </transition>
+          <div class="bg-white mt-7 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
+            <div @click="selectedType = 1" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 1}">
+              <div class="float-left ml-2 mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="ml-20 py-3 font-medium">
+                Разовая задача
+                <br>
+                <span v-if="selectedType === 1" class="text-white text-sm">Выбрано</span>
+                <span v-else class="text-gray-500 text-sm">Выбрать</span>
+              </div>
+            </div>
+            <div @click="selectedType = 2" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 2}">
+              <div class="float-left ml-2 mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+                </svg>
+              </div>
+              <div class="ml-20 py-3 font-medium">
+                Большая
+                <br>
+                <span v-if="selectedType === 2" class="text-white text-sm">Выбрано</span>
+                <span v-else class="text-gray-500 text-sm">Выбрать</span>
+              </div>
+            </div>
+            <div @click="selectedType = 3" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 3}">
+              <div class="float-left ml-2 mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12" />
+                </svg>
+              </div>
+              <div class="ml-20 py-3 font-medium">
+                Excel-файл
+                <br>
+                <span v-if="selectedType === 3" class="text-white text-sm">Выбрано</span>
+                <span v-else class="text-gray-500 text-sm">Выбрать</span>
+              </div>
+            </div>
+          </div>
+          <transition name="slide-fade">
+            <div v-if="selectedType === 1 || selectedType === 2">
+              <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
+              <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
+                <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
+                  <div @click="selectParent(parent)" class="bg-slate-100 cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'rounded-t-lg': showOptions === parent.id}">
+                    <div class="py-3 px-4 font-medium text-center">
+                      {{ parent.title }}
+                      <p class="text-xs -mt-1" :class="{'text-white': selectedParent === parent.id, 'text-gray-500': selectedParent !== parent.id}">{{ $filters.currencyFormat(parent.price) }}</p>
+                      <button v-if="selectedParent === parent.id" class="mt-2 text-white w-full text-sm">Выбрано</button>
+                      <button v-else class="mt-2 text-gray-500 w-full text-sm">Выбрать</button>
+                    </div>
+                  </div>
+                  <transition name="slide-fade">
+                    <div v-if="showOptions === parent.id" class="absolute w-full z-50 ring ring-slate-200 bg-slate-200 shadow-lg rounded-b-lg pb-4 pt-2 px-3 text-sm flex flex-col">
+                      <div v-if="parent.options.length === 0" class="mt-2 text-center text-slate-500">
+                        Нет опций для данной категории
+                      </div>
+                      <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow-lg hover:shadow-none transition duration-300 bg-slate-100 rounded-full" :class="{'bg-blue-500 text-white shadow-none': selectedOptions.indexOf(option.id) !== -1}">
+                        {{ option.title }} <span :class="{'text-white': selectedOptions.indexOf(option.id) !== -1, 'text-slate-500': selectedOptions.indexOf(option.id) === -1}">{{ $filters.currencyFormat(option.price) }}</span>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+              </div>
+              <div class="mt-7 bg-white rounded-lg py-3 px-7 shadow">
+                <form @submit="onFormSubmit">
+                  <div class="mt-4">
+                    <label for="link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ссылка на задачу</label>
+                    <input type="text" v-model="link" id="link" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, ссылка на пост ВКонтакте" required>
+                  </div>
+                  <div class="mt-6">
+                    <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Описание задачи</label>
+                    <textarea id="description" v-model="description" rows="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Описание задачи нужно для того, чтобы исполнители поняли суть задачи" required></textarea>
+                  </div>
+                  <div class="mt-6">
+                    <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Количество</label>
+                    <input type="number" min="1" v-model="amount" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
+                  </div>
+                  <div class="mt-6">
+                    <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Количество</label>
+                    <input type="date" :min="new Date().toLocaleDateString('en-ca')" v-model="deliveryDate" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
+                  </div>
+                  <div class="mt-6">
+                    <transition name="slide-fade">
+                      <div v-if="userBalance < priceForCurrentTask" class="mb-3 text-center font-medium text-sm text-red-500">
+                        Недостаточно средств на балансе
+                      </div>
+                    </transition>
+                    <button type="submit" :disabled="!showSubmitButton" class="text-white w-full bg-blue-600 transition duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" :class="{'hover:bg-blue-800': showSubmitButton,'opacity-50': !showSubmitButton }">
+                      Добавить
+                      <br>
+                      <p class="text-xs -mt-1 text-blue-200">
+                        Итоговая стоимость данной задачи: {{ $filters.currencyFormat(priceForCurrentTask) }}
+                      </p>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
+    </main>
+  </main>
+</template>
+
+<script>
+import axios from 'axios';
+import NProgress from "nprogress";
+import {useUserStore} from "@/stores/user";
+import {mapState} from "pinia";
+import {emitter} from "@/emitter";
+
+export default {
+  data() {
+    return {
+      selectedType: 1,
+      options: [],
+      selectedParent: 0,
+      showOptions: 0,
+      link: "",
+      description: "",
+      amount: 0,
+      selectedOptions: [],
+      deliveryDate: "",
+      userBalance: 0,
+      loading: false,
+      e: emitter
+    }
+  },
+  computed: {
+    optionsToShow() {
+      let parents = []
+
+      for (let i = 0; i < this.options.length; i++) {
+        if(!this.options[i].parent_id) {
+          let parent = this.options[i]
+          parent.options = []
+
+          for (let i = 0; i < this.options.length; i++) {
+            if(this.options[i].parent_id && this.options[i].parent_id === parent.id) {
+              parent.options.push(this.options[i])
+            }
+          }
+
+          parents.push(parent)
+        }
+      }
+
+      return parents
+    },
+    showSubmitButton() {
+      if(this.selectedParent === 0) return false
+      if (this.link === '') return false
+      if (this.description === '') return false
+      if (this.deliveryDate === '') return false
+      if (this.amount <= 0) return false
+      if (this.userBalance < this.priceForCurrentTask) return false
+      if (this.loading) return false
+
+      return true
+    },
+    priceForCurrentTask() {
+      let price = 0
+
+      if (this.selectedParent !== 0){
+        for (let i = 0; i < this.options.length; i++) {
+          if (this.options[i].id === this.selectedParent) {
+            price += this.options[i].price
+            break
+          }
+        }
+
+        for (let s = 0; s < this.selectedOptions.length; s++) {
+          for (let o = 0; o < this.options.length; o++) {
+            if (this.options[o].id === this.selectedOptions[s]) {
+              price += this.options[o].price
+            }
+          }
+        }
+      }
+
+      return price * this.amount
+    },
+    ...mapState(useUserStore, ['user', 'token']),
+  },
+  mounted() {
+    document.title = 'Добавление задачи'
+
+    this.getOptions()
+
+    this.userBalance = this.user.balance
+  },
+  methods: {
+    selectParent(parent) {
+      if(this.selectedParent === 0 || this.selectedParent !== parent.id) this.selectedParent = parent.id
+      else this.selectedParent = 0
+
+      this.selectedOptions = []
+    },
+    selectOption(option) {
+      if(this.selectedParent !== option.parent_id) {
+        this.selectedParent = option.parent_id
+        this.selectedOptions = []
+      }
+
+      let optionIndex = this.selectedOptions.indexOf(option.id)
+      if (optionIndex === -1){
+        this.selectedOptions.push(option.id)
+      } else {
+        this.selectedOptions.splice(optionIndex, 1)
+      }
+    },
+    collectSelectedOptions() {
+      let options = []
+      for (let i = 0; i < this.selectedOptions.length; i++) {
+        options.push(this.selectedOptions[i])
+      }
+      options.push(this.selectedParent)
+
+      return options
+    },
+    getOptions() {
+      axios.get(import.meta.env.VITE_API_URL + 'options/').then(res => {
+        if(res.data.data) {
+          this.options = res.data.data
+        }
+      })
+
+      NProgress.done()
+    },
+    onFormSubmit(e) {
+      e.preventDefault()
+
+      this.loading = true
+      NProgress.start()
+
+      if(this.selectedType === 1) {
+        axios.post(import.meta.env.VITE_API_URL + 'tasks/', {
+          tasks: [
+            {
+              status: 1,
+              amount: this.amount,
+              delivery_date: this.deliveryDate,
+              link: this.link,
+              description: this.description,
+              options: this.collectSelectedOptions(),
+            }
+          ]
+        }, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        }).then(res => {
+          if(res.data.status) {
+            this.e.emit('alert', {
+              title: 'Успешно!',
+              message: 'Задача создана.',
+              alertType: 1
+            })
+            this.e.emit('updateUser', false)
+
+            this.$router.push({'name': 'tasks-list'})
+          }
+        }).catch(err => {
+          if(err.response.data.message) this.e.emit('alert', {
+            title: 'Ошибка.',
+            message: err.response.data.message,
+            alertType: 2
+          })
+          else this.e.emit('alert', {
+            title: 'Ошибка.',
+            message: 'Произошла внутренняя ошибка сервера.',
+            alertType: 2
+          })
+
+          NProgress.done()
+        })
+      }
+    }
+  }
+}
+</script>
+
+<style>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(50px);
+  opacity: 0;
+}
+</style>
