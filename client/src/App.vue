@@ -205,7 +205,9 @@ export default {
 
     this.updateUser(false)
 
-    this.eventsPolling()
+    if (this.token) {
+      this.eventsPolling()
+    }
   },
   methods: {
     ...mapActions(useUserStore, ['setToken', 'setUser', 'setEventsAfter']),

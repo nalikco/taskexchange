@@ -175,19 +175,19 @@ import {moment} from "@/moment";
                 <form @submit="onFormSubmit">
                   <div class="mt-4">
                     <label for="link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ссылка на задачу</label>
-                    <input type="text" v-model="link" id="link" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, ссылка на пост ВКонтакте" required>
+                    <input type="text" @input="onInputChange($event, 'link')" id="link" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, ссылка на пост ВКонтакте" :value="link" required>
                   </div>
                   <div class="mt-6">
                     <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Описание задачи</label>
-                    <textarea id="description" v-model="description" rows="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Описание задачи нужно для того, чтобы исполнители поняли суть задачи" required></textarea>
+                    <textarea id="description" @input="onInputChange($event, 'description')" rows="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Описание задачи нужно для того, чтобы исполнители поняли суть задачи" :value="description" required></textarea>
                   </div>
                   <div class="mt-6">
                     <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Количество</label>
-                    <input type="number" min="1" v-model="amount" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
+                    <input type="number" min="1" @input="onInputChange($event, 'amount')" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" :value="amount" required>
                   </div>
                   <div class="mt-6">
                     <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Количество</label>
-                    <input type="date" :min="new Date().toLocaleDateString('en-ca')" v-model="deliveryDate" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
+                    <input type="date" :min="new Date().toLocaleDateString('en-ca')" @input="onInputChange($event, 'deliveryDate')" :value="deliveryDate" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
                   </div>
                   <div class="mt-6">
                     <transition name="slide-fade">
@@ -259,7 +259,7 @@ export default {
       if (this.link === '') return false
       if (this.description === '') return false
       if (this.deliveryDate === '') return false
-      if (this.amount <= 0) return false
+      if (parseInt(this.amount) <= 0) return false
       if (this.userBalance < this.priceForCurrentTask) return false
       if (this.loading) return false
 
@@ -291,7 +291,7 @@ export default {
         }
       }
 
-      return price * this.amount
+      return price * parseInt(this.amount)
     },
     optionsToShow() {
       let parents = []
@@ -332,6 +332,9 @@ export default {
     this.userBalance = this.user.balance
   },
   methods: {
+    onInputChange(e, field) {
+      this[field] = e.target.value
+    },
     changeExcelFile(e) {
       this.excelFile = e.target.files[0]
     },
@@ -342,7 +345,7 @@ export default {
       for (let i = 0; i < this.tasks[taskIndex].taskOptions.options.length; i++) {
         this.selectedOptions.push(this.tasks[taskIndex].taskOptions.options[i].id)
       }
-      this.amount = this.tasks[taskIndex].amount
+      this.amount = parseInt(this.tasks[taskIndex].amount)
       this.link = this.tasks[taskIndex].link
       this.description = this.tasks[taskIndex].description
       this.deliveryDate = this.tasks[taskIndex].delivery_date
@@ -372,7 +375,7 @@ export default {
       }
 
       parent.options = options
-      parent.amountPrice = amountPrice * this.amount
+      parent.amountPrice = amountPrice * parseInt(this.amount)
 
       return parent
     },
@@ -467,7 +470,7 @@ export default {
       if(this.editTaskIndex !== null) {
         this.tasks[this.editTaskIndex] = {
           status: 1,
-          amount: this.amount,
+          amount: parseInt(this.amount),
           delivery_date: this.deliveryDate,
           link: this.link,
           description: this.description,
@@ -489,7 +492,7 @@ export default {
           tasks: [
             {
               status: 1,
-              amount: this.amount,
+              amount: parseInt(this.amount),
               delivery_date: this.deliveryDate,
               link: this.link,
               description: this.description,
@@ -526,7 +529,7 @@ export default {
       } else if (this.selectedType === 2) {
         let task = {
           status: 1,
-          amount: this.amount,
+          amount: parseInt(this.amount),
           delivery_date: this.deliveryDate,
           link: this.link,
           description: this.description,
