@@ -3,8 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"github.com/xuri/excelize/v2"
+	"os"
+	"strconv"
 	"taskexchange"
 	"taskexchange/pkg/repository"
+	"time"
 )
 
 type TasksService struct {
@@ -55,6 +60,76 @@ func (s *TasksService) Create(task taskexchange.Task) (int, error) {
 	err = s.usersRepo.Update(customer.Id, updateUserInput)
 
 	return taskId, nil
+}
+
+func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
+	f, err := excelize.OpenFile(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			logrus.Error(err)
+		}
+
+		if err := os.Remove(filename); err != nil {
+			logrus.Error(err)
+		}
+	}()
+
+	sheetMap := f.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		task := taskexchange.Task{}
+
+		rows, err := f.GetRows(sheetName)
+		if err != nil {
+			return err
+		}
+
+		if len(rows) < 2 || len(rows[0]) < 4 || len(rows[1]) < 1 {
+			return errors.New("wrong excel format, check documentation")
+		}
+
+		task.Amount, err = strconv.Atoi(rows[0][3])
+		if err != nil {
+			return err
+		}
+
+		task.CustomerId = userId
+		task.Status = 1
+		task.Link = rows[0][0]
+		task.Description = rows[0][1]
+		task.DeliveryDate, err = time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", rows[0][2]))
+		if err != nil {
+			return err
+		}
+
+		mainOption, err := s.optionsRepo.GetByTitle(rows[1][0])
+		if err != nil {
+			return err
+		}
+
+		task.Options = append(task.Options, mainOption)
+
+		if len(rows) > 2 {
+			for _, optionTitle := range rows[2] {
+				option, err := s.optionsRepo.GetByTitle(optionTitle)
+				if err != nil {
+					return err
+				}
+
+				task.Options = append(task.Options, option)
+			}
+		}
+
+		_, err = s.Create(task)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error {

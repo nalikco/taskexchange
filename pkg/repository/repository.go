@@ -22,6 +22,7 @@ type Options interface {
 	GetAll() ([]taskexchange.Option, error)
 	GetById(id int) (taskexchange.Option, error)
 	GetByIds(ids []int) ([]taskexchange.Option, error)
+	GetByTitle(title string) (taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
 }

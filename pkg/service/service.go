@@ -41,6 +41,7 @@ type Events interface {
 
 type Tasks interface {
 	Create(task taskexchange.Task) (int, error)
+	CreateFromExcelFile(userId int, filename string) error
 	Update(id int, input taskexchange.UpdateTaskInput) error
 	GetById(id int) (taskexchange.Task, error)
 	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)

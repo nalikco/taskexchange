@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"taskexchange"
 	"time"
@@ -114,6 +115,47 @@ func (h *Handler) createTask(c *gin.Context) {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
+}
+
+func (h *Handler) createTaskFromExcelFile(c *gin.Context) {
+	err := checkUserType(c, 2)
+	if err != nil {
+		return
+	}
+
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	extension := filepath.Ext(file.Filename)
+	if extension != ".xlsx" {
+		newErrorResponse(c, http.StatusBadRequest, "wrong file extension")
+		return
+	}
+
+	filename := fmt.Sprintf("uploads/tmp/%d-%s", time.Now().Unix(), file.Filename)
+
+	if err := c.SaveUploadedFile(file, filename); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.services.Tasks.CreateFromExcelFile(userId, filename)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, statusResponse{

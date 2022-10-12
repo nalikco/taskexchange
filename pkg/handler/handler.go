@@ -70,6 +70,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		tasks := api.Group("/tasks")
 		{
 			tasks.POST("/", h.userIdentity, h.createTask)
+			tasks.POST("/excel", h.userIdentity, h.createTaskFromExcelFile)
 			tasks.GET("/", h.getAllTasks)
 			tasks.GET("/:id", h.getTaskById)
 			tasks.GET("/user/:user_id", h.getUserAllTasks)
