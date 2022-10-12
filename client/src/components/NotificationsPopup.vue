@@ -53,7 +53,7 @@ export default {
     onEventClick(event) {
       this.$emit('closePopup')
 
-      axios.put(import.meta.env.VITE_API_URL + 'events/' + event.id + '/view', {}, {
+      axios.put(import.meta.env.VITE_API_URL + 'events/' + event.id, {}, {
         headers: { Authorization: `Bearer ${this.token}` },
       }).then(res => {
         this.$emit('updateEvents')

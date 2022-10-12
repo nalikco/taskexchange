@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"taskexchange"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Users interface {
@@ -20,6 +21,7 @@ type Options interface {
 	Create(parentId int, option taskexchange.Option) (int, error)
 	GetAll() ([]taskexchange.Option, error)
 	GetById(id int) (taskexchange.Option, error)
+	GetByIds(ids []int) ([]taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
 }
@@ -36,32 +38,46 @@ type Events interface {
 	Delete(userId, id int) error
 }
 
-type Task interface {
+type Tasks interface {
+	Create(task taskexchange.Task) (int, error)
+	Update(id int, input taskexchange.UpdateTaskInput) error
+	GetById(id int) (taskexchange.Task, error)
+	FindAll(limit, offset int) ([]taskexchange.Task, error)
+	FindAllByUser(userId, limit, offset int) ([]taskexchange.Task, error)
+	CountAll() (int, error)
+	CountAllByUser(userId int) (int, error)
+	Delete(id int) error
 }
 
-type TaskOption interface {
+type TaskOptions interface {
+	Create(taskId, optionId int) (int, error)
+	GetById(taskOptionId int) (taskexchange.TaskOption, error)
+	GetByTaskId(taskId int) ([]taskexchange.TaskOption, error)
+	Delete(taskOptionId int) error
 }
 
-type Offer interface {
+type Offers interface {
 }
 
-type Order interface {
+type Orders interface {
 }
 
 type Repository struct {
 	Users
 	Events
 	Options
-	Task
-	TaskOption
-	Offer
-	Order
+	Tasks
+	TaskOptions
+	Offers
+	Orders
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		Users:   NewUsersPostgres(db),
-		Options: NewOptionsPostgres(db),
-		Events:  NewEventsPostgres(db),
+		Users:       NewUsersPostgres(db),
+		Options:     NewOptionsPostgres(db),
+		Events:      NewEventsPostgres(db),
+		Tasks:       NewTasksPostgres(db),
+		TaskOptions: NewTaskOptionsPostgres(db),
 	}
 }

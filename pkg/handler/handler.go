@@ -57,23 +57,24 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			options.DELETE("/:id", h.userIdentity, h.deleteOption)
 		}
 
-		tasks := api.Group("/tasks")
-		{
-			tasks.POST("/", h.userIdentity, h.createTask)
-			tasks.GET("/", h.getAllTasks)
-			tasks.GET("/:id", h.getTaskById)
-			tasks.PUT("/:id", h.userIdentity, h.updateTask)
-			tasks.DELETE("/:id", h.userIdentity, h.deleteTask)
-		}
-
 		events := api.Group("/events")
 		{
 			events.GET("/", h.userIdentity, h.findAllEvents)
 			events.GET("/polling", h.userIdentity, h.pollingEvents)
 			events.GET("/new", h.userIdentity, h.findNewEvents)
 			events.PUT("/view-all", h.userIdentity, h.viewAllEvents)
-			events.PUT("/:id/view", h.userIdentity, h.viewEvent)
-			events.DELETE("/:id/delete", h.userIdentity, h.deleteEvent)
+			events.PUT("/:id", h.userIdentity, h.viewEvent)
+			events.DELETE("/:id", h.userIdentity, h.deleteEvent)
+		}
+
+		tasks := api.Group("/tasks")
+		{
+			tasks.POST("/", h.userIdentity, h.createTask)
+			tasks.GET("/", h.getAllTasks)
+			tasks.GET("/:id", h.getTaskById)
+			tasks.GET("/user/:user_id", h.getUserAllTasks)
+			tasks.PUT("/:id", h.userIdentity, h.updateTask)
+			tasks.DELETE("/:id", h.userIdentity, h.deleteTask)
 		}
 	}
 

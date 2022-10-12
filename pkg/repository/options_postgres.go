@@ -53,6 +53,25 @@ func (r *OptionsPostgres) GetById(id int) (taskexchange.Option, error) {
 	return option, err
 }
 
+func (r *OptionsPostgres) GetByIds(ids []int) ([]taskexchange.Option, error) {
+	var options []taskexchange.Option
+	var idsQuery []string
+	var args []interface{}
+
+	for i, id := range ids {
+		idsQuery = append(idsQuery, fmt.Sprintf("$%d", i+1))
+		args = append(args, id)
+	}
+
+	setQuery := strings.Join(idsQuery, ",")
+
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s) ORDER BY created_at DESC", optionsTable, setQuery)
+
+	err := r.db.Select(&options, query, args...)
+
+	return options, err
+}
+
 func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)

@@ -40,6 +40,11 @@ type Events interface {
 }
 
 type Tasks interface {
+	Create(task taskexchange.Task) (int, error)
+	Update(id int, input taskexchange.UpdateTaskInput) error
+	GetById(id int) (taskexchange.Task, error)
+	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)
+	Delete(id int, task taskexchange.Task, customerId int) error
 }
 
 type TaskOptions interface {
@@ -68,5 +73,6 @@ func NewService(repos *repository.Repository) *Service {
 		Users:         NewUsersService(repos.Users),
 		Options:       NewOptionService(repos.Options),
 		Events:        NewEventsService(repos.Events),
+		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options),
 	}
 }
