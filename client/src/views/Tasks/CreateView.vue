@@ -16,7 +16,7 @@ import {moment} from "@/moment";
           <transition name="slide-fade">
             <div v-if="selectedType === 1 || selectedType === 0">
               <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для разовой задачи</span></h2>
-              <p class="text-gray-700 mt-3">
+              <p class="text-gray-700 mt-3 text-sm">
                 Краткое описание для разовой задачи
               </p>
             </div>
@@ -24,7 +24,7 @@ import {moment} from "@/moment";
           <transition name="slide-fade">
             <div v-if="selectedType === 2">
               <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для большой задачи</span></h2>
-              <p class="text-gray-700 mt-3">
+              <p class="text-gray-700 mt-3 text-sm">
                 Краткое описание для большой задачи
               </p>
             </div>
@@ -32,13 +32,22 @@ import {moment} from "@/moment";
           <transition name="slide-fade">
             <div v-if="selectedType === 3">
               <h2 class="text-2xl font-medium">Что хотите заказать? - <span class="underline">для Excel-файла</span></h2>
-              <p class="text-gray-700 mt-3">
-                Краткое описание для Excel-файла
+              <p class="text-gray-700 mt-3 text-sm">
+                Допускаются только файлы формата .xlsx. Заполните файл необходимыми данными (ссылка, описание, дата сдачи, категория и опции), каждая задача в отдельном листе.
+                <br><br>
+                1-A — ссылка на задачу, 1-B — описание задачи, 1-C — дата сдачи в формате xx.xx.xxxx, 1-D - количество выполнений
+                <br>
+                2-A — название категории, 3-... — опции (могут быть пустыми)
+                <br><br>
+                Категории и опции можете взять с данной страницы, выбрав разовую или большую задачу. Название категории и опции должны быть точные, но без учёта регистра.
+                <br>
+                Пример заполнения:
+                <img src="@/assets/img/create-tasks-excel-example.png" class="m-auto mt-5 mb-10 border border-2 rounded-lg w-full md:w-3/4 lg:w-1/2">
               </p>
             </div>
           </transition>
           <div class="bg-white mt-7 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
-            <div @click="selectedType = 1" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 1}">
+            <div @click="selectType(1)" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 1}">
               <div class="float-left ml-2 mt-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -155,7 +164,7 @@ import {moment} from "@/moment";
                       <div v-if="parent.options.length === 0" class="mt-2 text-center text-slate-500">
                         Нет опций для данной категории
                       </div>
-                      <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow-lg hover:shadow-none transition duration-300 bg-slate-100 rounded-full" :class="{'bg-blue-500 text-white shadow-none': selectedOptions.indexOf(option.id) !== -1}">
+                      <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow hover:shadow-lg transition duration-300 bg-slate-100 rounded-full" :class="{'bg-blue-500 text-white shadow-lg': selectedOptions.indexOf(option.id) !== -1}">
                         {{ option.title }} <span :class="{'text-white': selectedOptions.indexOf(option.id) !== -1, 'text-slate-500': selectedOptions.indexOf(option.id) === -1}">{{ $filters.currencyFormat(option.price) }}</span>
                       </div>
                     </div>
@@ -199,6 +208,16 @@ import {moment} from "@/moment";
               </div>
             </div>
           </transition>
+          <transition name="slide-fade">
+            <div v-if="selectedType === 3" class="bg-white rounded-xl shadow hover:shadow-xl transition duration-300 py-7 px-5 mt-5">
+              <input @change="changeExcelFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="block w-full text-sm text-slate-900 bg-gray-100 rounded-lg border border-gray-100 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file">
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">только .xlsx</p>
+
+              <button @click="submitExcelFileForm" :disabled="excelFile === null" class="mt-5 text-white w-full bg-blue-600 transition duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" :class="{'hover:bg-blue-800': excelFile !== null,'opacity-50': excelFile === null }">
+                Добавить
+              </button>
+            </div>
+          </transition>
         </div>
       </div>
     </main>
@@ -230,6 +249,7 @@ export default {
       closeSubmitForm: false,
       userBalance: 0,
       loading: false,
+      excelFile: null,
       e: emitter
     }
   },
@@ -312,6 +332,9 @@ export default {
     this.userBalance = this.user.balance
   },
   methods: {
+    changeExcelFile(e) {
+      this.excelFile = e.target.files[0]
+    },
     editTask(taskIndex) {
       this.editTaskIndex = taskIndex
       this.selectedParent = this.tasks[taskIndex].taskOptions.id
@@ -325,6 +348,12 @@ export default {
       this.deliveryDate = this.tasks[taskIndex].delivery_date
 
       this.closeSubmitForm = false
+    },
+    selectType(type) {
+      this.selectedType = type
+      if (type === 1) {
+        this.closeSubmitForm = false
+      }
     },
     taskOptionsToShow(taskOptions) {
       let parent = {}
@@ -510,6 +539,44 @@ export default {
 
         this.clearForm()
       }
+    },
+    submitExcelFileForm() {
+      if(!this.excelFile) return
+      if(this.loading) return
+
+      let formData = new FormData();
+      formData.append('file', this.excelFile);
+
+      axios.post(import.meta.env.VITE_API_URL + 'tasks/excel', formData, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res => {
+        if(res.data.status) {
+          this.e.emit('alert', {
+            title: 'Успешно!',
+            message: 'Задачи созданы.',
+            alertType: 1
+          })
+          this.e.emit('updateUser', false)
+
+          this.$router.push({'name': 'tasks-list'})
+        }
+      }).catch(err => {
+        if(err.response.data.message) this.e.emit('alert', {
+          title: 'Ошибка.',
+          message: err.response.data.message,
+          alertType: 2
+        })
+        else this.e.emit('alert', {
+          title: 'Ошибка.',
+          message: 'Произошла внутренняя ошибка сервера.',
+          alertType: 2
+        })
+
+        NProgress.done()
+      })
     },
     clearForm() {
       this.amount = 1
