@@ -53,11 +53,18 @@ func (r *OptionsPostgres) GetById(id int) (taskexchange.Option, error) {
 	return option, err
 }
 
-func (r *OptionsPostgres) GetByTitle(title string) (taskexchange.Option, error) {
+func (r *OptionsPostgres) GetByTitle(title string, parentId int) (taskexchange.Option, error) {
 	var option taskexchange.Option
+	var err error
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE LOWER(title)=LOWER($1) AND deleted_at IS NULL", optionsTable)
-	err := r.db.Get(&option, query, title)
+	if parentId == 0 {
+		query := fmt.Sprintf("SELECT * FROM %s WHERE LOWER(title)=LOWER($1) AND deleted_at IS NULL", optionsTable)
+		err = r.db.Get(&option, query, title)
+
+	} else {
+		query := fmt.Sprintf("SELECT * FROM %s WHERE LOWER(title)=LOWER($1) AND deleted_at IS NULL AND parent_id=$2", optionsTable)
+		err = r.db.Get(&option, query, title, parentId)
+	}
 
 	return option, err
 }

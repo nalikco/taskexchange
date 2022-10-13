@@ -112,7 +112,7 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 			return err
 		}
 
-		mainOption, err := s.optionsRepo.GetByTitle(rows[1][0])
+		mainOption, err := s.optionsRepo.GetByTitle(rows[1][0], 0)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 
 		if len(rows) > 2 {
 			for _, optionTitle := range rows[2] {
-				option, err := s.optionsRepo.GetByTitle(optionTitle)
+				option, err := s.optionsRepo.GetByTitle(optionTitle, mainOption.Id)
 				if err != nil {
 					return err
 				}
@@ -178,11 +178,11 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 		if err != nil {
 			return err
 		}
+		customer.Balance += task.CalculatePrice()
 
 		for _, option := range task.Options {
 			taskOptionId := 0
 
-			customer.Balance += option.Price
 			for _, taskOption := range taskOptions {
 				if taskOption.OptionId == option.Id {
 					taskOptionId = taskOption.Id

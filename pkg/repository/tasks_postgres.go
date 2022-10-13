@@ -75,7 +75,7 @@ func (r *TasksPostgres) Update(id int, input taskexchange.UpdateTaskInput) error
 func (r *TasksPostgres) GetById(id int) (taskexchange.Task, error) {
 	var task taskexchange.Task
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", tasksTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL AND delivery_date + INTERVAL '1 day' > now()", tasksTable)
 	err := r.db.Get(&task, query, id)
 
 	return task, err
@@ -83,7 +83,7 @@ func (r *TasksPostgres) GetById(id int) (taskexchange.Task, error) {
 
 func (r *TasksPostgres) FindAll(limit, offset int) ([]taskexchange.Task, error) {
 	var tasks []taskexchange.Task
-	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at is null ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at is null AND delivery_date + INTERVAL '1 day' > now() ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
 	err := r.db.Select(&tasks, query)
 
 	return tasks, err
@@ -92,7 +92,7 @@ func (r *TasksPostgres) FindAll(limit, offset int) ([]taskexchange.Task, error) 
 func (r *TasksPostgres) CountAll() (int, error) {
 	var count int
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null", tasksTable)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null AND delivery_date + INTERVAL '1 day' > now()", tasksTable)
 	err := r.db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return 0, err
@@ -103,7 +103,7 @@ func (r *TasksPostgres) CountAll() (int, error) {
 
 func (r *TasksPostgres) FindAllByUser(userId, limit, offset int) ([]taskexchange.Task, error) {
 	var tasks []taskexchange.Task
-	query := fmt.Sprintf("SELECT * FROM %s WHERE customer_id=$1 AND deleted_at is null ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE customer_id=$1 ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
 	err := r.db.Select(&tasks, query, userId)
 
 	return tasks, err
@@ -112,7 +112,7 @@ func (r *TasksPostgres) FindAllByUser(userId, limit, offset int) ([]taskexchange
 func (r *TasksPostgres) CountAllByUser(userId int) (int, error) {
 	var count int
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE customer_id=$1 AND deleted_at is null", tasksTable)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE customer_id=$1", tasksTable)
 	err := r.db.QueryRow(query, userId).Scan(&count)
 	if err != nil {
 		return 0, err

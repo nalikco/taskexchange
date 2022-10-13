@@ -261,7 +261,7 @@ func (h *Handler) updateTask(c *gin.Context) {
 		return
 	}
 
-	if len(*input.Options) == 0 {
+	if input.Options != nil && len(*input.Options) == 0 {
 		newErrorResponse(c, http.StatusBadRequest, "wrong options length")
 		return
 	}
@@ -283,6 +283,24 @@ func (h *Handler) updateTask(c *gin.Context) {
 	}
 	if task.CustomerId != userId {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
+		return
+	}
+
+	if task.Status != 0 {
+		if input.Status != nil {
+			err = h.services.Tasks.Update(id, taskexchange.UpdateTaskInput{
+				Status: input.Status,
+			})
+			if err != nil {
+				newErrorResponse(c, http.StatusInternalServerError, err.Error())
+				return
+			}
+		}
+
+		c.JSON(http.StatusOK, statusResponse{
+			Status: "ok",
+		})
+
 		return
 	}
 
