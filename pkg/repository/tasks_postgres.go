@@ -75,7 +75,7 @@ func (r *TasksPostgres) Update(id int, input taskexchange.UpdateTaskInput) error
 func (r *TasksPostgres) GetById(id int) (taskexchange.Task, error) {
 	var task taskexchange.Task
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL AND delivery_date + INTERVAL '1 day' > now()", tasksTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", tasksTable)
 	err := r.db.Get(&task, query, id)
 
 	return task, err
