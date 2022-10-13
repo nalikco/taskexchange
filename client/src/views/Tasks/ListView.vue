@@ -167,9 +167,6 @@ export default {
     setTaskStatus(status, taskId) {
       NProgress.start()
 
-      console.log(window.scrollY)
-      window.scrollTo(0, 500)
-
       axios.put(import.meta.env.VITE_API_URL + 'tasks/' + taskId, {
         status: status
       }, {
