@@ -222,6 +222,10 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 			task.Options = append(task.Options, option)
 		}
 
+		if input.Amount != nil {
+			task.Amount = *input.Amount
+		}
+
 		taskPrice := task.CalculatePrice()
 
 		if customer.Balance < taskPrice {

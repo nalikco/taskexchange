@@ -168,6 +168,9 @@ export default {
     this.userBalance = this.user.balance
   },
   methods: {
+    onInputChange(e, field) {
+      this[field] = e.target.value
+    },
     getOptions() {
       axios.get(import.meta.env.VITE_API_URL + 'options/').then(res => {
         if(res.data.data) {
@@ -213,7 +216,7 @@ export default {
       }
 
       axios.put(import.meta.env.VITE_API_URL + 'tasks/' + this.task.id, {
-        amount: this.amount,
+        amount: parseInt(this.amount),
         delivery_date: this.deliveryDate,
         link: this.link,
         description: this.description,
@@ -238,6 +241,8 @@ export default {
             alertType: 2
           })
         }
+
+        NProgress.done()
       })
     },
     selectParent(parent) {
