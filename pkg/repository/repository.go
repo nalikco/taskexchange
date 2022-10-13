@@ -47,6 +47,7 @@ type Tasks interface {
 	FindAllByUser(userId, limit, offset int) ([]taskexchange.Task, error)
 	CountAll() (int, error)
 	CountAllByUser(userId int) (int, error)
+	CountActiveByUser(userId int) (int, error)
 	Delete(id int) error
 }
 

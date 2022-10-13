@@ -323,6 +323,10 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 	return tasks, pagination, err
 }
 
+func (s *TasksService) CountActiveByUser(userId int) (int, error) {
+	return s.tasksRepo.CountActiveByUser(userId)
+}
+
 func (s *TasksService) Delete(id int, task taskexchange.Task, customerId int) error {
 	customer, err := s.usersRepo.GetById(customerId, true)
 	if err != nil {

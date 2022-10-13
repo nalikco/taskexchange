@@ -45,6 +45,7 @@ type Tasks interface {
 	Update(id int, input taskexchange.UpdateTaskInput) error
 	GetById(id int) (taskexchange.Task, error)
 	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)
+	CountActiveByUser(userId int) (int, error)
 	Delete(id int, task taskexchange.Task, customerId int) error
 }
 

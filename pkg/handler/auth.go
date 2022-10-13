@@ -82,7 +82,10 @@ func (h *Handler) getMyUser(c *gin.Context) {
 		return
 	}
 
+	activeTasksCount, err := h.services.Tasks.CountActiveByUser(id)
+
 	c.JSON(http.StatusOK, getOneUserResponse{
-		Data: user,
+		Data:             user,
+		ActiveTasksCount: activeTasksCount,
 	})
 }

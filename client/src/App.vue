@@ -251,7 +251,10 @@ export default {
         axios.get(import.meta.env.VITE_API_URL + 'users/me', {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
-          this.setUser(res.data.data)
+          let data = res.data.data
+          data.activeTasksCount = res.data.active_tasks_count
+
+          this.setUser(data)
           this.getNewEvents()
 
           if(redirect) this.e.emit('redirectAfterLogin')

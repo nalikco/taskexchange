@@ -121,6 +121,18 @@ func (r *TasksPostgres) CountAllByUser(userId int) (int, error) {
 	return count, nil
 }
 
+func (r *TasksPostgres) CountActiveByUser(userId int) (int, error) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE customer_id=$1 AND status=1", tasksTable)
+	err := r.db.QueryRow(query, userId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *TasksPostgres) Delete(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1 AND deleted_at is null", tasksTable)
 	_, err := r.db.Exec(query, id)

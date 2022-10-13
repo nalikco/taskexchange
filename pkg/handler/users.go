@@ -64,7 +64,8 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 }
 
 type getOneUserResponse struct {
-	Data taskexchange.User `json:"data"`
+	Data             taskexchange.User `json:"data"`
+	ActiveTasksCount int               `json:"active_tasks_count"`
 }
 
 func (h *Handler) getUserById(c *gin.Context) {

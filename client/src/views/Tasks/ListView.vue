@@ -13,7 +13,7 @@ import {moment} from "@/moment";
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <ProfileInfo />
         <div class="mt-7 mx-3 md:mx-0">
-          <div v-for="task in tasks" class="bg-white text-sm mt-3 shadow rounded-xl hover:shadow-xl transition duration-300 flex flex-col">
+          <div v-for="task in tasks" v-bind:key="task.id" :id="'task_' + task.id" class="bg-white text-sm mt-3 shadow rounded-xl hover:shadow-xl transition duration-300 flex flex-col">
             <div class="px-4 py-3 bg-blue-400 text-white rounded-t-xl" :class="{
               'bg-slate-400': task.status === 0 && !task.deleted_at && moment(task.delivery_date).utc(0).add(1, 'days') > moment().utc(0),
               'bg-blue-400': task.status === 1 && !task.deleted_at && moment(task.delivery_date).utc(0).add(1, 'days') > moment().utc(0),
@@ -167,12 +167,16 @@ export default {
     setTaskStatus(status, taskId) {
       NProgress.start()
 
+      console.log(window.scrollY)
+      window.scrollTo(0, 500)
+
       axios.put(import.meta.env.VITE_API_URL + 'tasks/' + taskId, {
         status: status
       }, {
         headers: { Authorization: `Bearer ${this.token}` },
       }).then(res => {
         this.getTasks(false)
+        this.e.emit('updateUser', false)
 
         NProgress.done()
       })

@@ -36,7 +36,7 @@
       <div class="ml-20 py-3">
         Задачи
         <br>
-        <span class="text-gray-500 font-medium">0 {{ $filters.declOfNum(0, ['активная', 'активных', 'активных']) }}</span>
+        <span class="text-gray-500 font-medium">{{ user.activeTasksCount }} {{ $filters.declOfNum(user.activeTasksCount, ['активная', 'активных', 'активных']) }}</span>
       </div>
     </div>
     <div class="bg-white shadow rounded-lg text-sm py-2 px-2 hover:shadow-xl transition duration-300">
