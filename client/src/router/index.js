@@ -35,16 +35,20 @@ const router = createRouter({
       component: () => import('../views/Tasks/CreateView.vue'),
       meta: { requiredCustomer: true }
     }, {
-      path: '/tasks',
-      name: 'tasks-list',
-      component: () => import('../views/Tasks/ListView.vue'),
+      path: '/tasks/my',
+      name: 'tasks-my',
+      component: () => import('../views/Tasks/MyView.vue'),
       meta: { requiredCustomer: true }
     }, {
       path: '/tasks/:id',
       name: 'edit-task',
       component: () => import('../views/Tasks/EditView.vue'),
       meta: { requiredCustomer: true }
-    },
+    }, {
+      path: '/tasks',
+      name: 'tasks',
+      component: () => import('../views/Tasks/ListView.vue'),
+    }
   ]
 })
 

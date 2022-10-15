@@ -103,6 +103,7 @@ func (r *TasksPostgres) CountAll() (int, error) {
 
 func (r *TasksPostgres) FindAllByUser(userId, limit, offset int) ([]taskexchange.Task, error) {
 	var tasks []taskexchange.Task
+
 	query := fmt.Sprintf("SELECT * FROM %s WHERE customer_id=$1 ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
 	err := r.db.Select(&tasks, query, userId)
 

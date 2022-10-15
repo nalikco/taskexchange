@@ -67,7 +67,7 @@ import {moment} from "@/moment";
                     Итоговая стоимость данной задачи: {{ $filters.currencyFormat(priceForCurrentTask) }}
                   </p>
                 </button>
-                <RouterLink :to="{ name: 'tasks-list' }" class="flex flex-col w-full text-center px-auto bg-slate-200 transition duration-300 focus:ring-4 focus:outline-none focus:ring-slate-300 dark:focus:ring-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 hover:bg-slate-300">
+                <RouterLink :to="{ name: 'tasks-my' }" class="flex flex-col w-full text-center px-auto bg-slate-200 transition duration-300 focus:ring-4 focus:outline-none focus:ring-slate-300 dark:focus:ring-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 hover:bg-slate-300">
                   К списку задач
                 </RouterLink>
               </div>

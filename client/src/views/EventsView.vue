@@ -70,6 +70,7 @@ import axios from "axios"
 import {mapState} from "pinia";
 import {useUserStore} from "@/stores/user";
 import NProgress from "nprogress";
+import {emitter} from "../emitter";
 
 export default {
   data() {
@@ -81,6 +82,7 @@ export default {
       pages: 0,
       count: 0,
       loading: false,
+      e: emitter
     }
   },
   computed: {
@@ -123,6 +125,8 @@ export default {
     viewAllEvents() {
       axios.put(import.meta.env.VITE_API_URL + 'events/view-all', {}, {
         headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        this.e.emit('updateNewEvents')
       })
     }
   },

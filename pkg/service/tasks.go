@@ -3,13 +3,14 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/xuri/excelize/v2"
 	"os"
 	"strconv"
 	"taskexchange"
 	"taskexchange/pkg/repository"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/xuri/excelize/v2"
 )
 
 type TasksService struct {
@@ -17,14 +18,16 @@ type TasksService struct {
 	taskOptionsRepo repository.TaskOptions
 	optionsRepo     repository.Options
 	usersRepo       repository.Users
+	offersRepo      repository.Offers
 }
 
-func NewTasksService(tasksRepo repository.Tasks, taskOptionsRepo repository.TaskOptions, usersRepo repository.Users, optionsRepo repository.Options) *TasksService {
+func NewTasksService(tasksRepo repository.Tasks, taskOptionsRepo repository.TaskOptions, usersRepo repository.Users, optionsRepo repository.Options, offersRepo repository.Offers) *TasksService {
 	return &TasksService{
 		tasksRepo:       tasksRepo,
 		taskOptionsRepo: taskOptionsRepo,
 		optionsRepo:     optionsRepo,
 		usersRepo:       usersRepo,
+		offersRepo:      offersRepo,
 	}
 }
 
@@ -158,6 +161,9 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 	}
 
 	err = s.usersRepo.Update(customer.Id, updateUserInput)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -318,6 +324,15 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 		}
 
 		tasks[i].Options = options
+
+		if userId != 0 {
+			offers, err := s.offersRepo.FindAllByTask(task.Id)
+			if err != nil {
+				return []taskexchange.Task{}, pagination, err
+			}
+
+			tasks[i].Offers = offers
+		}
 	}
 
 	return tasks, pagination, err

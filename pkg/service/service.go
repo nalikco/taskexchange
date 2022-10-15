@@ -49,13 +49,14 @@ type Tasks interface {
 	Delete(id int, task taskexchange.Task, customerId int) error
 }
 
-type TaskOptions interface {
-}
-
 type Offers interface {
+	GetPerformerActive(performerId int) ([]taskexchange.Offer, error)
+	Make(performerId, taskId int) (int, error)
+	ChangeStatus(offerId, customerId, status int) error
 }
 
 type Orders interface {
+	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
 }
 
 type Service struct {
@@ -64,7 +65,6 @@ type Service struct {
 	Events
 	Options
 	Tasks
-	TaskOptions
 	Offers
 	Orders
 }
@@ -75,6 +75,8 @@ func NewService(repos *repository.Repository) *Service {
 		Users:         NewUsersService(repos.Users),
 		Options:       NewOptionService(repos.Options),
 		Events:        NewEventsService(repos.Events),
-		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options),
+		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options, repos.Offers),
+		Offers:        NewOffersService(repos.Offers, repos.Tasks, repos.Users, repos.Events, repos.Orders),
+		Orders:        NewOrdersService(repos.Orders),
 	}
 }

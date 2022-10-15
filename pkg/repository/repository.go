@@ -59,9 +59,19 @@ type TaskOptions interface {
 }
 
 type Offers interface {
+	Create(performerId, taskId int) (int, error)
+	Update(offerId int, input taskexchange.UpdateOfferInput) error
+	FindPerformerActiveOffers(performerId int) ([]taskexchange.Offer, error)
+	FindAllByTask(taskId int) ([]taskexchange.Offer, error)
+	FindByTaskAndStatus(taskId, status int) ([]taskexchange.Offer, error)
+	FindOneById(offerId int) (taskexchange.Offer, error)
+	FindOneByPerformerIdAndTaskIdAndStatus(performerId, taskId, status int) (taskexchange.Offer, error)
 }
 
 type Orders interface {
+	Create(offerId, taskId int) (int, error)
+	FindActiveByTaskId(taskId int) ([]taskexchange.Order, error)
+	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
 }
 
 type Repository struct {
@@ -81,5 +91,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Events:      NewEventsPostgres(db),
 		Tasks:       NewTasksPostgres(db),
 		TaskOptions: NewTaskOptionsPostgres(db),
+		Offers:      NewOffersPostgres(db),
+		Orders:      NewOrdersPostgres(db),
 	}
 }

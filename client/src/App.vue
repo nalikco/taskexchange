@@ -157,6 +157,7 @@ export default {
     return {
       topMenu: [
         {'to': 'home', 'title': 'Главная'},
+        {'to': 'tasks', 'title': 'Биржа'},
       ],
       alerts: [],
       alertTimers: [],
@@ -183,7 +184,7 @@ export default {
         return [
           {'to': 'cabinet', 'title': 'Кабинет заказчика'},
           {'to': 'create-task', 'title': 'Добавить задачу'},
-          {'to': 'tasks-list', 'title': 'Мои задачи'},
+          {'to': 'tasks-my', 'title': 'Мои задачи'},
           {'to': 'home', 'title': 'Мои заказы'},
         ]
       } else if (this.user.type === 3) {
@@ -201,6 +202,10 @@ export default {
 
     this.e.on('updateUser', (redirect = false, e) => {
       this.updateUser(redirect)
+    })
+
+    this.e.on('updateNewEvents', (e) => {
+      this.getNewEvents()
     })
 
     this.updateUser(false)

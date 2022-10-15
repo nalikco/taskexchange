@@ -70,12 +70,6 @@ func (h *Handler) getMyUser(c *gin.Context) {
 		return
 	}
 
-	// FOR TEST
-	//if id == 3 {
-	//	_, _ = h.services.Events.Create(2, "Пользователь обновил страницу", "/cabinet")
-	//}
-	//
-
 	user, err := h.services.Users.GetById(id, true)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

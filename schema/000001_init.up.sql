@@ -56,6 +56,7 @@ CREATE TABLE orders
 (
     id serial not null unique,
     offer_id int references offers(id) on delete cascade not null,
+    task_id int references tasks(id) on delete cascade not null,
     status int default(0) not null,
     canceled_user_id int references users(id) on delete cascade,
     return_comment text,

@@ -447,7 +447,7 @@ export default {
           })
           this.e.emit('updateUser', false)
 
-          this.$router.push({'name': 'tasks-list'})
+          this.$router.push({'name': 'tasks-my'})
         }
       }).catch(err => {
         if(err.response.data.message) this.e.emit('alert', {
@@ -510,7 +510,7 @@ export default {
             })
             this.e.emit('updateUser', false)
 
-            this.$router.push({'name': 'tasks-list'})
+            this.$router.push({'name': 'tasks-my'})
           }
         }).catch(err => {
           if(err.response.data.message) this.e.emit('alert', {
@@ -564,7 +564,7 @@ export default {
           })
           this.e.emit('updateUser', false)
 
-          this.$router.push({'name': 'tasks-list'})
+          this.$router.push({'name': 'tasks-my'})
         }
       }).catch(err => {
         if(err.response.data.message) this.e.emit('alert', {

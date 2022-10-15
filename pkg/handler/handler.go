@@ -77,6 +77,21 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			tasks.PUT("/:id", h.userIdentity, h.updateTask)
 			tasks.DELETE("/:id", h.userIdentity, h.deleteTask)
 		}
+
+		offers := api.Group("/offers")
+		{
+			offers.GET("/performer", h.userIdentity, h.GetPerformerActiveOffers)
+			offers.POST("/", h.userIdentity, h.CreateOffer)
+			offers.PUT("/:id", h.userIdentity, h.UpdateOffer)
+		}
+
+		orders := api.Group("/orders")
+		{
+			orders.GET("/user", h.userIdentity, h.getAllUserOrders)
+			orders.GET("/performer-active", h.userIdentity, h.getAllPerformerActiveOrders)
+			orders.GET("/:id", h.userIdentity, h.getOrderById)
+			orders.PUT("/:id", h.userIdentity, h.updateOrder)
+		}
 	}
 
 	router.NoRoute(h.serveVue)

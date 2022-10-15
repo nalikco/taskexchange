@@ -17,8 +17,8 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
             Здравствуйте, <span class="font-medium">{{ user.username }}</span>
 
             <div class="mt-4 flex flex-wrap">
-              <RouterLink :to="{ name: 'tasks-list' }" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои задачи</RouterLink>
-              <RouterLink :to="{ name: 'home' }" v-if="user.type === 1" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Найти задачу</RouterLink>
+              <RouterLink :to="{ name: 'tasks-my' }" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои задачи</RouterLink>
+              <RouterLink :to="{ name: 'tasks' }" v-if="user.type === 1" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Найти задачу</RouterLink>
               <RouterLink :to="{ name: 'create-task' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Добавить задачу</RouterLink>
               <RouterLink :to="{ name: 'home' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои заказы</RouterLink>
               <a href="#" @click="logout" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Выйти</a>
