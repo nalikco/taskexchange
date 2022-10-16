@@ -64,19 +64,12 @@ func (h *Handler) signUp(c *gin.Context) {
 }
 
 func (h *Handler) getMyUser(c *gin.Context) {
-	id, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid user id")
 		return
 	}
 
-	user, err := h.services.Users.GetById(id, true)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	activeTasksCount, err := h.services.Tasks.CountActiveByUser(id)
+	activeTasksCount, err := h.services.Tasks.CountActiveByUser(user.Id)
 
 	c.JSON(http.StatusOK, getOneUserResponse{
 		Data:             user,

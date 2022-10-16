@@ -8,15 +8,16 @@ import (
 type Authorization interface {
 	CreateUser(user taskexchange.User) (int, error)
 	GenerateToken(email, password string) (string, error)
-	ParseToken(token string) (int, int, error)
+	ParseToken(token string) (int, error)
 	UpdateOnline(id int) error
 }
 
 type Users interface {
 	CreateUser(user taskexchange.User) (int, error)
-	GetAll() ([]taskexchange.User, error)
+	GetAll(full bool) ([]taskexchange.User, error)
 	GetById(id int, full bool) (taskexchange.User, error)
 	Update(id int, input taskexchange.UpdateUserInput) error
+	CountAll(sort taskexchange.SortUsersCount) (int, error)
 	Delete(id int) error
 }
 
@@ -45,6 +46,7 @@ type Tasks interface {
 	Update(id int, input taskexchange.UpdateTaskInput) error
 	GetById(id int) (taskexchange.Task, error)
 	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)
+	CountActive() (int, error)
 	CountActiveByUser(userId int) (int, error)
 	Delete(id int, task taskexchange.Task, customerId int) error
 }
@@ -60,6 +62,8 @@ type Orders interface {
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
 	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
 	Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error
+	CountAllActive() (int, error)
+	GetAllCompleted() ([]taskexchange.Order, error)
 }
 
 type Service struct {

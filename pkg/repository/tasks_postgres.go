@@ -83,7 +83,7 @@ func (r *TasksPostgres) GetById(id int) (taskexchange.Task, error) {
 
 func (r *TasksPostgres) FindAll(limit, offset int) ([]taskexchange.Task, error) {
 	var tasks []taskexchange.Task
-	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at is null AND delivery_date + INTERVAL '1 day' > now() AND amount > 0 ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at is null AND status=1 AND delivery_date + INTERVAL '1 day' > now() AND amount > 0 ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
 	err := r.db.Select(&tasks, query)
 
 	return tasks, err
@@ -92,7 +92,7 @@ func (r *TasksPostgres) FindAll(limit, offset int) ([]taskexchange.Task, error) 
 func (r *TasksPostgres) CountAll() (int, error) {
 	var count int
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null AND delivery_date + INTERVAL '1 day' > now() AND amount > 0", tasksTable)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null AND status=1 AND delivery_date + INTERVAL '1 day' > now() AND amount > 0", tasksTable)
 	err := r.db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return 0, err

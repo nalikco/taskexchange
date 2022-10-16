@@ -345,6 +345,10 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 	return tasks, pagination, err
 }
 
+func (s *TasksService) CountActive() (int, error) {
+	return s.tasksRepo.CountAll()
+}
+
 func (s *TasksService) CountActiveByUser(userId int) (int, error) {
 	return s.tasksRepo.CountActiveByUser(userId)
 }

@@ -8,10 +8,11 @@ import (
 
 type Users interface {
 	Create(user taskexchange.User) (int, error)
-	GetAll() ([]taskexchange.User, error)
+	GetAll(full bool) ([]taskexchange.User, error)
 	GetById(id int, full bool) (taskexchange.User, error)
 	GetByEmail(email string) (taskexchange.User, error)
 	GetByEmailAndPassword(email, password string) (taskexchange.User, error)
+	CountAll(sort taskexchange.SortUsersCount) (int, error)
 	Update(id int, input taskexchange.UpdateUserInput) error
 	Delete(id int) error
 	UpdateOnline(id int) error
@@ -78,6 +79,8 @@ type Orders interface {
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
 	Update(id int, input taskexchange.UpdateOrderInput) error
 	FindOneById(orderId int) (taskexchange.Order, error)
+	CountAllActive() (int, error)
+	GetAllCompleted() ([]taskexchange.Order, error)
 }
 
 type Repository struct {

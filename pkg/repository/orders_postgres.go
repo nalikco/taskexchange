@@ -243,3 +243,59 @@ func (r *OrdersPostgres) FindOneById(orderId int) (taskexchange.Order, error) {
 
 	return order, err
 }
+
+func (r *OrdersPostgres) CountAllActive() (int, error) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE status IN (0, 1) AND deleted_at is null", ordersTable)
+	err := r.db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r *OrdersPostgres) GetAllCompleted() ([]taskexchange.Order, error) {
+	var orders []taskexchange.Order
+
+	query := fmt.Sprintf("SELECT * FROM %s WHERE status=2 AND deleted_at is null ORDER BY created_at DESC", ordersTable)
+	err := r.db.Select(&orders, query)
+	if err != nil {
+		return []taskexchange.Order{}, err
+	}
+
+	for i, order := range orders {
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", tasksTable)
+		err = r.db.Get(&orders[i].Task, query, order.TaskId)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+
+		query = fmt.Sprintf("SELECT * FROM %s WHERE task_id=$1", taskOptionsTable)
+		err = r.db.Select(&orders[i].Task.TaskOptions, query, order.TaskId)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+
+		for _, taskOption := range orders[i].Task.TaskOptions {
+			var option taskexchange.Option
+
+			query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", optionsTable)
+			err = r.db.Get(&option, query, taskOption.OptionId)
+			if err != nil {
+				return []taskexchange.Order{}, err
+			}
+
+			orders[i].Task.Options = append(orders[i].Task.Options, option)
+		}
+
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", offersTable)
+		err = r.db.Get(&orders[i].Offer, query, order.OfferId)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+	}
+
+	return orders, err
+}

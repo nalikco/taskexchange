@@ -240,3 +240,11 @@ func (s *OrdersService) Update(orderId int, userId int, input taskexchange.Updat
 
 	return nil
 }
+
+func (s *OrdersService) CountAllActive() (int, error) {
+	return s.ordersRepo.CountAllActive()
+}
+
+func (s *OrdersService) GetAllCompleted() ([]taskexchange.Order, error) {
+	return s.ordersRepo.GetAllCompleted()
+}

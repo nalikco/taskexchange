@@ -14,9 +14,8 @@ type findEventsResponse struct {
 }
 
 func (h *Handler) pollingEvents(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -29,7 +28,7 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 	}
 
 	if after == 0 {
-		after, err = h.services.Events.GetLastId(userId)
+		after, err = h.services.Events.GetLastId(user.Id)
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
@@ -42,7 +41,7 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 	}
 
 	for i := 0; i < 9; i++ {
-		events, err := h.services.Events.Polling(userId, after)
+		events, err := h.services.Events.Polling(user.Id, after)
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
@@ -64,13 +63,12 @@ func (h *Handler) pollingEvents(c *gin.Context) {
 }
 
 func (h *Handler) findNewEvents(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	events, err := h.services.Events.GetNew(userId)
+	events, err := h.services.Events.GetNew(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -87,15 +85,14 @@ type findAllEventsResponse struct {
 }
 
 func (h *Handler) findAllEvents(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	pagination := taskexchange.NewPagination(c, 1, 20)
 
-	events, pagination, err := h.services.Events.GetAll(userId, pagination)
+	events, pagination, err := h.services.Events.GetAll(user.Id, pagination)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -114,13 +111,12 @@ func (h *Handler) findAllEvents(c *gin.Context) {
 }
 
 func (h *Handler) viewAllEvents(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = h.services.Events.ViewAll(userId)
+	err = h.services.Events.ViewAll(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -132,9 +128,8 @@ func (h *Handler) viewAllEvents(c *gin.Context) {
 }
 
 func (h *Handler) viewEvent(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -144,7 +139,7 @@ func (h *Handler) viewEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Events.View(userId, id)
+	err = h.services.Events.View(user.Id, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -156,9 +151,8 @@ func (h *Handler) viewEvent(c *gin.Context) {
 }
 
 func (h *Handler) deleteEvent(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -168,7 +162,7 @@ func (h *Handler) deleteEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Events.Delete(userId, id)
+	err = h.services.Events.Delete(user.Id, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

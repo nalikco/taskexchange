@@ -17,16 +17,17 @@ type findOrdersResponse struct {
 }
 
 func (h *Handler) getAllPerformerActiveOrders(c *gin.Context) {
-	err := checkUserType(c, 1)
-	if err != nil {
-		return
-	}
-	performerId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	orders, err := h.services.Orders.FindActiveByPerformerId(performerId)
+	if user.Type != 1 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	orders, err := h.services.Orders.FindActiveByPerformerId(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -38,16 +39,17 @@ func (h *Handler) getAllPerformerActiveOrders(c *gin.Context) {
 }
 
 func (h *Handler) getAllPerformerOrders(c *gin.Context) {
-	err := checkUserType(c, 1)
-	if err != nil {
-		return
-	}
-	performerId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	orders, err := h.services.Orders.FindAllByPerformerId(performerId)
+	if user.Type != 1 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	orders, err := h.services.Orders.FindAllByPerformerId(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -59,16 +61,17 @@ func (h *Handler) getAllPerformerOrders(c *gin.Context) {
 }
 
 func (h *Handler) getAllCustomerOrders(c *gin.Context) {
-	err := checkUserType(c, 2)
-	if err != nil {
-		return
-	}
-	customerId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	orders, err := h.services.Orders.FindAllByCustomerId(customerId)
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	orders, err := h.services.Orders.FindAllByCustomerId(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -84,7 +87,7 @@ func (h *Handler) getOrderById(c *gin.Context) {
 }
 
 func (h *Handler) updateOrder(c *gin.Context) {
-	userId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
@@ -101,7 +104,7 @@ func (h *Handler) updateOrder(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Orders.Update(id, userId, input)
+	err = h.services.Orders.Update(id, user.Id, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

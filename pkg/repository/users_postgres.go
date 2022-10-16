@@ -30,9 +30,16 @@ func (r *UsersPostgres) Create(user taskexchange.User) (int, error) {
 	return id, nil
 }
 
-func (r *UsersPostgres) GetAll() ([]taskexchange.User, error) {
+func (r *UsersPostgres) GetAll(full bool) ([]taskexchange.User, error) {
 	var users []taskexchange.User
-	query := fmt.Sprintf("SELECT %s FROM %s WHERE deleted_at is null ORDER BY id DESC", usersVisibleColumns, usersTable)
+	var query string
+
+	if full {
+		query = fmt.Sprintf("SELECT %s FROM %s WHERE deleted_at is null ORDER BY id DESC", usersAllColumns, usersTable)
+	} else {
+		query = fmt.Sprintf("SELECT %s FROM %s WHERE deleted_at is null ORDER BY id DESC", usersVisibleColumns, usersTable)
+	}
+
 	err := r.db.Select(&users, query)
 
 	return users, err
@@ -133,4 +140,24 @@ func (r *UsersPostgres) Delete(id int) error {
 	_, err := r.db.Exec(query, id)
 
 	return err
+}
+
+func (r *UsersPostgres) CountAll(sort taskexchange.SortUsersCount) (int, error) {
+	var count int
+
+	sortQuery := ""
+	if sort.Performers == true {
+		sortQuery = "WHERE type=1"
+	}
+	if sort.Customers == true {
+		sortQuery = "WHERE type=2"
+	}
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s %s", usersTable, sortQuery)
+	err := r.db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

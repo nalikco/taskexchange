@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+	"taskexchange"
 )
 
 const (
 	authorizationHeader = "Authorization"
-	userIdCtx           = "userId"
-	userTypeCtx         = "userType"
+	userCtx             = "user"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 
-	userId, userType, err := h.services.Authorization.ParseToken(headerParts[1])
+	userId, err := h.services.Authorization.ParseToken(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
@@ -37,52 +37,27 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 
-	c.Set(userIdCtx, userId)
-	c.Set(userTypeCtx, userType)
+	user, err := h.services.Users.GetById(userId, true)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "failed while getting user")
+		return
+	}
+
+	c.Set(userCtx, user)
 }
 
-func getUserId(c *gin.Context) (int, error) {
-	id, ok := c.Get(userIdCtx)
+func getUser(c *gin.Context) (taskexchange.User, error) {
+	userFromCtx, ok := c.Get(userCtx)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id not found")
-		return 0, errors.New("user id not found")
+		return taskexchange.User{}, errors.New("user id not found")
 	}
 
-	idInt, ok := id.(int)
+	user, ok := userFromCtx.(taskexchange.User)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id is of invalid type")
-		return 0, errors.New("user id is of invalid type")
+		return taskexchange.User{}, errors.New("user id is of invalid type")
 	}
 
-	return idInt, nil
-}
-
-func getUserType(c *gin.Context) (int, error) {
-	userType, ok := c.Get(userTypeCtx)
-	if !ok {
-		newErrorResponse(c, http.StatusInternalServerError, "user type not found")
-		return 0, errors.New("user type not found")
-	}
-
-	userTypeInt, ok := userType.(int)
-	if !ok {
-		newErrorResponse(c, http.StatusInternalServerError, "user type is of invalid type")
-		return 0, errors.New("user type is of invalid type")
-	}
-
-	return userTypeInt, nil
-}
-
-func checkUserType(c *gin.Context, neededType int) error {
-	userType, err := getUserType(c)
-	if err != nil {
-		return errors.New("user type is invalid")
-	}
-
-	if userType != neededType {
-		newErrorResponse(c, http.StatusInternalServerError, "access denied")
-		return errors.New("access denied")
-	}
-
-	return nil
+	return user, nil
 }

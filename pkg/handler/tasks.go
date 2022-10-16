@@ -24,13 +24,13 @@ type inputCreateOneTask struct {
 }
 
 func (h *Handler) createTask(c *gin.Context) {
-	err := checkUserType(c, 2)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	userId, err := getUserId(c)
-	if err != nil {
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -97,7 +97,7 @@ func (h *Handler) createTask(c *gin.Context) {
 		}
 
 		task := taskexchange.Task{
-			CustomerId:   userId,
+			CustomerId:   user.Id,
 			Status:       input.Status,
 			Amount:       input.Amount,
 			DeliveryDate: deliveryDate,
@@ -123,13 +123,13 @@ func (h *Handler) createTask(c *gin.Context) {
 }
 
 func (h *Handler) createTaskFromExcelFile(c *gin.Context) {
-	err := checkUserType(c, 2)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	userId, err := getUserId(c)
-	if err != nil {
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -152,7 +152,7 @@ func (h *Handler) createTaskFromExcelFile(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Tasks.CreateFromExcelFile(userId, filename)
+	err = h.services.Tasks.CreateFromExcelFile(user.Id, filename)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -239,13 +239,13 @@ func (h *Handler) getTaskById(c *gin.Context) {
 }
 
 func (h *Handler) updateTask(c *gin.Context) {
-	err := checkUserType(c, 2)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	userId, err := getUserId(c)
-	if err != nil {
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "invalid user type")
 		return
 	}
 
@@ -281,7 +281,7 @@ func (h *Handler) updateTask(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if task.CustomerId != userId {
+	if task.CustomerId != user.Id {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
 		return
 	}
@@ -316,14 +316,13 @@ func (h *Handler) updateTask(c *gin.Context) {
 }
 
 func (h *Handler) deleteTask(c *gin.Context) {
-	err := checkUserType(c, 2)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	userId, err := getUserId(c)
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid user id")
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -338,12 +337,12 @@ func (h *Handler) deleteTask(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if task.CustomerId != userId {
+	if task.CustomerId != user.Id {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
 		return
 	}
 
-	err = h.services.Tasks.Delete(id, task, userId)
+	err = h.services.Tasks.Delete(id, task, user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

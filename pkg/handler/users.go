@@ -18,8 +18,13 @@ type createUserInput struct {
 }
 
 func (h *Handler) createUser(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -52,7 +57,7 @@ type getAllUsersResponse struct {
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
-	users, err := h.services.Users.GetAll()
+	users, err := h.services.Users.GetAll(false)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -87,8 +92,13 @@ func (h *Handler) getUserById(c *gin.Context) {
 }
 
 func (h *Handler) updateUser(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -116,8 +126,13 @@ func (h *Handler) updateUser(c *gin.Context) {
 }
 
 func (h *Handler) deleteUser(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 

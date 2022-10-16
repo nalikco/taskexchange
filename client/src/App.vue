@@ -189,7 +189,7 @@ export default {
         ]
       } else if (this.user.type === 3) {
         return [
-          {'to': 'home', 'title': 'Панель администратора'},
+          {'to': 'ap', 'title': 'Панель управления'},
         ]
       }
     },
@@ -285,6 +285,10 @@ export default {
       }
 
       if(this.$route.meta.requiredPerformer) {
+        return this.$router.push({ name: 'sign-in' })
+      }
+
+      if(this.$route.meta.requiredAdmin) {
         return this.$router.push({ name: 'sign-in' })
       }
     },

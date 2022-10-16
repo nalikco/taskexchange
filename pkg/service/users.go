@@ -33,8 +33,12 @@ func (s *UsersService) CreateUser(user taskexchange.User) (int, error) {
 	return s.repo.Create(user)
 }
 
-func (s *UsersService) GetAll() ([]taskexchange.User, error) {
-	return s.repo.GetAll()
+func (s *UsersService) GetAll(full bool) ([]taskexchange.User, error) {
+	return s.repo.GetAll(full)
+}
+
+func (s *UsersService) CountAll(sort taskexchange.SortUsersCount) (int, error) {
+	return s.repo.CountAll(sort)
 }
 
 func (s *UsersService) GetById(id int, full bool) (taskexchange.User, error) {

@@ -59,6 +59,38 @@ const router = createRouter({
       component: () => import('../views/Orders/PerformerView.vue'),
       meta: { requiredPerformer: true }
     },
+
+    {
+      path: '/ap',
+      name: 'ap',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/users',
+      name: 'ap-users',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/options',
+      name: 'ap-options',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/tasks',
+      name: 'ap-tasks',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/offers',
+      name: 'ap-offers',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/orders',
+      name: 'ap-orders',
+      component: () => import('../views/Admin/Index.vue'),
+      meta: { requiredAdmin: true }
+    },
   ]
 })
 
@@ -94,6 +126,14 @@ router.beforeEach((to, from, next) => {
     if(store.user.type !== 1) {
       next({
         name: 'cabinet',
+      })
+    } else next()
+  } else if(to.matched.some(record => record.meta.requiredAdmin)) {
+    const store = useUserStore()
+
+    if(store.user.type !== 3) {
+      next({
+        name: 'home',
       })
     } else next()
   } else {

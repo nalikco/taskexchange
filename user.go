@@ -23,3 +23,8 @@ type UpdateUserInput struct {
 	Balance  *float64 `json:"balance" db:"balance"`
 	Points   *int     `json:"points" db:"points"`
 }
+
+type SortUsersCount struct {
+	Performers bool
+	Customers  bool
+}

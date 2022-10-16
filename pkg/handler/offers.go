@@ -12,16 +12,17 @@ type findOffersResponse struct {
 }
 
 func (h *Handler) GetPerformerActiveOffers(c *gin.Context) {
-	err := checkUserType(c, 1)
-	if err != nil {
-		return
-	}
-	performerId, err := getUserId(c)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	offers, err := h.services.Offers.GetPerformerActive(performerId)
+	if user.Type != 1 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	offers, err := h.services.Offers.GetPerformerActive(user.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -34,12 +35,13 @@ func (h *Handler) GetPerformerActiveOffers(c *gin.Context) {
 }
 
 func (h *Handler) CreateOffer(c *gin.Context) {
-	err := checkUserType(c, 1)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
-	performerId, err := getUserId(c)
-	if err != nil {
+
+	if user.Type != 1 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -49,7 +51,7 @@ func (h *Handler) CreateOffer(c *gin.Context) {
 		return
 	}
 
-	offerId, err := h.services.Offers.Make(performerId, input.TaskId)
+	offerId, err := h.services.Offers.Make(user.Id, input.TaskId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -61,12 +63,13 @@ func (h *Handler) CreateOffer(c *gin.Context) {
 }
 
 func (h *Handler) UpdateOffer(c *gin.Context) {
-	err := checkUserType(c, 2)
+	user, err := getUser(c)
 	if err != nil {
 		return
 	}
-	customerId, err := getUserId(c)
-	if err != nil {
+
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -87,7 +90,7 @@ func (h *Handler) UpdateOffer(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Offers.ChangeStatus(id, customerId, input.Status)
+	err = h.services.Offers.ChangeStatus(id, user.Id, input.Status)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

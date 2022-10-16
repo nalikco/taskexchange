@@ -94,6 +94,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			orders.GET("/:id", h.userIdentity, h.getOrderById)
 			orders.PUT("/:id", h.userIdentity, h.updateOrder)
 		}
+
+		admin := api.Group("/admin")
+		{
+			admin.GET("/statistics", h.userIdentity, h.adminStatistics)
+		}
 	}
 
 	router.NoRoute(h.serveVue)

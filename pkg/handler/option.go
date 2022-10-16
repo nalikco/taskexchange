@@ -14,8 +14,13 @@ type createOptionInput struct {
 }
 
 func (h *Handler) createOption(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -78,8 +83,13 @@ func (h *Handler) getOptionById(c *gin.Context) {
 }
 
 func (h *Handler) updateOption(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
@@ -107,8 +117,13 @@ func (h *Handler) updateOption(c *gin.Context) {
 }
 
 func (h *Handler) deleteOption(c *gin.Context) {
-	err := checkUserType(c, 3)
+	user, err := getUser(c)
 	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
