@@ -98,9 +98,14 @@ func (s *OffersService) ChangeStatus(offerId, customerId, status int) error {
 
 	if status == 1 {
 		newTaskAmount := task.Amount - 1
-		err = s.tasksRepo.Update(task.Id, taskexchange.UpdateTaskInput{
+		updateTaskInput := taskexchange.UpdateTaskInput{
 			Amount: &newTaskAmount,
-		})
+		}
+		if newTaskAmount < 1 {
+			newStatus := 0
+			updateTaskInput.Status = &newStatus
+		}
+		err = s.tasksRepo.Update(task.Id, updateTaskInput)
 		orderId, err := s.ordersRepo.Create(offerId, task.Id)
 		if err != nil {
 			return err
@@ -109,7 +114,7 @@ func (s *OffersService) ChangeStatus(offerId, customerId, status int) error {
 		_, err = s.eventsRepo.Create(taskexchange.Event{
 			UserId:    offer.PerformerId,
 			Message:   fmt.Sprintf("Заказчик принял Ваше предложение по задаче #%d. Заказ #%d создан.", task.Id, orderId),
-			Link:      "/tasks",
+			Link:      "/orders/performer",
 			CreatedAt: time.Now(),
 		})
 		if err != nil {
@@ -119,7 +124,7 @@ func (s *OffersService) ChangeStatus(offerId, customerId, status int) error {
 		_, err = s.eventsRepo.Create(taskexchange.Event{
 			UserId:    offer.PerformerId,
 			Message:   fmt.Sprintf("Заказчик отклонил Ваше предложение по задаче #%d", task.Id),
-			Link:      "/tasks",
+			Link:      "/orders/performer",
 			CreatedAt: time.Now(),
 		})
 		if err != nil {

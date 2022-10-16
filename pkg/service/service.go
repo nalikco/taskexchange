@@ -56,7 +56,10 @@ type Offers interface {
 }
 
 type Orders interface {
+	FindAllByPerformerId(performerId int) ([]taskexchange.Order, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
+	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
+	Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error
 }
 
 type Service struct {
@@ -77,6 +80,6 @@ func NewService(repos *repository.Repository) *Service {
 		Events:        NewEventsService(repos.Events),
 		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options, repos.Offers),
 		Offers:        NewOffersService(repos.Offers, repos.Tasks, repos.Users, repos.Events, repos.Orders),
-		Orders:        NewOrdersService(repos.Orders),
+		Orders:        NewOrdersService(repos.Orders, repos.Users, repos.Options, repos.Tasks, repos.TaskOptions, repos.Events),
 	}
 }

@@ -40,7 +40,8 @@ import {moment} from "@/moment";
               <div v-if="task.status !== 0" class="text-sm mt-2 mb-1 border-t-2 pt-3 pb-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 <button @click="setTaskStatus(0, task.id)" class="bg-slate-200 text-slate-700 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-slate-300 transition duration-300">Остановить задачу</button>
                 <button v-if="showOffers !== task.id" @click="showOffers = task.id" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
-                  {{ task.offers.length }} {{ $filters.declOfNum(task.offers.length, ['предложение', 'предложения', 'предложений']) }}
+                  <span v-if="task.offers">{{ task.offers.length }} {{ $filters.declOfNum(task.offers.length, ['предложение', 'предложения', 'предложений']) }}</span>
+                  <span v-else>0 {{ $filters.declOfNum(0, ['предложение', 'предложения', 'предложений']) }}</span>
                 </button>
                 <button v-if="showOffers === task.id" @click="showOffers = 0" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Закрыть предложения
@@ -53,8 +54,13 @@ import {moment} from "@/moment";
                 </button>
               </div>
               <div v-else-if="task.status === 0" class="text-sm mt-2 border-t-2 pt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                <button v-if="!task.deleted_at" @click="setTaskStatus(1, task.id)" class="bg-blue-200 text-blue-700 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-300 transition duration-300">Запустить</button>
-                <RouterLink v-if="!task.deleted_at" :to="{ name: 'edit-task', params: { id: task.id }}" class="bg-green-200 text-center py-3 text-green-700 font-medium py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</RouterLink>
+                <button v-if="!task.deleted_at && task.amount > 0" @click="setTaskStatus(1, task.id)" class="bg-blue-200 text-blue-700 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-300 transition duration-300">Запустить</button>
+                <button v-else-if="!task.deleted_at" disabled class="bg-slate-200 text-slate-700 font-medium py-3 px-2 rounded-lg shadow">
+                  Запустить
+                  <br>
+                  <p class="text-xs -mt-1 text-slate-500">укажите количество</p>
+                </button>
+                <button v-if="!task.deleted_at" @click="editTask(task.id)" class="bg-green-200 text-center py-3 text-green-700 font-medium py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</button>
                 <button v-if="!task.deleted_at" @click="deleteTask(task.id)" class="bg-red-200 text-red-700 font-medium py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-red-300 transition duration-300">
                   Удалить
                   <br>
@@ -106,7 +112,7 @@ import {moment} from "@/moment";
                       </th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-if="task.offers">
                       <tr v-for="offer in task.offers" class="bg-white dark:bg-gray-800">
                         <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {{ offer.id }}
@@ -198,6 +204,9 @@ export default {
     this.getTasks()
   },
   methods: {
+    editTask(taskId) {
+      this.$router.push({ name: 'edit-task', params: { id: taskId }})
+    },
     getTaskOptionStructured(task) {
       let mainOption = {}
       let options = []

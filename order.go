@@ -16,3 +16,12 @@ type Order struct {
 	CreatedAt        time.Time  `json:"created_at" db:"created_at"`
 	DeletedAt        *time.Time `json:"deleted_at" db:"deleted_at"`
 }
+
+type UpdateOrderInput struct {
+	TaskId           *int    `json:"task_id"`
+	Status           *int    `json:"status"`
+	CanceledUserId   *int    `json:"canceled_user_id"`
+	ReturnComment    *string `json:"return_comment"`
+	SurrenderComment *string `json:"surrender_comment"`
+	CancelComment    *string `json:"cancel_comment"`
+}

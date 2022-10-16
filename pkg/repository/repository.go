@@ -71,7 +71,13 @@ type Offers interface {
 type Orders interface {
 	Create(offerId, taskId int) (int, error)
 	FindActiveByTaskId(taskId int) ([]taskexchange.Order, error)
+	FindAllByPerformerId(performerId int) ([]taskexchange.Order, error)
+	CountAllByPerformerId(performerId int) (int, error)
+	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
+	CountAllByCustomerId(customerId int) (int, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
+	Update(id int, input taskexchange.UpdateOrderInput) error
+	FindOneById(orderId int) (taskexchange.Order, error)
 }
 
 type Repository struct {

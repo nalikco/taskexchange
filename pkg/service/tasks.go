@@ -169,11 +169,18 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 }
 
 func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error {
-	if input.Options != nil {
-		task, err := s.GetById(id)
-		if err != nil {
-			return err
+	task, err := s.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	if task.Amount < 1 && input.Status != nil {
+		if *input.Status != 0 {
+			return errors.New("wrong task amount")
 		}
+	}
+
+	if input.Options != nil {
 
 		taskOptions, err := s.taskOptionsRepo.GetByTaskId(task.Id)
 		if err != nil {

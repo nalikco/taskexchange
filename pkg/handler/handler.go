@@ -88,7 +88,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		orders := api.Group("/orders")
 		{
 			orders.GET("/user", h.userIdentity, h.getAllUserOrders)
+			orders.GET("/performer", h.userIdentity, h.getAllPerformerOrders)
 			orders.GET("/performer-active", h.userIdentity, h.getAllPerformerActiveOrders)
+			orders.GET("/customer", h.userIdentity, h.getAllCustomerOrders)
 			orders.GET("/:id", h.userIdentity, h.getOrderById)
 			orders.PUT("/:id", h.userIdentity, h.updateOrder)
 		}

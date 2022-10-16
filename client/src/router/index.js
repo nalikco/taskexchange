@@ -48,7 +48,17 @@ const router = createRouter({
       path: '/tasks',
       name: 'tasks',
       component: () => import('../views/Tasks/ListView.vue'),
-    }
+    }, {
+      path: '/orders/customer',
+      name: 'orders-customer',
+      component: () => import('../views/Orders/CustomerView.vue'),
+      meta: { requiredCustomer: true }
+    }, {
+      path: '/orders/performer',
+      name: 'orders-performer',
+      component: () => import('../views/Orders/PerformerView.vue'),
+      meta: { requiredPerformer: true }
+    },
   ]
 })
 
@@ -75,8 +85,15 @@ router.beforeEach((to, from, next) => {
 
     if(store.user.type !== 2) {
       next({
-        name: 'sign-in',
-        query: { redirect: to.fullPath }
+        name: 'cabinet',
+      })
+    } else next()
+  } else if(to.matched.some(record => record.meta.requiredPerformer)) {
+    const store = useUserStore()
+
+    if(store.user.type !== 1) {
+      next({
+        name: 'cabinet',
       })
     } else next()
   } else {

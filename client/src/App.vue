@@ -178,14 +178,14 @@ export default {
       } else if (this.user.type === 1) {
         return [
           {'to': 'cabinet', 'title': 'Кабинет исполнителя'},
-          {'to': 'home', 'title': 'Мои задачи'},
+          {'to': 'orders-performer', 'title': 'Мои задачи'},
         ]
       } else if (this.user.type === 2) {
         return [
           {'to': 'cabinet', 'title': 'Кабинет заказчика'},
           {'to': 'create-task', 'title': 'Добавить задачу'},
           {'to': 'tasks-my', 'title': 'Мои задачи'},
-          {'to': 'home', 'title': 'Мои заказы'},
+          {'to': 'orders-customer', 'title': 'Мои заказы'},
         ]
       } else if (this.user.type === 3) {
         return [
@@ -281,6 +281,10 @@ export default {
       }
 
       if(this.$route.meta.requiredCustomer) {
+        return this.$router.push({ name: 'sign-in' })
+      }
+
+      if(this.$route.meta.requiredPerformer) {
         return this.$router.push({ name: 'sign-in' })
       }
     },

@@ -35,11 +35,15 @@ type UpdateTaskInput struct {
 }
 
 func (t *Task) CalculatePrice() float64 {
+	return t.CalculatePriceForOne() * float64(t.Amount)
+}
+
+func (t *Task) CalculatePriceForOne() float64 {
 	var price float64 = 0
 
 	for _, option := range t.Options {
 		price += option.Price
 	}
 
-	return price * float64(t.Amount)
+	return price
 }
