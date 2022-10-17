@@ -1,3 +1,6 @@
+<script setup>
+import AdminMenu from '@/components/AdminMenu.vue'
+</script>
 <template>
   <main>
     <header class="bg-white shadow">
@@ -7,7 +10,8 @@
     </header>
     <main>
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <div class="overflow-x-auto relative">
+        <AdminMenu />
+        <div class="overflow-x-auto relative mx-3 md:mx-0">
           <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <tbody>
               <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">

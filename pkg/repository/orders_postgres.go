@@ -121,6 +121,41 @@ func (r *OrdersPostgres) FindAllByCustomerId(customerId int) ([]taskexchange.Ord
 	return orders, err
 }
 
+func (r *OrdersPostgres) FindAll() ([]taskexchange.Order, error) {
+	var orders []taskexchange.Order
+	fields := []string{
+		"ofe.id as \"offer.id\"",
+		"ofe.performer_id as \"offer.performer_id\"",
+		"ofe.status as \"offer.status\"",
+		"ofe.created_at as \"offer.created_at\"",
+
+		"tas.id as \"task.id\"",
+		"tas.customer_id as \"task.customer_id\"",
+		"tas.status as \"task.status\"",
+		"tas.amount as \"task.amount\"",
+		"tas.delivery_date as \"task.delivery_date\"",
+		"tas.link as \"task.link\"",
+		"tas.description as \"task.description\"",
+		"tas.created_at as \"task.created_at\"",
+
+		"ord.id as id",
+		"ord.task_id as task_id",
+		"ord.status as status",
+		"ord.canceled_user_id as canceled_user_id",
+		"ord.return_comment as return_comment",
+		"ord.surrender_comment as surrender_comment",
+		"ord.cancel_comment as cancel_comment",
+		"ord.created_at as created_at",
+		"ord.deleted_at as deleted_at",
+	}
+	fieldsQuery := strings.Join(fields, ", ")
+
+	query := fmt.Sprintf("SELECT %s FROM %s AS ord JOIN %s AS tas ON ord.task_id = tas.id JOIN %s AS ofe ON ord.offer_id = ofe.id ORDER BY ord.created_at DESC", fieldsQuery, ordersTable, tasksTable, offersTable)
+	err := r.db.Select(&orders, query)
+
+	return orders, err
+}
+
 func (r *OrdersPostgres) CountAllByCustomerId(customerId int) (int, error) {
 	var count int
 

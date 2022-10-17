@@ -72,7 +72,7 @@ func (h *Handler) createTask(c *gin.Context) {
 		var options []taskexchange.Option
 
 		for _, optionId := range input.Options {
-			option, err := h.services.Options.GetById(optionId)
+			option, err := h.services.Options.GetById(optionId, true)
 			if err != nil {
 				newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("wrong option id: %d", optionId))
 				return
@@ -169,9 +169,15 @@ type getAllTasksResponse struct {
 }
 
 func (h *Handler) getAllTasks(c *gin.Context) {
+	isAdmin := h.checkIsAdmin(c)
+	userId := 0
+
 	pagination := taskexchange.NewPagination(c, 1, 20)
 
-	tasks, pagination, err := h.services.Tasks.GetAll(0, pagination)
+	if isAdmin {
+		userId = -1
+	}
+	tasks, pagination, err := h.services.Tasks.GetAll(userId, pagination)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -281,6 +287,10 @@ func (h *Handler) updateTask(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	if task.DeletedAt != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "task deleted")
+		return
+	}
 	if task.CustomerId != user.Id {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
 		return
@@ -337,12 +347,17 @@ func (h *Handler) deleteTask(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if task.CustomerId != user.Id {
+	if task.CustomerId != user.Id && user.Type != 3 {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
 		return
 	}
+	task.Customer, err = h.services.Users.GetById(task.CustomerId, true)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-	err = h.services.Tasks.Delete(id, task, user.Id)
+	err = h.services.Tasks.Delete(id, task, user)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

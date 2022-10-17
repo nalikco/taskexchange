@@ -94,6 +94,44 @@ func (s *OrdersService) FindAllByCustomerId(customerId int) ([]taskexchange.Orde
 	return orders, nil
 }
 
+func (s *OrdersService) FindAll() ([]taskexchange.Order, error) {
+	orders, err := s.ordersRepo.FindAll()
+	if err != nil {
+		return []taskexchange.Order{}, err
+	}
+
+	for i, order := range orders {
+		orders[i].Task.Customer, err = s.usersRepo.GetById(order.Task.CustomerId, false)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+
+		orders[i].Offer.Performer, err = s.usersRepo.GetById(order.Offer.PerformerId, false)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+
+		taskOptions, err := s.taskOptionsRepo.GetByTaskId(order.Task.Id)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+		var taskOptionsIds []int
+
+		for _, taskOption := range taskOptions {
+			taskOptionsIds = append(taskOptionsIds, taskOption.OptionId)
+		}
+
+		options, err := s.optionsRepo.GetByIds(taskOptionsIds)
+		if err != nil {
+			return []taskexchange.Order{}, err
+		}
+
+		orders[i].Task.Options = options
+	}
+
+	return orders, nil
+}
+
 func (s *OrdersService) FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error) {
 	return s.ordersRepo.FindActiveByPerformerId(performerId)
 }

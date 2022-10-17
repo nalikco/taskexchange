@@ -64,5 +64,14 @@ func (s *UsersService) Update(id int, input taskexchange.UpdateUserInput) error 
 }
 
 func (s *UsersService) Delete(id int) error {
+	user, err := s.repo.GetById(id, true)
+	if err != nil {
+		return err
+	}
+
+	if user.DeletedAt != nil {
+		return s.repo.Restore(id)
+	}
+
 	return s.repo.Delete(id)
 }

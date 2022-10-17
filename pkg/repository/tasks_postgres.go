@@ -75,7 +75,7 @@ func (r *TasksPostgres) Update(id int, input taskexchange.UpdateTaskInput) error
 func (r *TasksPostgres) GetById(id int) (taskexchange.Task, error) {
 	var task taskexchange.Task
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", tasksTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", tasksTable)
 	err := r.db.Get(&task, query, id)
 
 	return task, err
@@ -89,10 +89,40 @@ func (r *TasksPostgres) FindAll(limit, offset int) ([]taskexchange.Task, error) 
 	return tasks, err
 }
 
+func (r *TasksPostgres) FindAllForAdmin(limit, offset int) ([]taskexchange.Task, error) {
+	var tasks []taskexchange.Task
+
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
+	err := r.db.Select(&tasks, query)
+
+	for i, task := range tasks {
+		query := fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", usersAllColumns, usersTable)
+		err := r.db.Get(&tasks[i].Customer, query, task.CustomerId)
+		if err != nil {
+			return []taskexchange.Task{}, err
+		}
+
+	}
+
+	return tasks, err
+}
+
 func (r *TasksPostgres) CountAll() (int, error) {
 	var count int
 
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE deleted_at is null AND status=1 AND delivery_date + INTERVAL '1 day' > now() AND amount > 0", tasksTable)
+	err := r.db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r *TasksPostgres) CountAllForAdmin() (int, error) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s", tasksTable)
 	err := r.db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return 0, err
@@ -135,7 +165,14 @@ func (r *TasksPostgres) CountActiveByUser(userId int) (int, error) {
 }
 
 func (r *TasksPostgres) Delete(id int) error {
-	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1 AND deleted_at is null", tasksTable)
+	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1", tasksTable)
+	_, err := r.db.Exec(query, id)
+
+	return err
+}
+
+func (r *TasksPostgres) Restore(id int) error {
+	query := fmt.Sprintf("UPDATE %s SET deleted_at=null WHERE id=$1", tasksTable)
 	_, err := r.db.Exec(query, id)
 
 	return err

@@ -181,6 +181,9 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 	}
 
 	if input.Options != nil {
+		if len(*input.Options) < 1 {
+			return errors.New("wrong task options")
+		}
 
 		taskOptions, err := s.taskOptionsRepo.GetByTaskId(task.Id)
 		if err != nil {
@@ -213,7 +216,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 		task.Options = []taskexchange.Option{}
 
 		for _, optionId := range *input.Options {
-			option, err := s.optionsRepo.GetById(optionId)
+			option, err := s.optionsRepo.GetById(optionId, true)
 			if err != nil {
 				return errors.New(fmt.Sprintf("wrong option id: %d", optionId))
 			}
@@ -294,10 +297,14 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 	var count int
 	var err error
 
-	if userId == 0 {
-		count, err = s.tasksRepo.CountAll()
+	if userId == -1 {
+		count, err = s.tasksRepo.CountAllForAdmin()
 	} else {
-		count, err = s.tasksRepo.CountAllByUser(userId)
+		if userId == 0 {
+			count, err = s.tasksRepo.CountAll()
+		} else {
+			count, err = s.tasksRepo.CountAllByUser(userId)
+		}
 	}
 
 	if err != nil {
@@ -308,10 +315,17 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 
 	var tasks []taskexchange.Task
 
-	if userId == 0 {
-		tasks, err = s.tasksRepo.FindAll(pagination.Limit, pagination.Offset)
+	if userId == -1 {
+		tasks, err = s.tasksRepo.FindAllForAdmin(pagination.Limit, pagination.Offset)
 	} else {
-		tasks, err = s.tasksRepo.FindAllByUser(userId, pagination.Limit, pagination.Offset)
+		if userId == 0 {
+			tasks, err = s.tasksRepo.FindAll(pagination.Limit, pagination.Offset)
+		} else {
+			tasks, err = s.tasksRepo.FindAllByUser(userId, pagination.Limit, pagination.Offset)
+		}
+	}
+	if err != nil {
+		return []taskexchange.Task{}, pagination, err
 	}
 
 	for i, task := range tasks {
@@ -353,15 +367,28 @@ func (s *TasksService) CountActiveByUser(userId int) (int, error) {
 	return s.tasksRepo.CountActiveByUser(userId)
 }
 
-func (s *TasksService) Delete(id int, task taskexchange.Task, customerId int) error {
-	customer, err := s.usersRepo.GetById(customerId, true)
-	if err != nil {
-		return err
+func (s *TasksService) Delete(id int, task taskexchange.Task, user taskexchange.User) error {
+	taskPrice := task.CalculatePrice()
+	if task.DeletedAt != nil && user.Type == 3 {
+		if task.Customer.Balance < taskPrice {
+			return errors.New("wrong user balance")
+		}
+
+		newCustomerBalance := task.Customer.Balance - taskPrice
+
+		err := s.usersRepo.Update(task.Customer.Id, taskexchange.UpdateUserInput{
+			Balance: &newCustomerBalance,
+		})
+		if err != nil {
+			return err
+		}
+
+		return s.tasksRepo.Restore(id)
 	}
 
-	newCustomerBalance := customer.Balance + task.CalculatePrice()
+	newCustomerBalance := task.Customer.Balance + taskPrice
 
-	err = s.usersRepo.Update(customer.Id, taskexchange.UpdateUserInput{
+	err := s.usersRepo.Update(task.Customer.Id, taskexchange.UpdateUserInput{
 		Balance: &newCustomerBalance,
 	})
 	if err != nil {

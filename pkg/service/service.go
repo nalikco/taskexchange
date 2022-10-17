@@ -23,8 +23,9 @@ type Users interface {
 
 type Options interface {
 	Create(parentId int, option taskexchange.Option) (int, error)
-	GetAll() ([]taskexchange.Option, error)
-	GetById(id int) (taskexchange.Option, error)
+	GetAll(full bool) ([]taskexchange.Option, error)
+	GetCategories() ([]taskexchange.Option, error)
+	GetById(id int, full bool) (taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
 }
@@ -48,7 +49,7 @@ type Tasks interface {
 	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)
 	CountActive() (int, error)
 	CountActiveByUser(userId int) (int, error)
-	Delete(id int, task taskexchange.Task, customerId int) error
+	Delete(id int, task taskexchange.Task, user taskexchange.User) error
 }
 
 type Offers interface {
@@ -60,6 +61,7 @@ type Offers interface {
 type Orders interface {
 	FindAllByPerformerId(performerId int) ([]taskexchange.Order, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
+	FindAll() ([]taskexchange.Order, error)
 	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
 	Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error
 	CountAllActive() (int, error)

@@ -52,6 +52,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			options.POST("/", h.userIdentity, h.createOption)
 			options.GET("/", h.getAllOptions)
+			options.GET("/categories", h.userIdentity, h.getCategories)
 			options.GET("/:id", h.getOptionById)
 			options.PUT("/:id", h.userIdentity, h.updateOption)
 			options.DELETE("/:id", h.userIdentity, h.deleteOption)
@@ -87,6 +88,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		orders := api.Group("/orders")
 		{
+			orders.GET("/", h.userIdentity, h.getAllOrders)
 			orders.GET("/user", h.userIdentity, h.getAllUserOrders)
 			orders.GET("/performer", h.userIdentity, h.getAllPerformerOrders)
 			orders.GET("/performer-active", h.userIdentity, h.getAllPerformerActiveOrders)

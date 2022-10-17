@@ -61,3 +61,21 @@ func getUser(c *gin.Context) (taskexchange.User, error) {
 
 	return user, nil
 }
+
+func (h *Handler) checkIsAdmin(c *gin.Context) bool {
+	header := c.GetHeader(authorizationHeader)
+	headerParts := strings.Split(header, " ")
+	if len(headerParts) == 2 {
+		userId, err := h.services.Authorization.ParseToken(headerParts[1])
+		if err == nil {
+			user, err := h.services.Users.GetById(userId, true)
+			if err == nil {
+				if user.Type == 3 {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}

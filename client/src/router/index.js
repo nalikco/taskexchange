@@ -68,27 +68,22 @@ const router = createRouter({
     }, {
       path: '/ap/users',
       name: 'ap-users',
-      component: () => import('../views/Admin/Index.vue'),
+      component: () => import('../views/Admin/Users.vue'),
       meta: { requiredAdmin: true }
     }, {
       path: '/ap/options',
       name: 'ap-options',
-      component: () => import('../views/Admin/Index.vue'),
+      component: () => import('../views/Admin/Options.vue'),
       meta: { requiredAdmin: true }
     }, {
       path: '/ap/tasks',
       name: 'ap-tasks',
-      component: () => import('../views/Admin/Index.vue'),
-      meta: { requiredAdmin: true }
-    }, {
-      path: '/ap/offers',
-      name: 'ap-offers',
-      component: () => import('../views/Admin/Index.vue'),
+      component: () => import('../views/Admin/Tasks.vue'),
       meta: { requiredAdmin: true }
     }, {
       path: '/ap/orders',
       name: 'ap-orders',
-      component: () => import('../views/Admin/Index.vue'),
+      component: () => import('../views/Admin/Orders.vue'),
       meta: { requiredAdmin: true }
     },
   ]

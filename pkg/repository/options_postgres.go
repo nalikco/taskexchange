@@ -35,19 +35,38 @@ func (r *OptionsPostgres) Create(parentId int, option taskexchange.Option) (int,
 	return id, nil
 }
 
-func (r *OptionsPostgres) GetAll() ([]taskexchange.Option, error) {
+func (r *OptionsPostgres) GetAll(full bool) ([]taskexchange.Option, error) {
 	var options []taskexchange.Option
+	var query string
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted_at IS NULL ORDER BY created_at DESC", optionsTable)
+	if full {
+		query = fmt.Sprintf("SELECT * FROM %s ORDER BY created_at DESC", optionsTable)
+	} else {
+		query = fmt.Sprintf("SELECT * FROM %s WHERE deleted_at IS NULL ORDER BY created_at DESC", optionsTable)
+	}
 	err := r.db.Select(&options, query)
 
 	return options, err
 }
 
-func (r *OptionsPostgres) GetById(id int) (taskexchange.Option, error) {
-	var option taskexchange.Option
+func (r *OptionsPostgres) GetCategories() ([]taskexchange.Option, error) {
+	var options []taskexchange.Option
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", optionsTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE parent_id is null ORDER BY created_at DESC", optionsTable)
+	err := r.db.Select(&options, query)
+
+	return options, err
+}
+
+func (r *OptionsPostgres) GetById(id int, full bool) (taskexchange.Option, error) {
+	var option taskexchange.Option
+	var query string
+
+	if full {
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", optionsTable)
+	} else {
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1 AND deleted_at IS NULL", optionsTable)
+	}
 	err := r.db.Get(&option, query, id)
 
 	return option, err
@@ -93,12 +112,6 @@ func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) e
 	args := make([]interface{}, 0)
 	argId := 1
 
-	if input.ParentId != nil {
-		setValues = append(setValues, fmt.Sprintf("parent_id=$%d", argId))
-		args = append(args, *input.ParentId)
-		argId++
-	}
-
 	if input.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
 		args = append(args, *input.Title)
@@ -109,6 +122,18 @@ func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) e
 		setValues = append(setValues, fmt.Sprintf("price=$%d", argId))
 		args = append(args, *input.Price)
 		argId++
+	}
+
+	if input.ParentId != nil {
+		if *input.ParentId == 0 {
+			setValues = append(setValues, "parent_id=null")
+		} else {
+			if *input.ParentId != id {
+				setValues = append(setValues, fmt.Sprintf("parent_id=$%d", argId))
+				args = append(args, *input.ParentId)
+				argId++
+			}
+		}
 	}
 
 	args = append(args, id)
@@ -122,6 +147,13 @@ func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) e
 
 func (r *OptionsPostgres) Delete(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1", optionsTable)
+	_, err := r.db.Exec(query, id)
+
+	return err
+}
+
+func (r *OptionsPostgres) Restore(id int) error {
+	query := fmt.Sprintf("UPDATE %s SET deleted_at=null WHERE id=$1", optionsTable)
 	_, err := r.db.Exec(query, id)
 
 	return err

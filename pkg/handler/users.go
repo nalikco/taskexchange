@@ -57,7 +57,16 @@ type getAllUsersResponse struct {
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
-	users, err := h.services.Users.GetAll(false)
+	isAdmin := h.checkIsAdmin(c)
+
+	var err error
+	var users []taskexchange.User
+	if isAdmin {
+		users, err = h.services.Users.GetAll(true)
+	} else {
+		users, err = h.services.Users.GetAll(false)
+	}
+
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

@@ -16,7 +16,7 @@ import {moment} from "@/moment";
           <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
           <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
             <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
-              <div @click="selectParent(parent)" class="bg-slate-100 cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'rounded-t-lg': showOptions === parent.id}">
+              <div @click="selectParent(parent)" class=" cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'bg-slate-100': selectedParent !== parent.id, 'rounded-t-lg': showOptions === parent.id}">
                 <div class="py-3 px-4 font-medium text-center">
                   {{ parent.title }}
                   <p class="text-xs -mt-1" :class="{'text-white': selectedParent === parent.id, 'text-gray-500': selectedParent !== parent.id}">{{ $filters.currencyFormat(parent.price) }}</p>
@@ -29,7 +29,7 @@ import {moment} from "@/moment";
                   <div v-if="parent.options.length === 0" class="mt-2 text-center text-slate-500">
                     Нет опций для данной категории
                   </div>
-                  <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow hover:shadow-lg transition duration-300 bg-slate-100 rounded-full" :class="{'bg-blue-500 text-white shadow-lg': selectedOptions.indexOf(option.id) !== -1}">
+                  <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow hover:shadow-lg transition duration-300 rounded-full" :class="{'bg-blue-500 text-white shadow-lg': selectedOptions.indexOf(option.id) !== -1, 'bg-slate-100': selectedOptions.indexOf(option.id) === -1}">
                     {{ option.title }} <span :class="{'text-white': selectedOptions.indexOf(option.id) !== -1, 'text-slate-500': selectedOptions.indexOf(option.id) === -1}">{{ $filters.currencyFormat(option.price) }}</span>
                   </div>
                 </div>
@@ -56,7 +56,7 @@ import {moment} from "@/moment";
               </div>
               <div class="mt-6">
                 <transition name="slide-fade">
-                  <div v-if="userBalance < priceForCurrentTask" class="mb-3 text-center font-medium text-sm text-red-500">
+                  <div v-if="addsPrice.needs_pay && userBalance < addsPrice.new_price" class="mb-3 text-center font-medium text-sm text-red-500">
                     Недостаточно средств на балансе
                   </div>
                 </transition>
@@ -64,7 +64,9 @@ import {moment} from "@/moment";
                   Сохранить задачу
                   <br>
                   <p class="text-xs -mt-1 text-blue-200">
-                    Итоговая стоимость данной задачи: {{ $filters.currencyFormat(priceForCurrentTask) }}
+                    Итоговая стоимость данной задачи: {{ $filters.currencyFormat(priceForCurrentTask) }},
+                    <span v-if="addsPrice.needs_pay">необходимо доплатить {{ $filters.currencyFormat(addsPrice.new_price) }}</span>
+                    <span v-else>на баланс вернется {{ $filters.currencyFormat(addsPrice.new_price) }}</span>
                   </p>
                 </button>
                 <RouterLink :to="{ name: 'tasks-my' }" class="flex flex-col w-full text-center px-auto bg-slate-200 transition duration-300 focus:ring-4 focus:outline-none focus:ring-slate-300 dark:focus:ring-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 hover:bg-slate-300">
@@ -93,6 +95,7 @@ export default {
       selectedParent: 0,
       showOptions: 0,
       link: "",
+      initialPrice: 0,
       description: "",
       amount: 1,
       selectedOptions: [],
@@ -110,7 +113,7 @@ export default {
       if (this.description === '') return false
       if (this.deliveryDate === '') return false
       if (parseInt(this.amount) <= 0) return false
-      if (this.userBalance < this.priceForCurrentTask) return false
+      if (this.addsPrice.needs_pay && this.userBalance < this.addsPrice.new_price) return false
       if (this.loading) return false
 
       return true
@@ -136,6 +139,16 @@ export default {
       }
 
       return price * parseInt(this.amount)
+    },
+    addsPrice() {
+      let newPrice = this.priceForCurrentTask - this.initialPrice
+      let needsPay = false
+      if (newPrice > 0) needsPay = true
+
+      return {
+        'new_price': Math.abs(newPrice),
+        'needs_pay': needsPay
+      }
     },
     optionsToShow() {
       let parents = []
@@ -186,6 +199,7 @@ export default {
           this.task = res.data.data
           document.title = document.title + ' #' + this.task.id
 
+          this.selectedOptions = []
           this.link = this.task.link
           this.description = this.task.description
           this.amount = this.task.amount
@@ -200,6 +214,9 @@ export default {
               this.selectedOptions.push(this.task.options[i].id)
             }
           }
+
+          this.initialPrice = this.priceForCurrentTask
+          this.userBalance = this.user.balance
         }
       })
 
@@ -231,6 +248,8 @@ export default {
           message: 'сохранено.',
           alertType: 1
         })
+
+        this.getTask(this.task.id)
 
         NProgress.done()
       }).catch(err => {

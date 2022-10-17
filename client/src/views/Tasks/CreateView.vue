@@ -47,7 +47,7 @@ import {moment} from "@/moment";
             </div>
           </transition>
           <div class="bg-white mt-7 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
-            <div @click="selectType(1)" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 1}">
+            <div @click="selectType(1)" class="shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 1, 'bg-slate-100': selectedType !== 1}">
               <div class="float-left ml-2 mt-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -60,7 +60,7 @@ import {moment} from "@/moment";
                 <span v-else class="text-gray-500 text-sm">Выбрать</span>
               </div>
             </div>
-            <div @click="selectedType = 2" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 2}">
+            <div @click="selectedType = 2" class=" shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 2, 'bg-slate-100': selectedType !== 2}">
               <div class="float-left ml-2 mt-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
@@ -73,7 +73,7 @@ import {moment} from "@/moment";
                 <span v-else class="text-gray-500 text-sm">Выбрать</span>
               </div>
             </div>
-            <div @click="selectedType = 3" class="bg-slate-100 shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 3}">
+            <div @click="selectedType = 3" class=" shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 cursor-pointer transition duration-300" :class="{'bg-blue-500 text-white ring-blue-300': selectedType === 3, 'bg-slate-100': selectedType !== 3}">
               <div class="float-left ml-2 mt-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-14 h-14">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12" />
@@ -151,7 +151,7 @@ import {moment} from "@/moment";
               <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
               <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
                 <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
-                  <div @click="selectParent(parent)" class="bg-slate-100 cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'rounded-t-lg': showOptions === parent.id}">
+                  <div @click="selectParent(parent)" class=" cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'bg-slate-100': selectedParent !== parent.id, 'rounded-t-lg': showOptions === parent.id}">
                     <div class="py-3 px-4 font-medium text-center">
                       {{ parent.title }}
                       <p class="text-xs -mt-1" :class="{'text-white': selectedParent === parent.id, 'text-gray-500': selectedParent !== parent.id}">{{ $filters.currencyFormat(parent.price) }}</p>
@@ -164,7 +164,7 @@ import {moment} from "@/moment";
                       <div v-if="parent.options.length === 0" class="mt-2 text-center text-slate-500">
                         Нет опций для данной категории
                       </div>
-                      <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow hover:shadow-lg transition duration-300 bg-slate-100 rounded-full" :class="{'bg-blue-500 text-white shadow-lg': selectedOptions.indexOf(option.id) !== -1}">
+                      <div v-for="option in parent.options" @click="selectOption(option)" class="py-2 px-4 mt-2 cursor-pointer shadow hover:shadow-lg transition duration-300 rounded-full" :class="{'bg-blue-500 text-white shadow-lg': selectedOptions.indexOf(option.id) !== -1, 'bg-slate-100': selectedOptions.indexOf(option.id) === -1}">
                         {{ option.title }} <span :class="{'text-white': selectedOptions.indexOf(option.id) !== -1, 'text-slate-500': selectedOptions.indexOf(option.id) === -1}">{{ $filters.currencyFormat(option.price) }}</span>
                       </div>
                     </div>

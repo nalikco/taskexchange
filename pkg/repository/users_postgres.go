@@ -35,7 +35,7 @@ func (r *UsersPostgres) GetAll(full bool) ([]taskexchange.User, error) {
 	var query string
 
 	if full {
-		query = fmt.Sprintf("SELECT %s FROM %s WHERE deleted_at is null ORDER BY id DESC", usersAllColumns, usersTable)
+		query = fmt.Sprintf("SELECT %s FROM %s ORDER BY id DESC", usersAllColumns, usersTable)
 	} else {
 		query = fmt.Sprintf("SELECT %s FROM %s WHERE deleted_at is null ORDER BY id DESC", usersVisibleColumns, usersTable)
 	}
@@ -137,6 +137,13 @@ func (r *UsersPostgres) UpdateOnline(id int) error {
 
 func (r *UsersPostgres) Delete(id int) error {
 	query := fmt.Sprintf("UPDATE %s SET deleted_at=now() WHERE id=$1", usersTable)
+	_, err := r.db.Exec(query, id)
+
+	return err
+}
+
+func (r *UsersPostgres) Restore(id int) error {
+	query := fmt.Sprintf("UPDATE %s SET deleted_at=null WHERE id=$1", usersTable)
 	_, err := r.db.Exec(query, id)
 
 	return err

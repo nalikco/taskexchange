@@ -49,7 +49,37 @@ type getAllOptionsResponse struct {
 }
 
 func (h *Handler) getAllOptions(c *gin.Context) {
-	options, err := h.services.Options.GetAll()
+	isAdmin := h.checkIsAdmin(c)
+
+	var err error
+	var options []taskexchange.Option
+	if isAdmin {
+		options, err = h.services.Options.GetAll(true)
+	} else {
+		options, err = h.services.Options.GetAll(false)
+	}
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllOptionsResponse{
+		Data: options,
+	})
+}
+
+func (h *Handler) getCategories(c *gin.Context) {
+	user, err := getUser(c)
+	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	options, err := h.services.Options.GetCategories()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -71,7 +101,7 @@ func (h *Handler) getOptionById(c *gin.Context) {
 		return
 	}
 
-	option, err := h.services.Options.GetById(id)
+	option, err := h.services.Options.GetById(id, false)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

@@ -15,17 +15,20 @@ type Users interface {
 	CountAll(sort taskexchange.SortUsersCount) (int, error)
 	Update(id int, input taskexchange.UpdateUserInput) error
 	Delete(id int) error
+	Restore(id int) error
 	UpdateOnline(id int) error
 }
 
 type Options interface {
 	Create(parentId int, option taskexchange.Option) (int, error)
-	GetAll() ([]taskexchange.Option, error)
-	GetById(id int) (taskexchange.Option, error)
+	GetAll(full bool) ([]taskexchange.Option, error)
+	GetCategories() ([]taskexchange.Option, error)
+	GetById(id int, full bool) (taskexchange.Option, error)
 	GetByIds(ids []int) ([]taskexchange.Option, error)
 	GetByTitle(title string, parentId int) (taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
+	Restore(id int) error
 }
 
 type Events interface {
@@ -45,11 +48,14 @@ type Tasks interface {
 	Update(id int, input taskexchange.UpdateTaskInput) error
 	GetById(id int) (taskexchange.Task, error)
 	FindAll(limit, offset int) ([]taskexchange.Task, error)
+	FindAllForAdmin(limit, offset int) ([]taskexchange.Task, error)
 	FindAllByUser(userId, limit, offset int) ([]taskexchange.Task, error)
 	CountAll() (int, error)
+	CountAllForAdmin() (int, error)
 	CountAllByUser(userId int) (int, error)
 	CountActiveByUser(userId int) (int, error)
 	Delete(id int) error
+	Restore(id int) error
 }
 
 type TaskOptions interface {
@@ -74,6 +80,7 @@ type Orders interface {
 	FindActiveByTaskId(taskId int) ([]taskexchange.Order, error)
 	FindAllByPerformerId(performerId int) ([]taskexchange.Order, error)
 	CountAllByPerformerId(performerId int) (int, error)
+	FindAll() ([]taskexchange.Order, error)
 	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
 	CountAllByCustomerId(customerId int) (int, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
