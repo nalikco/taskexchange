@@ -24,6 +24,12 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
                 <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" class="rounded-md text-sm font-medium px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+                <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" class="rounded-md text-sm font-medium px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
+                  Сообщения
+                  <span class="bg-slate-700 ml-1 rounded-full px-2 py-1 font-medium text-slate-200">
+                    {{ unViewedMessagesCount }} новых
+                  </span>
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -35,6 +41,9 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" id="user-notifications-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                 </svg>
+                <div class="absolute ml-4 -mt-2 bg-slate-700 rounded-full px-1 text-sm text-slate-200">
+                  {{ events.length }}
+                </div>
               </button>
 
               <NotificationsPopup
@@ -165,6 +174,7 @@ export default {
       showProfileMenu: false,
       showNotifications: false,
       e: emitter,
+      unViewedMessagesCount: 0,
       events: []
     }
   },
@@ -208,10 +218,16 @@ export default {
       this.getNewEvents()
     })
 
+    this.e.on('updateMessageCount', (e) => {
+      this.getUnViewedMessagesCount()
+    })
+
     this.updateUser(false)
 
     if (this.token) {
       this.eventsPolling()
+      this.messagesPolling()
+      this.getUnViewedMessagesCount()
     }
   },
   methods: {
@@ -266,6 +282,25 @@ export default {
         })
       }
     },
+    messagesPolling() {
+      axios.get(import.meta.env.VITE_API_URL + 'messages/polling', {
+        headers: { Authorization: `Bearer ${this.token}` }
+      }).then(res => {
+        if(res.data.data.id !== 0) {
+          this.e.emit('newMessage', res)
+
+          if(this.$route.name !== 'messages') {
+            this.addAlert('Новое сообщение: ', res.data.data.text, 3)
+          }
+        }
+
+        this.getUnViewedMessagesCount()
+
+        this.messagesPolling()
+      }).catch(err => {
+        setTimeout(this.messagesPolling, 10000)
+      })
+    },
     logout(e) {
       e.preventDefault()
 
@@ -307,6 +342,15 @@ export default {
               created_at: res.data.data[i].created_at
             })
           }
+        }
+      })
+    },
+    getUnViewedMessagesCount() {
+      axios.get(import.meta.env.VITE_API_URL + 'messages/count-un-viewed', {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        if (res.data.data) {
+          this.unViewedMessagesCount = res.data.data
         }
       })
     },

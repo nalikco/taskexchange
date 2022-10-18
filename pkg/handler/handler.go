@@ -97,6 +97,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			orders.PUT("/:id", h.userIdentity, h.updateOrder)
 		}
 
+		messages := api.Group("/messages")
+		{
+			messages.GET("/", h.userIdentity, h.getMessages)
+			messages.GET("/polling", h.userIdentity, h.messagesPolling)
+			messages.PUT("/view", h.userIdentity, h.ViewMessages)
+			messages.GET("/count-un-viewed", h.userIdentity, h.CountUnViewedMessages)
+			messages.GET("/conversations", h.userIdentity, h.getConversations)
+			messages.POST("/send", h.userIdentity, h.sendMessage)
+		}
+
 		admin := api.Group("/admin")
 		{
 			admin.GET("/statistics", h.userIdentity, h.adminStatistics)

@@ -68,6 +68,17 @@ type Orders interface {
 	GetAllCompleted() ([]taskexchange.Order, error)
 }
 
+type Messages interface {
+	GetUserConversations(user taskexchange.User) ([]taskexchange.Conversation, error)
+	CreateConversation(members []taskexchange.User) (int, error)
+	GetConversationById(id int) (taskexchange.Conversation, error)
+	SendMessageToRecipient(sender taskexchange.User, recipient taskexchange.User, text string) (int, error)
+	GetMessagesByConversation(conversation taskexchange.Conversation) ([]taskexchange.Message, error)
+	CountUserUnViewedMessages(user taskexchange.User) (int, error)
+	ViewConversation(conversation taskexchange.Conversation, user taskexchange.User) error
+	Polling(user taskexchange.User) (PollingMessage, error)
+}
+
 type Service struct {
 	Authorization
 	Users
@@ -76,6 +87,7 @@ type Service struct {
 	Tasks
 	Offers
 	Orders
+	Messages
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -87,5 +99,6 @@ func NewService(repos *repository.Repository) *Service {
 		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options, repos.Offers),
 		Offers:        NewOffersService(repos.Offers, repos.Tasks, repos.Users, repos.Events, repos.Orders),
 		Orders:        NewOrdersService(repos.Orders, repos.Users, repos.Options, repos.Tasks, repos.TaskOptions, repos.Events),
+		Messages:      NewMessagesService(repos.Messages),
 	}
 }

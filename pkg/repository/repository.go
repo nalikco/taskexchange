@@ -90,6 +90,17 @@ type Orders interface {
 	GetAllCompleted() ([]taskexchange.Order, error)
 }
 
+type Messages interface {
+	GetUserConversations(user taskexchange.User) ([]taskexchange.Conversation, error)
+	CreateConversation(members []taskexchange.User) (int, error)
+	GetConversationById(id int) (taskexchange.Conversation, error)
+	GetMessageById(id int) (taskexchange.Message, error)
+	SendMessageToRecipient(sender taskexchange.User, recipient taskexchange.User, text string) (int, error)
+	GetMessagesByConversation(conversation taskexchange.Conversation) ([]taskexchange.Message, error)
+	CountUserUnViewedMessages(user taskexchange.User) (int, error)
+	ViewConversation(conversation taskexchange.Conversation, user taskexchange.User) error
+}
+
 type Repository struct {
 	Users
 	Events
@@ -98,6 +109,7 @@ type Repository struct {
 	TaskOptions
 	Offers
 	Orders
+	Messages
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -109,5 +121,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		TaskOptions: NewTaskOptionsPostgres(db),
 		Offers:      NewOffersPostgres(db),
 		Orders:      NewOrdersPostgres(db),
+		Messages:    NewMessagesPostgres(db),
 	}
 }

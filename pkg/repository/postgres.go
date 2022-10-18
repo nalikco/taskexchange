@@ -6,13 +6,16 @@ import (
 )
 
 const (
-	usersTable       = "users"
-	eventsTable      = "events"
-	optionsTable     = "options"
-	tasksTable       = "tasks"
-	taskOptionsTable = "task_options"
-	offersTable      = "offers"
-	ordersTable      = "orders"
+	usersTable      				 = "users"
+	eventsTable     				 = "events"
+	optionsTable    				 = "options"
+	tasksTable      				 = "tasks"
+	taskOptionsTable 				 = "task_options"
+	offersTable      				 = "offers"
+	ordersTable						 = "orders"
+	messagesConversationsTable		 = "messages_conversations"
+	messagesConversationMembersTable = "messages_conversation_members"
+	messagesTable					 = "messages"
 )
 
 type Config struct {

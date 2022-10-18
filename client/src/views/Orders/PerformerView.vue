@@ -80,6 +80,11 @@ import {moment} from "@/moment";
                   Закрыть
                 </button>
               </div>
+              <div class="flex flex-col items-center px-2 pb-2">
+                <RouterLink :to="{ name:'messages', query: { recipient_id: order.task.customer.id } }" class="bg-green-200 text-sm flex place-content-center font-medium text-green-700 w-full font-medium py-3 px-2 rounded-lg shadow hover:bg-green-300 transition duration-300">
+                  Написать заказчику
+                </RouterLink>
+              </div>
               <transition name="slide-fade">
                 <div v-if="cancelShow === order.id" class="border-t-2 text-sm py-3 px-4">
                   <div>

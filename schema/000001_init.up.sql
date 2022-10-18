@@ -76,3 +76,30 @@ CREATE TABLE events
     created_at timestamp default(now()) not null,
     deleted_at timestamp
 );
+
+CREATE TABLE messages_conversations
+(
+    id serial not null unique,
+    created_at timestamp default(now()) not null,
+    deleted_at timestamp
+);
+
+CREATE TABLE messages_conversation_members
+(
+    id serial not null unique,
+    conversation_id int references messages_conversations(id) on delete cascade not null,
+    user_id int references users(id) on delete cascade not null,
+    created_at timestamp default(now()) not null,
+    deleted_at timestamp
+);
+
+CREATE TABLE messages
+(
+    id serial not null unique,
+    conversation_id int references messages_conversations(id) on delete cascade not null,
+    user_id int references users(id) on delete cascade not null,
+    text text not null,
+    viewed_at timestamp,
+    created_at timestamp default(now()) not null,
+    deleted_at timestamp
+);

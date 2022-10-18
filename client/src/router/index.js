@@ -58,6 +58,11 @@ const router = createRouter({
       name: 'orders-performer',
       component: () => import('../views/Orders/PerformerView.vue'),
       meta: { requiredPerformer: true }
+    }, {
+      path: '/messages',
+      name: 'messages',
+      component: () => import('../views/Messages/ListView.vue'),
+      meta: { requiredAuth: true }
     },
 
     {
