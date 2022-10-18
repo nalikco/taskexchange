@@ -331,8 +331,8 @@ export default {
       axios.get(import.meta.env.VITE_API_URL + 'events/new', {
         headers: { Authorization: `Bearer ${this.token}` },
       }).then(res => {
+        this.events = []
         if (res.data.data && res.data.data.length > 0) {
-          this.events = []
 
           for (let i = 0; i < res.data.data.length; i++){
             this.events.push({

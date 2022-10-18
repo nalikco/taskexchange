@@ -10,9 +10,9 @@ import {moment} from "@/moment";
     </header>
     <main>
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <div class="flex antialiased text-gray-800">
-          <div class="flex flex-row w-full overflow-x-hidden">
-            <div class="flex flex-col bg-white flex-shrink-0 rounded-2xl" :class="{'w-full': selectedConversationIndex === -1 && !newRecipient, 'w-64': selectedConversationIndex !== -1 || newRecipient}">
+        <div class="flex mx-3 md:mx-0 antialiased text-gray-800">
+          <div class="md:flex md:flex-row w-full overflow-x-hidden">
+            <div class="flex flex-col bg-white flex-shrink-0 rounded-2xl" :class="{'w-full': selectedConversationIndex === -1 && !newRecipient, 'w-full md:w-64': selectedConversationIndex !== -1 || newRecipient}">
               <div class="flex flex-col pb-2">
                 <div class="flex flex-row items-center justify-between rounded-2xl px-3 py-2 text-sm bg-slate-200 font-medium text-slate-900">
                   Беседы
@@ -20,39 +20,44 @@ import {moment} from "@/moment";
                     {{ conversations.length }}
                   </span>
                 </div>
-                <div class="flex flex-col space-y-1 mt-2 -mx-2 px-3 overflow-y-auto">
+                <div class="flex flex-col space-y-1 mt-2 -mx-2 px-3 overflow-y-auto max-h-64">
                   <button v-for="(conversation, i) in conversations" @click="goToDialogWithUser(getConversationRecipient(conversation).id)" class="relative flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
                     <div v-if="getConversationUnViewedMessagesCount(conversation) > 0" class="absolute right-0 text-sm mr-5 bg-blue-500 rounded-full h-5 w-5 text-white font-semibold">
                       {{ getConversationUnViewedMessagesCount(conversation) }}
                     </div>
                     <div class="flex items-center justify-center h-10 w-10 bg-indigo-200 rounded-full">
-                      {{ getConversationRecipient(conversation).username.substring(0, 1) }}
+                      <img src="@/assets/img/user.png" class="rounded-full">
                     </div>
                     <div class="ml-2 text-sm">
                       <div class="font-medium flex items-center">
                         {{ getConversationRecipient(conversation).username }}
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
-                      <div v-if="conversation.messages[conversation.messages.length - 1].sender.id === user.id" class="text-xs -mt-1 text-left text-slate-600">
-                        <span class="text-slate-400">Вы:</span> {{ conversation.messages[conversation.messages.length - 1].text }}
+                      <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left text-slate-600">
+                        <span class="text-slate-400">Вы:</span> {{ conversation.messages[0].text }}
                       </div>
                       <div v-else class="text-xs -mt-1 text-left text-slate-600">
-                        {{ conversation.messages[conversation.messages.length - 1].text }}
+                        {{ conversation.messages[0].text }}
                       </div>
                     </div>
                   </button>
                 </div>
               </div>
             </div>
-            <div class="flex flex-col flex-auto h-full px-4" v-if="selectedConversationIndex !== -1" @timeupdate="scrollToMessagesBottom">
+            <div class="flex flex-col flex-auto h-full mt-10 md:mt-0 md:px-4" v-if="selectedConversationIndex !== -1" @timeupdate="scrollToMessagesBottom">
               <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full">
                 <div class="bg-white w-full font-medium text-sm shadow rounded-t-2xl py-3 px-5">
-                  {{ getConversationRecipient(conversations[selectedConversationIndex]).username }}<br>
-                  <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
-                    <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
-                  </div>
-                  <div v-else class="flex items-center text-slate-500 -mt-1 text-xs">
-                    онлайн {{ moment(getConversationRecipient(conversations[selectedConversationIndex]).last_online).utcOffset(+6, true).fromNow() }}
+                  <div class="flex flex-row items-center">
+                    <img src="@/assets/img/user.png" class="h-10 w-10 rounded-full">
+                    <div class="ml-4">
+                      {{ getConversationRecipient(conversations[selectedConversationIndex]).username }}<br>
+                      <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
+                        <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
+                      </div>
+                      <div v-else class="flex items-center text-slate-500 -mt-1 text-xs">
+                        онлайн {{ moment(getConversationRecipient(conversations[selectedConversationIndex]).last_online).utcOffset(+6, true).fromNow() }}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div ref="messages" class="flex flex-col overflow-x-auto scrollbar-thin scrollbar-thumb-rounded-xl scrollbar-thumb-gray-400 scrollbar-track-gray-200" style="max-height: 60vh;">
@@ -64,25 +69,25 @@ import {moment} from "@/moment";
                       }">
                         <div v-if="message.sender.id !== user.id" class="flex flex-row items-center">
                           <div class="flex items-center justify-center h-10 w-10 text-white rounded-full bg-indigo-500 flex-shrink-0">
-                            {{ message.sender.username.substring(0, 1) }}
+                            <img src="@/assets/img/user.png" class="rounded-full">
                           </div>
                           <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                             <div>
                               {{ message.text }}
-                              <div class="text-slate-400 text-xs font-medium">{{ moment(message.created_at).utc(0).format('lll') }}</div>
+                              <div class="text-slate-400 text-xs font-medium">{{ dateView(message.created_at) }}</div>
                             </div>
                           </div>
                         </div>
-                        <div v-else class="flex items-center justify-start flex-row-reverse">
+                        <div v-else class="flex items-center justify-start flex-row-reverse" :class="{'mb-5': getLastUserViewedMessage(conversations[selectedConversationIndex]) && getLastUserViewedMessage(conversations[selectedConversationIndex]).id === message.id}">
                           <div class="flex items-center justify-center h-10 w-10 text-white rounded-full bg-indigo-500 flex-shrink-0">
-                            {{ message.sender.username.substring(0, 1) }}
+                            <img src="@/assets/img/user.png" class="rounded-full">
                           </div>
                           <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                             <div>
                               {{ message.text }}
-                              <div class="text-slate-400 text-xs font-medium">{{ moment(message.created_at).utc(0).format('lll') }}</div>
+                              <div class="text-slate-400 text-xs font-medium">{{ dateView(message.created_at) }}</div>
                             </div>
-                            <div v-if="message.id === getLastUserMessage(conversations[selectedConversationIndex]).id && message.viewed_at" class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
+                            <div v-if="getLastUserViewedMessage(conversations[selectedConversationIndex]) && getLastUserViewedMessage(conversations[selectedConversationIndex]).id === message.id" class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
                               просмотрено
                             </div>
                           </div>
@@ -267,11 +272,35 @@ export default {
 
       return count
     },
+    dateView(date) {
+      let dateObj = moment(date).utc(0)
+      let currentDateObj = moment()
+
+      if (dateObj.isSame(currentDateObj, 'days')) {
+        return "сегодня в " + dateObj.format('HH:mm')
+      }
+      else if (dateObj.subtract(1, 'days').isSame(currentDateObj, 'days')) {
+        return "вчера в " + dateObj.format('HH:mm')
+      } else {
+        return dateObj.format('DD MMM в HH:mm')
+      }
+    },
     getLastUserMessage(conversation) {
       let userMessages = []
 
       for(let i = 0; i < conversation.messages.length; i++) {
         if (conversation.messages[i].sender.id === this.user.id) {
+          userMessages.push(conversation.messages[i])
+        }
+      }
+
+      return userMessages[0]
+    },
+    getLastUserViewedMessage(conversation) {
+      let userMessages = []
+
+      for(let i = 0; i < conversation.messages.length; i++) {
+        if (conversation.messages[i].sender.id === this.user.id && conversation.messages[i].viewed_at) {
           userMessages.push(conversation.messages[i])
         }
       }
