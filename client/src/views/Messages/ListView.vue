@@ -14,27 +14,36 @@ import {moment} from "@/moment";
           <div class="md:flex md:flex-row w-full overflow-x-hidden">
             <div class="flex flex-col bg-white flex-shrink-0 rounded-2xl" :class="{'w-full': selectedConversationIndex === -1 && !newRecipient, 'w-full md:w-64': selectedConversationIndex !== -1 || newRecipient}">
               <div class="flex flex-col pb-2">
-                <div class="flex flex-row items-center justify-between rounded-2xl px-3 py-2 text-sm bg-slate-200 font-medium text-slate-900">
+                <div class="flex flex-row items-center font-semibold justify-between rounded-2xl px-3 py-2 text-sm bg-slate-200 font-medium text-slate-900">
                   Беседы
                   <span class="flex items-center justify-center bg-slate-400 text-white h-5 w-5 rounded-full">
                     {{ conversations.length }}
                   </span>
                 </div>
                 <div class="flex flex-col space-y-1 mt-2 -mx-2 px-3 overflow-y-auto max-h-64">
-                  <button v-for="(conversation, i) in conversations" @click="goToDialogWithUser(getConversationRecipient(conversation).id)" class="relative flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
+                  <button v-for="(conversation, i) in conversations" @click="goToDialogWithUser(getConversationRecipient(conversation).id)" class="relative flex flex-row items-center rounded-xl p-2" :class="{
+                    'hover:bg-gray-200': selectedConversationIndex !== i,
+                    'bg-blue-500 text-white': selectedConversationIndex === i
+                  }">
                     <div v-if="getConversationUnViewedMessagesCount(conversation) > 0" class="absolute right-0 text-sm mr-5 bg-blue-500 rounded-full h-5 w-5 text-white font-semibold">
                       {{ getConversationUnViewedMessagesCount(conversation) }}
                     </div>
                     <div class="flex items-center justify-center h-10 w-10 bg-indigo-200 rounded-full">
                       <img src="@/assets/img/user.png" class="rounded-full">
                     </div>
-                    <div class="ml-2 text-sm">
-                      <div class="font-medium flex items-center">
+                    <div class="ml-2 text-sm font-semibold">
+                      <div class="flex items-center">
                         {{ getConversationRecipient(conversation).username }}
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
-                      <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left text-slate-600">
-                        <span class="text-slate-400">Вы:</span> {{ conversation.messages[0].text.substring(0, 15) }}...
+                      <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left" :class="{
+                          'text-white': selectedConversationIndex === i,
+                          'text-slate-600': selectedConversationIndex !== i
+                        }">
+                        <span :class="{
+                          'text-white': selectedConversationIndex === i,
+                          'text-slate-400': selectedConversationIndex !== i
+                        }">Вы:</span> {{ conversation.messages[0].text.substring(0, 15) }}...
                       </div>
                       <div v-else class="text-xs -mt-1 text-left text-slate-600">
                         {{ conversation.messages[0].text.substring(0, 18) }}...
@@ -49,7 +58,7 @@ import {moment} from "@/moment";
                 <div class="bg-white w-full font-medium text-sm shadow rounded-t-2xl py-3 px-5">
                   <div class="flex flex-row items-center">
                     <img src="@/assets/img/user.png" class="h-10 w-10 rounded-full">
-                    <div class="ml-4">
+                    <div class="ml-4 font-semibold">
                       {{ getConversationRecipient(conversations[selectedConversationIndex]).username }}<br>
                       <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                         <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
@@ -74,7 +83,7 @@ import {moment} from "@/moment";
                           <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                             <div>
                               {{ message.text }}
-                              <div class="text-slate-400 text-xs font-medium">{{ dateView(message.created_at) }}</div>
+                              <div class="text-slate-400 text-xs font-semibold">{{ dateView(message.created_at) }}</div>
                             </div>
                           </div>
                         </div>
@@ -85,9 +94,9 @@ import {moment} from "@/moment";
                           <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                             <div>
                               {{ message.text }}
-                              <div class="text-slate-400 text-xs font-medium">{{ dateView(message.created_at) }}</div>
+                              <div class="text-slate-400 text-xs font-semibold">{{ dateView(message.created_at) }}</div>
                             </div>
-                            <div v-if="getLastUserViewedMessage(conversations[selectedConversationIndex]) && getLastUserViewedMessage(conversations[selectedConversationIndex]).id === message.id" class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
+                            <div v-if="getLastUserViewedMessage(conversations[selectedConversationIndex]) && getLastUserViewedMessage(conversations[selectedConversationIndex]).id === message.id" class="absolute text-xs font-semibold bottom-0 right-0 -mb-5 mr-2 text-gray-500">
                               просмотрено
                             </div>
                           </div>
@@ -103,9 +112,9 @@ import {moment} from "@/moment";
                     </div>
                   </div>
                   <div class="ml-2">
-                    <button @click="sendMessage" :disabled="newMessageText === ''" class="flex items-center text-sm justify-center bg-indigo-500 rounded-xl text-white px-4 py-2 font-medium flex-shrink-0" :class="{
+                    <button @click="sendMessage" :disabled="newMessageText === ''" class="flex items-center text-sm justify-center bg-indigo-500 rounded-xl text-white px-4 py-2 font-semibold flex-shrink-0" :class="{
                       'opacity-50': newMessageText === '',
-                      'hover:bg-indigo-600': newMessageText !== ''
+                      'hover:bg-indigo-600 ': newMessageText !== ''
                     }">
                       <span>Отправить</span>
                       <span class="ml-2">
@@ -131,7 +140,7 @@ import {moment} from "@/moment";
             </div>
             <div class="flex flex-col flex-auto h-full px-4" v-if="newRecipient !== null">
               <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full">
-                <div class="bg-white w-full font-medium text-sm shadow rounded-t-2xl py-3 px-5">
+                <div class="bg-white w-full font-semibold text-sm shadow rounded-t-2xl py-3 px-5">
                   {{ newRecipient.username }}<br>
                   <div v-if="checkIsOnline(newRecipient.last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                     <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
@@ -142,7 +151,7 @@ import {moment} from "@/moment";
                 </div>
                 <div ref="messages" class="flex flex-col overflow-x-auto" style="max-height: 60vh;">
                   <div class="flex flex-col">
-                    <div class="flex flex-col gap-3 bg-gray-200 h-60 items-center text-gray-500 pb-7 pt-5 px-5 rounded-b-2xl">
+                    <div class="flex flex-col gap-3 bg-gray-200 h-60 font-semibold items-center text-gray-500 pb-7 pt-5 px-5 rounded-b-2xl">
                       У Вас ещё нет диалога с данным пользователем.
                     </div>
                   </div>
@@ -154,7 +163,7 @@ import {moment} from "@/moment";
                     </div>
                   </div>
                   <div class="ml-2">
-                    <button @click="sendMessage" :disabled="newMessageText === ''" class="flex items-center text-sm justify-center bg-indigo-500 rounded-xl text-white px-4 py-2 font-medium flex-shrink-0" :class="{
+                    <button @click="sendMessage" :disabled="newMessageText === ''" class="flex items-center text-sm justify-center bg-indigo-500 rounded-xl text-white px-4 py-2 font-semibold flex-shrink-0" :class="{
                       'opacity-50': newMessageText === '',
                       'hover:bg-indigo-600': newMessageText !== ''
                     }">
@@ -251,7 +260,6 @@ export default {
             document.title = 'Диалог с ' + this.getConversationRecipient(this.conversations[c]).username
 
             this.viewConversation(this.conversations[c].id)
-            this.e.emit('updateMessageCount')
             return
           }
         }
@@ -321,6 +329,7 @@ export default {
         headers: { Authorization: `Bearer ${this.token}` }
       }).then(res => {
         this.getConversations()
+        this.e.emit('updateMessageCount')
       })
     },
     sendMessage() {
