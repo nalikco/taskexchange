@@ -34,10 +34,10 @@ import {moment} from "@/moment";
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
                       <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left text-slate-600">
-                        <span class="text-slate-400">Вы:</span> {{ conversation.messages[0].text }}
+                        <span class="text-slate-400">Вы:</span> {{ conversation.messages[0].text.substring(0, 15) }}...
                       </div>
                       <div v-else class="text-xs -mt-1 text-left text-slate-600">
-                        {{ conversation.messages[0].text }}
+                        {{ conversation.messages[0].text.substring(0, 18) }}...
                       </div>
                     </div>
                   </button>
@@ -307,6 +307,13 @@ export default {
 
       return userMessages[0]
     },
+    sortConversationsByLastMessageDate(conversations) {
+      conversations.sort(function(a,b){
+        return new Date(b.messages[0].created_at) - new Date(a.messages[0].created_at);
+      });
+
+      return conversations
+    },
     viewConversation(conversationId) {
       axios.put(import.meta.env.VITE_API_URL + 'messages/view', {
         conversation_id: conversationId
@@ -378,7 +385,7 @@ export default {
         headers: { Authorization: `Bearer ${this.token}` }
       }).then(res => {
         if(res.data.data) {
-          this.conversations = res.data.data
+          this.conversations = this.sortConversationsByLastMessageDate(res.data.data)
         }
 
         if(afterNewRecipient !== 0){
