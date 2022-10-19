@@ -106,6 +106,22 @@ type Payments interface {
 	GetByUser(user taskexchange.User) ([]taskexchange.Payment, error)
 }
 
+type Posts interface {
+	CreateCategory(category taskexchange.PostCategory) (int, error)
+	CreatePost(post taskexchange.Post) (int, error)
+	GetById(id int, deleted bool) (taskexchange.Post, error)
+	GetCategoryById(id int) (taskexchange.PostCategory, error)
+	GetCategoriesById(ids []int) ([]taskexchange.PostCategory, error)
+	GetAll(limit, offset int) ([]taskexchange.Post, error)
+	GetAllCategories() ([]taskexchange.PostCategory, error)
+	Update(id int, input taskexchange.UpdatePostInput) error
+	UpdateCategory(id int, input taskexchange.UpdatePostCategoryInput) error
+	Delete(id int) error
+	DeleteCategory(id int) error
+	Restore(id int) error
+	RestoreCategory(id int) error
+}
+
 type Repository struct {
 	Users
 	Events
@@ -116,6 +132,7 @@ type Repository struct {
 	Orders
 	Messages
 	Payments
+	Posts
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -129,5 +146,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Orders:      NewOrdersPostgres(db),
 		Messages:    NewMessagesPostgres(db),
 		Payments:    NewPaymentsPostgres(db),
+		Posts:       NewPostsPostgres(db),
 	}
 }

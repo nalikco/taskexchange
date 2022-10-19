@@ -112,6 +112,23 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			payments.GET("/", h.userIdentity, h.GetUserPayments)
 		}
 
+		posts := api.Group("/posts")
+		{
+			posts.GET("/", h.GetAllPosts)
+			posts.POST("/", h.userIdentity, h.CreatePost)
+			posts.GET("/:id", h.GetPostById)
+			posts.PUT("/:id", h.userIdentity, h.UpdatePost)
+			posts.DELETE("/:id", h.userIdentity, h.DeletePost)
+
+			categories := posts.Group("/categories")
+			{
+				categories.GET("/", h.GetAllCategories)
+				categories.POST("/", h.userIdentity, h.CreateCategory)
+				categories.PUT("/:id", h.userIdentity, h.UpdateCategory)
+				categories.DELETE("/:id", h.userIdentity, h.DeleteCategory)
+			}
+		}
+
 		admin := api.Group("/admin")
 		{
 			admin.GET("/statistics", h.userIdentity, h.adminStatistics)

@@ -212,7 +212,7 @@ func (r *MessagesPostgres) GetMessagesByConversation(conversation taskexchange.C
 	var messages []taskexchange.Message
 	var messagesDb []messagesDb
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE conversation_id=$1 ORDER BY created_at DESC LIMIT 25", messagesTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE conversation_id=$1 ORDER BY created_at DESC LIMIT 500", messagesTable)
 	err := r.db.Select(&messagesDb, query, conversation.ID)
 	if err != nil {
 		return messages, err

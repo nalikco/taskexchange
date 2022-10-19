@@ -43,13 +43,16 @@ import {moment} from "@/moment";
                         <span :class="{
                           'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-400': selectedConversationIndex !== i
-                        }">Вы:</span> {{ conversation.messages[0].text.substring(0, 15) }}...
+                        }">Вы:</span>
+                        <span class="ml-1" v-if="conversation.messages[0].text.length > 15">{{ conversation.messages[0].text.substring(0, 15) }}...</span>
+                        <span class="ml-1" v-else>{{ conversation.messages[0].text }}</span>
                       </div>
                       <div v-else class="text-xs -mt-1 text-left" :class="{
                           'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-600': selectedConversationIndex !== i
                         }">
-                        {{ conversation.messages[0].text.substring(0, 18) }}...
+                        <span v-if="conversation.messages[0].text.length > 20">{{ conversation.messages[0].text.substring(0, 20) }}...</span>
+                        <span v-else>{{ conversation.messages[0].text }}</span>
                       </div>
                     </div>
                   </button>
@@ -84,7 +87,7 @@ import {moment} from "@/moment";
                             <img src="@/assets/img/user.png" class="rounded-full">
                           </div>
                           <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                            <div>
+                            <div class="break-all">
                               {{ message.text }}
                               <div class="text-slate-400 text-xs font-semibold">{{ dateView(message.created_at) }}</div>
                             </div>
@@ -95,7 +98,7 @@ import {moment} from "@/moment";
                             <img src="@/assets/img/user.png" class="rounded-full">
                           </div>
                           <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                            <div>
+                            <div class="break-all">
                               {{ message.text }}
                               <div class="text-slate-400 text-xs font-semibold">{{ dateView(message.created_at) }}</div>
                             </div>
@@ -285,12 +288,13 @@ export default {
     },
     dateView(date) {
       let dateObj = moment(date).utc(0)
+      let yesterday = moment(date).utc(0).subtract(1, 'days')
       let currentDateObj = moment()
 
       if (dateObj.isSame(currentDateObj, 'days')) {
         return "сегодня в " + dateObj.format('HH:mm')
       }
-      else if (dateObj.subtract(1, 'days').isSame(currentDateObj, 'days')) {
+      else if (yesterday.isSame(currentDateObj, 'days')) {
         return "вчера в " + dateObj.format('HH:mm')
       } else {
         return dateObj.format('DD MMM в HH:mm')

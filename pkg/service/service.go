@@ -84,6 +84,20 @@ type Payments interface {
 	GetByUser(user taskexchange.User) ([]taskexchange.Payment, error)
 }
 
+type Posts interface {
+	CreateCategory(category taskexchange.PostCategory) (int, error)
+	CreatePost(post taskexchange.Post) (int, error)
+	GetById(id int) (taskexchange.Post, error)
+	GetCategoryById(id int) (taskexchange.PostCategory, error)
+	GetCategoriesById(ids []int) ([]taskexchange.PostCategory, error)
+	GetAll(limit, offset int) ([]taskexchange.Post, error)
+	GetAllCategories() ([]taskexchange.PostCategory, error)
+	Update(id int, input taskexchange.UpdatePostInput) error
+	UpdateCategory(id int, input taskexchange.UpdatePostCategoryInput) error
+	Delete(id int) error
+	DeleteCategory(id int) error
+}
+
 type Service struct {
 	Authorization
 	Users
@@ -94,6 +108,7 @@ type Service struct {
 	Orders
 	Messages
 	Payments
+	Posts
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -107,5 +122,6 @@ func NewService(repos *repository.Repository) *Service {
 		Orders:        NewOrdersService(repos.Orders, repos.Users, repos.Options, repos.Tasks, repos.TaskOptions, repos.Events, repos.Payments),
 		Messages:      NewMessagesService(repos.Messages),
 		Payments:      NewPaymentsService(repos.Payments),
+		Posts:         NewPostsService(repos.Posts),
 	}
 }

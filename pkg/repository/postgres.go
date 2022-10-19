@@ -17,6 +17,9 @@ const (
 	messagesConversationMembersTable = "messages_conversation_members"
 	messagesTable                    = "messages"
 	paymentsTable                    = "payments"
+	postsTable                       = "posts"
+	postCategoriesTable              = "post_categories"
+	postCategoryTable                = "post_category"
 )
 
 type Config struct {
