@@ -103,7 +103,7 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                   <span class="text-gray-500 font-medium">0 в работе</span>
                 </div>
               </div>
-              <div v-if="user.type === 1" class="bg-white shadow flex flex-row items-center pl-5 hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
+              <RouterLink v-if="user.type === 1" :to="{name:'messages'}" class="bg-white shadow flex flex-row items-center pl-5 hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
                 <div class="bg-green-500 rounded-md p-3">
                   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M6 21.8042L12.0868 18H20C21.1046 18 22 17.1046 22 16V4C22 2.89543 21.1046 2 20 2H4C2.89543 2 2 2.89543 2 4V16C2 17.1046 2.89543 18 4 18H6V21.8042ZM11.5132 16L8 18.1958V16H4V4H20V16H11.5132ZM7 13V11H14V13H7ZM7 7V9H16V7H7Z" fill="#ffffff"/>
@@ -112,10 +112,10 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                 <div class="ml-5 py-3">
                   Диалоги с заказчиками
                   <br>
-                  <span class="text-gray-500 font-medium">15 новых сообщений</span>
+                  <span class="text-gray-500 font-medium">{{ unViewedMessagesCount }} {{ $filters.declOfNum(unViewedMessagesCount, ['новое сообщение', 'новых сообщения', 'новых сообщений'])}}</span>
                 </div>
-              </div>
-              <div v-if="user.type === 2" class="bg-white shadow flex flex-row pl-5 items-center hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
+              </RouterLink>
+              <RouterLink v-if="user.type === 2" :to="{name:'messages'}" class="bg-white shadow flex flex-row pl-5 items-center hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
                 <div class="bg-green-500 rounded-md p-3">
                   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M6 21.8042L12.0868 18H20C21.1046 18 22 17.1046 22 16V4C22 2.89543 21.1046 2 20 2H4C2.89543 2 2 2.89543 2 4V16C2 17.1046 2.89543 18 4 18H6V21.8042ZM11.5132 16L8 18.1958V16H4V4H20V16H11.5132ZM7 13V11H14V13H7ZM7 7V9H16V7H7Z" fill="#ffffff"/>
@@ -124,9 +124,9 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                 <div class="ml-5 py-3">
                   Диалоги с исполнителями
                   <br>
-                  <span class="text-gray-500 font-medium">15 новых сообщений</span>
+                  <span class="text-gray-500 font-medium">{{ unViewedMessagesCount }} {{ $filters.declOfNum(unViewedMessagesCount, ['новое сообщение', 'новых сообщения', 'новых сообщений'])}}</span>
                 </div>
-              </div>
+              </RouterLink>
             </div>
           </div>
         </div>
@@ -141,8 +141,13 @@ import {useUserStore} from "@/stores/user";
 import NProgress from "nprogress";
 
 export default {
+  data() {
+    return {
+      unViewedMessagesCount: 0
+    }
+  },
   computed: {
-    ...mapState(useUserStore, ['user']),
+    ...mapState(useUserStore, ['user', 'token']),
   },
   mounted() {
     if(this.user.type === 1) document.title = 'Кабинет исполнителя'
@@ -163,7 +168,16 @@ export default {
       this.showNotifications = false
 
       this.$router.push({ name: 'sign-in' })
-    }
+    },
+    getUnViewedMessagesCount() {
+      axios.get(import.meta.env.VITE_API_URL + 'messages/count-un-viewed', {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        if (res.data.data) {
+          this.unViewedMessagesCount = res.data.data
+        }
+      })
+    },
   }
 }
 </script>
