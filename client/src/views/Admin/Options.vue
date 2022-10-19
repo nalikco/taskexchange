@@ -25,6 +25,10 @@ import AdminMenu from '@/components/AdminMenu.vue'
                 Название
               </th>
               <th scope="col" class="py-3 px-6">
+                Короткое название
+                <br>(инонка)
+              </th>
+              <th scope="col" class="py-3 px-6">
                 Тип
               </th>
               <th scope="col" class="py-3 px-6">
@@ -45,6 +49,9 @@ import AdminMenu from '@/components/AdminMenu.vue'
               </td>
               <td v-else class="py-4 px-6 font-medium text-slate-400">
                 {{ option.title }}<br>(архив)
+              </td>
+              <td class="py-4 px-6 font-medium text-slate-700">
+                {{ option.short }}
               </td>
               <td v-if="!option.parent_id" class="py-4 px-6 font-medium text-slate-700">
                 Категория
@@ -81,6 +88,10 @@ import AdminMenu from '@/components/AdminMenu.vue'
                     <div class="mt-6 mb-6">
                       <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Наименование</label>
                       <input type="text" @input="onEditFormChange($event, 'editTitle')" @change="onEditFormChange($event, 'editTitle')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editTitle" placeholder="Наименование" required>
+                    </div>
+                    <div v-if="!editParentId" class="mt-6 mb-6">
+                      <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Наименование</label>
+                      <input type="text" @input="onEditFormChange($event, 'editShort')" @change="onEditFormChange($event, 'editShort')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editShort" placeholder="Короткое название (иконка)" required>
                     </div>
                     <div class="mb-6">
                       <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Родитель (категория)</label>
@@ -122,6 +133,7 @@ export default {
       categories: [],
       openEditModal: false,
       editId: 0,
+      editShort: '',
       editOption: null,
       editParentId: 0,
       editTitle: '',
@@ -151,11 +163,13 @@ export default {
     },
     toggleEditModal(option = null) {
       this.editId = 0
+      this.editShort = ''
       this.editTitle = ''
       this.editParentId = 0
       this.editPrice = 0
       if(option) {
         this.editId = option.id
+        this.editShort = option.short
         this.editParentId = option.parent_id
         this.editTitle = option.title
         this.editPrice = option.price
@@ -202,6 +216,7 @@ export default {
 
       let data = {
         title: this.editTitle,
+        short: this.editShort,
         price: parseFloat(this.editPrice)
       }
 
@@ -220,6 +235,7 @@ export default {
 
       let data = {}
       if (this.editOption.title !== this.editTitle) data.title = this.editTitle
+      if (this.editOption.short !== this.editShort) data.short = this.editShort
       if (this.editOption.price !== parseFloat(this.editPrice)) data.price = parseFloat(this.editPrice)
       if (this.editOption.parent_id !== parseInt(this.editParentId)) data.parent_id = parseInt(this.editParentId)
 

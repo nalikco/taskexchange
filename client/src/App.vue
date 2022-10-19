@@ -24,6 +24,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
                 <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" class="rounded-md text-sm font-semibold px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+                <RouterLink v-if="user.type !== 0" :to="{'name': 'tasks'}" class="rounded-md text-sm font-semibold px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === 'tasks', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'tasks'}">Биржа</RouterLink>
                 <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" class="rounded-md text-sm font-semibold px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
                   Сообщения
                   <span class="bg-slate-700 ml-1 rounded-full px-2 py-1 font-medium text-slate-200">
@@ -113,6 +114,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
         <div v-if="showMobileMenu" class="md:hidden" id="mobile-menu">
           <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-semibold" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+            <RouterLink v-if="user.type !== 0" :to="{'name': 'tasks'}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-semibold" :class="{'bg-gray-900 text-white': $route.name === 'tasks', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'tasks'}">Биржа</RouterLink>
             <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-semibold" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
               Сообщения
               <span class="bg-slate-700 ml-1 rounded-full px-2 py-1 font-medium text-slate-200">
@@ -182,7 +184,6 @@ export default {
     return {
       topMenu: [
         {'to': 'home', 'title': 'Главная'},
-        {'to': 'tasks', 'title': 'Биржа'},
       ],
       alerts: [],
       alertTimers: [],

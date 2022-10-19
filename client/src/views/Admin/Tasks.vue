@@ -155,7 +155,7 @@ export default {
     getTasks() {
       NProgress.start()
 
-      axios.get(import.meta.env.VITE_API_URL + 'tasks/?page=' + this.currentPage + '&per_page=' + this.perPage, {
+      axios.get(import.meta.env.VITE_API_URL + 'tasks/admin?page=' + this.currentPage + '&per_page=' + this.perPage, {
         headers: { Authorization: `Bearer ${this.token}` },
       }).then(res => {
         if(res.data.data) {

@@ -12,14 +12,14 @@ import {moment} from "@/moment";
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <div class="flex mx-3 md:mx-0 antialiased text-gray-800">
           <div class="md:flex md:flex-row w-full overflow-x-hidden">
-            <div class="flex flex-col bg-white flex-shrink-0 rounded-2xl" :class="{'w-full': selectedConversationIndex === -1 && !newRecipient, 'w-full md:w-64': selectedConversationIndex !== -1 || newRecipient}">
-              <div class="flex flex-col pb-2">
-                <div class="flex flex-row items-center font-semibold justify-between rounded-2xl px-3 py-2 text-sm bg-slate-200 font-medium text-slate-900">
-                  Беседы
-                  <span class="flex items-center justify-center bg-slate-400 text-white h-5 w-5 rounded-full">
+            <div class="flex flex-col flex-shrink-0 rounded-2xl" :class="{'w-full': selectedConversationIndex === -1 && !newRecipient, 'w-full md:w-64': selectedConversationIndex !== -1 || newRecipient}">
+              <div class="flex flex-row items-center font-semibold justify-between rounded px-3 py-2 text-sm bg-slate-200 font-medium text-slate-900">
+                Беседы
+                <span class="flex items-center justify-center bg-slate-400 text-white h-5 w-5 rounded-full">
                     {{ conversations.length }}
                   </span>
-                </div>
+              </div>
+              <div class="flex flex-col bg-white mt-3 rounded pb-2">
                 <div class="flex flex-col space-y-1 mt-2 -mx-2 px-3 overflow-y-auto max-h-64">
                   <button v-for="(conversation, i) in conversations" @click="goToDialogWithUser(getConversationRecipient(conversation).id)" class="relative flex flex-row items-center rounded-xl p-2" :class="{
                     'hover:bg-gray-200': selectedConversationIndex !== i,
@@ -36,7 +36,7 @@ import {moment} from "@/moment";
                         {{ getConversationRecipient(conversation).username }}
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
-                      <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left" :class="{
+                      <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs text-left" :class="{
                           'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-600': selectedConversationIndex !== i
                         }">
@@ -47,7 +47,7 @@ import {moment} from "@/moment";
                         <span class="ml-1" v-if="conversation.messages[0].text.length > 15">{{ conversation.messages[0].text.substring(0, 15) }}...</span>
                         <span class="ml-1" v-else>{{ conversation.messages[0].text }}</span>
                       </div>
-                      <div v-else class="text-xs -mt-1 text-left" :class="{
+                      <div v-else class="text-xs text-left" :class="{
                           'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-600': selectedConversationIndex !== i
                         }">
@@ -65,7 +65,7 @@ import {moment} from "@/moment";
                   <div class="flex flex-row items-center">
                     <img src="@/assets/img/user.png" class="h-10 w-10 rounded-full">
                     <div class="ml-4 font-semibold">
-                      {{ getConversationRecipient(conversations[selectedConversationIndex]).username }}<br>
+                      <RouterLink :to="{ name: 'profile', params: { user_id: getConversationRecipient(conversations[selectedConversationIndex]).id }}">{{ getConversationRecipient(conversations[selectedConversationIndex]).username }}</RouterLink><br>
                       <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                         <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
                       </div>

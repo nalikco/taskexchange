@@ -48,6 +48,7 @@ const router = createRouter({
       path: '/tasks',
       name: 'tasks',
       component: () => import('../views/Tasks/ListView.vue'),
+      meta: { requiredAuth: true }
     }, {
       path: '/orders/customer',
       name: 'orders-customer',
@@ -67,6 +68,11 @@ const router = createRouter({
       path: '/payments',
       name: 'payments',
       component: () => import('../views/Payments.vue'),
+      meta: { requiredAuth: true }
+    }, {
+      path: '/user-:user_id',
+      name: 'profile',
+      component: () => import('../views/Profile.vue'),
       meta: { requiredAuth: true }
     },
 

@@ -10,6 +10,7 @@ import (
 type createOptionInput struct {
 	ParentId int     `json:"parent_id"`
 	Title    string  `json:"title" binding:"required,max=100"`
+	Short    string  `json:"short" binding:"required,max=100"`
 	Price    float64 `json:"price" binding:"required,numeric"`
 }
 
@@ -32,6 +33,7 @@ func (h *Handler) createOption(c *gin.Context) {
 
 	id, err := h.services.Options.Create(input.ParentId, taskexchange.Option{
 		Title: input.Title,
+		Short: &input.Short,
 		Price: input.Price,
 	})
 	if err != nil {

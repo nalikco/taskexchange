@@ -337,6 +337,11 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 	}
 
 	for i, task := range tasks {
+		tasks[i].Customer, err = s.usersRepo.GetById(task.CustomerId, false)
+		if err != nil {
+			return []taskexchange.Task{}, pagination, err
+		}
+
 		taskOptions, err := s.taskOptionsRepo.GetByTaskId(task.Id)
 		if err != nil {
 			return []taskexchange.Task{}, pagination, err

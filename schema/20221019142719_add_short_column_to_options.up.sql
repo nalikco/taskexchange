@@ -1,0 +1,1 @@
+ALTER TABLE options ADD COLUMN short varchar(255);

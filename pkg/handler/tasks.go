@@ -122,10 +122,10 @@ func (h *Handler) createTask(c *gin.Context) {
 	}
 
 	payment := taskexchange.Payment{
-		User: user,
-		Type: 1,
+		User:    user,
+		Type:    1,
 		Comment: "Создание задач",
-		Sum: amountTasksPrice,
+		Sum:     amountTasksPrice,
 	}
 	_, err = h.services.Payments.Create(payment)
 	if err != nil {
@@ -175,10 +175,10 @@ func (h *Handler) createTaskFromExcelFile(c *gin.Context) {
 	}
 
 	payment := taskexchange.Payment{
-		User: user,
-		Type: 1,
+		User:    user,
+		Type:    1,
 		Comment: "Создание задач",
-		Sum: amountTasksPrice,
+		Sum:     amountTasksPrice,
 	}
 	_, err = h.services.Payments.Create(payment)
 	if err != nil {
@@ -197,6 +197,26 @@ type getAllTasksResponse struct {
 }
 
 func (h *Handler) getAllTasks(c *gin.Context) {
+	pagination := taskexchange.NewPagination(c, 1, 20)
+	tasks, pagination, err := h.services.Tasks.GetAll(0, pagination)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllTasksResponse{
+		Pagination: paginationResponse{
+			Count:       pagination.Count,
+			Pages:       pagination.Pages,
+			CurrentPage: pagination.CurrentPage,
+			PerPage:     pagination.PerPage,
+			Offset:      pagination.Offset,
+		},
+		Data: tasks,
+	})
+}
+
+func (h *Handler) getAllTasksAdmin(c *gin.Context) {
 	isAdmin := h.checkIsAdmin(c)
 	userId := 0
 
@@ -352,17 +372,17 @@ func (h *Handler) updateTask(c *gin.Context) {
 		var payment taskexchange.Payment
 		if amountTasksPrice < 0 {
 			payment = taskexchange.Payment{
-				User: user,
-				Type: 2,
+				User:    user,
+				Type:    2,
 				Comment: "Редактирование задач",
-				Sum: math.Abs(amountTasksPrice),
+				Sum:     math.Abs(amountTasksPrice),
 			}
 		} else {
 			payment = taskexchange.Payment{
-				User: user,
-				Type: 1,
+				User:    user,
+				Type:    1,
 				Comment: "Редактирование задач",
-				Sum: amountTasksPrice,
+				Sum:     amountTasksPrice,
 			}
 		}
 
@@ -417,10 +437,10 @@ func (h *Handler) deleteTask(c *gin.Context) {
 	}
 
 	payment := taskexchange.Payment{
-		User: user,
-		Type: 2,
+		User:    user,
+		Type:    2,
 		Comment: "Удаление задач",
-		Sum: task.CalculatePrice(),
+		Sum:     task.CalculatePrice(),
 	}
 	_, err = h.services.Payments.Create(payment)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 type Option struct {
 	Id        int        `json:"id" db:"id"`
 	ParentId  *int       `json:"parent_id" db:"parent_id"`
+	Short     *string    `json:"short" db:"short"`
 	Title     string     `json:"title" db:"title"`
 	Price     float64    `json:"price" db:"price"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`
@@ -16,12 +17,13 @@ type Option struct {
 
 type UpdateOptionInput struct {
 	ParentId *int     `json:"parent_id"`
+	Short    *string  `json:"short"`
 	Title    *string  `json:"title"`
 	Price    *float64 `json:"price"`
 }
 
 func (i UpdateOptionInput) Validate() error {
-	if i.ParentId == nil && i.Title == nil && i.Price == nil {
+	if i.ParentId == nil && i.Title == nil && i.Price == nil && i.Short == nil {
 		return errors.New("update structure has no values")
 	}
 

@@ -19,14 +19,14 @@ func (r *OptionsPostgres) Create(parentId int, option taskexchange.Option) (int,
 	var id int
 
 	if parentId == 0 {
-		query := fmt.Sprintf("INSERT INTO %s (title, price) VALUES ($1, $2) RETURNING id", optionsTable)
-		row := r.db.QueryRow(query, option.Title, option.Price)
+		query := fmt.Sprintf("INSERT INTO %s (title, price, short) VALUES ($1, $2, $3) RETURNING id", optionsTable)
+		row := r.db.QueryRow(query, option.Title, option.Price, option.Short)
 		if err := row.Scan(&id); err != nil {
 			return 0, err
 		}
 	} else {
-		query := fmt.Sprintf("INSERT INTO %s (parent_id, title, price) VALUES ($1, $2, $3) RETURNING id", optionsTable)
-		row := r.db.QueryRow(query, parentId, option.Title, option.Price)
+		query := fmt.Sprintf("INSERT INTO %s (parent_id, title, price, short) VALUES ($1, $2, $3, $4) RETURNING id", optionsTable)
+		row := r.db.QueryRow(query, parentId, option.Title, option.Price, option.Short)
 		if err := row.Scan(&id); err != nil {
 			return 0, err
 		}
@@ -121,6 +121,12 @@ func (r *OptionsPostgres) Update(id int, input taskexchange.UpdateOptionInput) e
 	if input.Price != nil {
 		setValues = append(setValues, fmt.Sprintf("price=$%d", argId))
 		args = append(args, *input.Price)
+		argId++
+	}
+
+	if input.Short != nil {
+		setValues = append(setValues, fmt.Sprintf("short=$%d", argId))
+		args = append(args, *input.Short)
 		argId++
 	}
 

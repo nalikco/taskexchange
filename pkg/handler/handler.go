@@ -72,9 +72,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			tasks.POST("/", h.userIdentity, h.createTask)
 			tasks.POST("/excel", h.userIdentity, h.createTaskFromExcelFile)
-			tasks.GET("/", h.getAllTasks)
-			tasks.GET("/:id", h.getTaskById)
-			tasks.GET("/user/:user_id", h.getUserAllTasks)
+			tasks.GET("/", h.userIdentity, h.getAllTasks)
+			tasks.GET("/admin", h.userIdentity, h.getAllTasksAdmin)
+			tasks.GET("/:id", h.userIdentity, h.getTaskById)
+			tasks.GET("/user/:user_id", h.userIdentity, h.getUserAllTasks)
 			tasks.PUT("/:id", h.userIdentity, h.updateTask)
 			tasks.DELETE("/:id", h.userIdentity, h.deleteTask)
 		}
