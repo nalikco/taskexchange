@@ -16,6 +16,7 @@ type PostsPostgres struct {
 type postDb struct {
 	ID        int        `db:"id"`
 	AuthorId  int        `db:"user_id"`
+	MainImage string     `db:"main_image"`
 	Status    int        `db:"status"`
 	Title     string     `db:"title"`
 	Short     string     `db:"short"`
@@ -86,6 +87,7 @@ func (r *PostsPostgres) GetById(id int, deleted bool) (taskexchange.Post, error)
 	post = taskexchange.Post{
 		ID:        postFromDb.ID,
 		Status:    postFromDb.Status,
+		MainImage: postFromDb.MainImage,
 		Title:     postFromDb.Title,
 		Short:     postFromDb.Short,
 		Text:      postFromDb.Text,
@@ -169,6 +171,7 @@ func (r *PostsPostgres) GetAll(limit, offset int) ([]taskexchange.Post, error) {
 		post := taskexchange.Post{
 			ID:        db.ID,
 			Status:    db.Status,
+			MainImage: db.MainImage,
 			Title:     db.Title,
 			Short:     db.Short,
 			Text:      db.Text,
@@ -236,6 +239,12 @@ func (r *PostsPostgres) Update(id int, input taskexchange.UpdatePostInput) error
 	if input.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
 		args = append(args, *input.Title)
+		argId++
+	}
+
+	if input.MainImage != nil {
+		setValues = append(setValues, fmt.Sprintf("main_image=$%d", argId))
+		args = append(args, *input.MainImage)
 		argId++
 	}
 

@@ -1,11 +1,14 @@
 package taskexchange
 
-import "time"
+import (
+	"time"
+)
 
 type Post struct {
 	ID         int            `json:"id"`
 	Categories []PostCategory `json:"categories"`
 	Author     User           `json:"author"`
+	MainImage  string         `json:"main_image"`
 	Status     int            `json:"status"`
 	Title      string         `json:"title"`
 	Short      string         `json:"short"`
@@ -15,7 +18,8 @@ type Post struct {
 }
 
 type UpdatePostInput struct {
-	Categories *[]int  `json:"categories"`
+	Categories *[]int `json:"categories"`
+	MainImage  *string
 	Status     *int    `json:"status"`
 	Title      *string `json:"title"`
 	Short      *string `json:"short"`

@@ -92,6 +92,7 @@ type Posts interface {
 	GetCategoriesById(ids []int) ([]taskexchange.PostCategory, error)
 	GetAll(limit, offset int) ([]taskexchange.Post, error)
 	GetAllCategories() ([]taskexchange.PostCategory, error)
+	UpdatePostImage(id int, filename string) error
 	Update(id int, input taskexchange.UpdatePostInput) error
 	UpdateCategory(id int, input taskexchange.UpdatePostCategoryInput) error
 	Delete(id int) error

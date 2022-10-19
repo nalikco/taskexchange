@@ -117,6 +117,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			posts.GET("/", h.GetAllPosts)
 			posts.POST("/", h.userIdentity, h.CreatePost)
 			posts.GET("/:id", h.GetPostById)
+			posts.PUT("/img/:id", h.userIdentity, h.SetPostImage)
 			posts.PUT("/:id", h.userIdentity, h.UpdatePost)
 			posts.DELETE("/:id", h.userIdentity, h.DeletePost)
 

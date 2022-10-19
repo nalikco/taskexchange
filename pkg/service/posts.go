@@ -45,6 +45,12 @@ func (s *PostsService) Update(id int, input taskexchange.UpdatePostInput) error 
 	return s.repo.Update(id, input)
 }
 
+func (s *PostsService) UpdatePostImage(id int, filename string) error {
+	return s.repo.Update(id, taskexchange.UpdatePostInput{
+		MainImage: &filename,
+	})
+}
+
 func (s *PostsService) UpdateCategory(id int, input taskexchange.UpdatePostCategoryInput) error {
 	return s.repo.UpdateCategory(id, input)
 }

@@ -3,4 +3,5 @@
 .env
 /main.go
 /main
-/uploads/*
+/uploads/tmp/*
+/uploads/img/posts/*

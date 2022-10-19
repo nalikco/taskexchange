@@ -13,6 +13,7 @@ CREATE TABLE posts
     status int not null,
     title varchar(255) not null,
     short text not null,
+    main_image varchar(255) not null,
     text text not null,
     created_at timestamp default(now()) not null,
     deleted_at timestamp

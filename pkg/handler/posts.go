@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"taskexchange"
+	"time"
 )
 
 type createPostInput struct {
@@ -54,6 +58,58 @@ func (h *Handler) CreatePost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
+	})
+}
+
+func (h *Handler) SetPostImage(c *gin.Context) {
+	user, err := getUser(c)
+	if err != nil {
+		return
+	}
+
+	if user.Type != 3 {
+		newErrorResponse(c, http.StatusForbidden, "forbidden")
+		return
+	}
+
+	file, err := c.FormFile("main_image")
+	if err != nil {
+		newErrorResponse(c, http.StatusForbidden, err.Error())
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	extension := filepath.Ext(file.Filename)
+	if extension != ".png" && extension != ".jpg" && extension != ".jpeg" {
+		newErrorResponse(c, http.StatusBadRequest, "wrong file extension")
+		return
+	}
+
+	filename := fmt.Sprintf("uploads/img/posts/%d-%d%s", id, time.Now().Unix(), extension)
+
+	if err := c.SaveUploadedFile(file, filename); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.services.Posts.UpdatePostImage(id, filename)
+	if err != nil {
+		if err := os.Remove(filename); err != nil {
+			newErrorResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
 	})
 }
 
