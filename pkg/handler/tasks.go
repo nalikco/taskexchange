@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -109,12 +110,27 @@ func (h *Handler) createTask(c *gin.Context) {
 		tasks = append(tasks, task)
 	}
 
+	amountTasksPrice := 0.00
 	for _, task := range tasks {
 		_, err = h.services.Tasks.Create(task)
 		if err != nil {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		amountTasksPrice += task.CalculatePrice()
+	}
+
+	payment := taskexchange.Payment{
+		User: user,
+		Type: 1,
+		Comment: "Создание задач",
+		Sum: amountTasksPrice,
+	}
+	_, err = h.services.Payments.Create(payment)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, statusResponse{
@@ -152,9 +168,21 @@ func (h *Handler) createTaskFromExcelFile(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Tasks.CreateFromExcelFile(user.Id, filename)
+	amountTasksPrice, err := h.services.Tasks.CreateFromExcelFile(user.Id, filename)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	payment := taskexchange.Payment{
+		User: user,
+		Type: 1,
+		Comment: "Создание задач",
+		Sum: amountTasksPrice,
+	}
+	_, err = h.services.Payments.Create(payment)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -298,7 +326,7 @@ func (h *Handler) updateTask(c *gin.Context) {
 
 	if task.Status != 0 {
 		if input.Status != nil {
-			err = h.services.Tasks.Update(id, taskexchange.UpdateTaskInput{
+			_, err = h.services.Tasks.Update(id, taskexchange.UpdateTaskInput{
 				Status: input.Status,
 			})
 			if err != nil {
@@ -314,10 +342,35 @@ func (h *Handler) updateTask(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Tasks.Update(id, input)
+	amountTasksPrice, err := h.services.Tasks.Update(id, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	if amountTasksPrice != 0 {
+		var payment taskexchange.Payment
+		if amountTasksPrice < 0 {
+			payment = taskexchange.Payment{
+				User: user,
+				Type: 2,
+				Comment: "Редактирование задач",
+				Sum: math.Abs(amountTasksPrice),
+			}
+		} else {
+			payment = taskexchange.Payment{
+				User: user,
+				Type: 1,
+				Comment: "Редактирование задач",
+				Sum: amountTasksPrice,
+			}
+		}
+
+		_, err = h.services.Payments.Create(payment)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, statusResponse{
@@ -360,6 +413,18 @@ func (h *Handler) deleteTask(c *gin.Context) {
 	err = h.services.Tasks.Delete(id, task, user)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	payment := taskexchange.Payment{
+		User: user,
+		Type: 2,
+		Comment: "Удаление задач",
+		Sum: task.CalculatePrice(),
+	}
+	_, err = h.services.Payments.Create(payment)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

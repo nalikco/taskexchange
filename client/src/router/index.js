@@ -63,6 +63,11 @@ const router = createRouter({
       name: 'messages',
       component: () => import('../views/Messages/ListView.vue'),
       meta: { requiredAuth: true }
+    }, {
+      path: '/payments',
+      name: 'payments',
+      component: () => import('../views/Payments.vue'),
+      meta: { requiredAuth: true }
     },
 
     {

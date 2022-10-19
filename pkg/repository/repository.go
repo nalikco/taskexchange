@@ -101,6 +101,11 @@ type Messages interface {
 	ViewConversation(conversation taskexchange.Conversation, user taskexchange.User) error
 }
 
+type Payments interface {
+	Create(payment taskexchange.Payment) (int, error)
+	GetByUser(user taskexchange.User) ([]taskexchange.Payment, error)
+}
+
 type Repository struct {
 	Users
 	Events
@@ -110,6 +115,7 @@ type Repository struct {
 	Offers
 	Orders
 	Messages
+	Payments
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -122,5 +128,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Offers:      NewOffersPostgres(db),
 		Orders:      NewOrdersPostgres(db),
 		Messages:    NewMessagesPostgres(db),
+		Payments:    NewPaymentsPostgres(db),
 	}
 }

@@ -23,11 +23,11 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
             </div>
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
-                <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" class="rounded-md text-sm font-medium px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
-                <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" class="rounded-md text-sm font-medium px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
+                <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" class="rounded-md text-sm font-semibold px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+                <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" class="rounded-md text-sm font-semibold px-3 py-2 transition duration-300" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
                   Сообщения
                   <span class="bg-slate-700 ml-1 rounded-full px-2 py-1 font-medium text-slate-200">
-                    {{ unViewedMessagesCount }} новых
+                    {{ unViewedMessagesCount }}
                   </span>
                 </RouterLink>
               </div>
@@ -70,13 +70,18 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                     leave-to-class="transform opacity-0 scale-95"
                 >
                 <div v-if="showProfileMenu" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                  <div v-if="user.type !== 0" class="text-sm text-gray-700 px-4 py-2 border-b-2 border-gray-200">
+                  <div v-if="user.type !== 0" class="text-sm text-gray-700 px-4 py-2 font-semibold border-b-2 border-gray-200">
                     {{ user.username }}
                     <br>
-                    <span class="text-gray-500">{{ $filters.currencyFormat(user.balance) }}</span>
+                    <div class="text-gray-500">
+                      <div>{{ $filters.currencyFormat(user.balance) }}</div>
+                      <div class="flex">
+                        <RouterLink :to="{ name: 'payments' }" @click="showProfileMenu = false" class="bg-indigo-600 text-white text-center rounded-lg mt-1 py-1 w-full shadow-lg">Финансы</RouterLink>
+                      </div>
+                    </div>
                   </div>
-                  <RouterLink v-for="elem in profileMenu" :to="{'name': elem.to}" @click="showProfileMenu = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 transition duration-300" role="menuitem" tabindex="-1" id="user-menu-item-0">{{ elem.title }}</RouterLink>
-                  <a href="#" v-if="user.type !== 0" @click="logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 transition duration-300" role="menuitem" tabindex="-1" id="user-menu-item-0">Выйти</a>
+                  <RouterLink v-for="elem in profileMenu" :to="{'name': elem.to}" @click="showProfileMenu = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 font-semibold transition duration-300" role="menuitem" tabindex="-1" id="user-menu-item-0">{{ elem.title }}</RouterLink>
+                  <a href="#" v-if="user.type !== 0" @click="logout" class="block px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition duration-300" role="menuitem" tabindex="-1" id="user-menu-item-0">Выйти</a>
                 </div>
                 </transition>
               </div>
@@ -107,7 +112,13 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
       >
         <div v-if="showMobileMenu" class="md:hidden" id="mobile-menu">
           <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-            <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-medium" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+            <RouterLink v-for="elem in topMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-semibold" :class="{'bg-gray-900 text-white': $route.name === elem.to, 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== elem.to}">{{ elem.title }}</RouterLink>
+            <RouterLink v-if="user.type !== 0" :to="{'name': 'messages'}" @click="showMobileMenu = false" class="block px-3 py-2 rounded-md text-base font-semibold" :class="{'bg-gray-900 text-white': $route.name === 'messages', 'text-gray-300 hover:bg-gray-700 hover:text-white': $route.name !== 'messages'}">
+              Сообщения
+              <span class="bg-slate-700 ml-1 rounded-full px-2 py-1 font-medium text-slate-200">
+                {{ unViewedMessagesCount }}
+              </span>
+            </RouterLink>
           </div>
           <div class="border-t border-gray-700 pt-4 pb-3">
             <div class="flex items-center px-5">
@@ -115,8 +126,13 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                 <img class="h-10 w-10 rounded-full" src="@/assets/img/user.png" alt="User">
               </div>
               <div v-if="user.type !== 0" class="ml-3">
-                <div class="text-base font-medium leading-none text-white">{{ user.username }}</div>
-                <div class="text-sm mt-1 font-medium leading-none text-gray-400">{{ $filters.currencyFormat(user.balance) }}</div>
+                <div class="text-base font-semibold leading-none text-white">{{ user.username }}</div>
+                <div class="text-sm mt-1 font-semibold leading-none text-gray-400">
+                  {{ $filters.currencyFormat(user.balance) }}
+                  <div class="flex mt-1">
+                    <RouterLink :to="{ name: 'payments' }" @click="showMobileMenu = false" class="bg-indigo-600 text-white text-center rounded-lg mt-1 py-1 w-full shadow-lg">Финансы</RouterLink>
+                  </div>
+                </div>
               </div>
               <button v-if="user.type !== 0" @click="toggleNotifications" type="button" class="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                 <span class="sr-only">View notifications</span>
@@ -135,8 +151,8 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
               />
             </div>
             <div class="mt-3 space-y-1 px-2">
-              <RouterLink v-for="elem in profileMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">{{ elem.title }}</RouterLink>
-              <a href="#" v-if="user.type !== 0" @click="logout" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Выйти</a>
+              <RouterLink v-for="elem in profileMenu" :to="{'name': elem.to}" @click="showMobileMenu = false" class="block rounded-md px-3 py-2 text-base font-semibold text-gray-400 hover:bg-gray-700 hover:text-white">{{ elem.title }}</RouterLink>
+              <a href="#" v-if="user.type !== 0" @click="logout" class="block rounded-md px-3 py-2 text-base font-semibold text-gray-400 hover:bg-gray-700 hover:text-white">Выйти</a>
             </div>
           </div>
         </div>

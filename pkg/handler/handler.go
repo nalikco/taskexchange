@@ -107,6 +107,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			messages.POST("/send", h.userIdentity, h.sendMessage)
 		}
 
+		payments := api.Group("/payments")
+		{
+			payments.GET("/", h.userIdentity, h.GetUserPayments)
+		}
+
 		admin := api.Group("/admin")
 		{
 			admin.GET("/statistics", h.userIdentity, h.adminStatistics)

@@ -43,8 +43,8 @@ type Events interface {
 
 type Tasks interface {
 	Create(task taskexchange.Task) (int, error)
-	CreateFromExcelFile(userId int, filename string) error
-	Update(id int, input taskexchange.UpdateTaskInput) error
+	CreateFromExcelFile(userId int, filename string) (float64, error)
+	Update(id int, input taskexchange.UpdateTaskInput) (float64, error)
 	GetById(id int) (taskexchange.Task, error)
 	GetAll(userId int, pagination taskexchange.Pagination) ([]taskexchange.Task, taskexchange.Pagination, error)
 	CountActive() (int, error)
@@ -79,6 +79,11 @@ type Messages interface {
 	Polling(user taskexchange.User) (PollingMessage, error)
 }
 
+type Payments interface {
+	Create(payment taskexchange.Payment) (int, error)
+	GetByUser(user taskexchange.User) ([]taskexchange.Payment, error)
+}
+
 type Service struct {
 	Authorization
 	Users
@@ -88,6 +93,7 @@ type Service struct {
 	Offers
 	Orders
 	Messages
+	Payments
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -98,7 +104,8 @@ func NewService(repos *repository.Repository) *Service {
 		Events:        NewEventsService(repos.Events),
 		Tasks:         NewTasksService(repos.Tasks, repos.TaskOptions, repos.Users, repos.Options, repos.Offers),
 		Offers:        NewOffersService(repos.Offers, repos.Tasks, repos.Users, repos.Events, repos.Orders),
-		Orders:        NewOrdersService(repos.Orders, repos.Users, repos.Options, repos.Tasks, repos.TaskOptions, repos.Events),
+		Orders:        NewOrdersService(repos.Orders, repos.Users, repos.Options, repos.Tasks, repos.TaskOptions, repos.Events, repos.Payments),
 		Messages:      NewMessagesService(repos.Messages),
+		Payments:      NewPaymentsService(repos.Payments),
 	}
 }

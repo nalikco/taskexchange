@@ -65,10 +65,10 @@ func (s *TasksService) Create(task taskexchange.Task) (int, error) {
 	return taskId, nil
 }
 
-func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
+func (s *TasksService) CreateFromExcelFile(userId int, filename string) (float64, error) {
 	f, err := excelize.OpenFile(filename)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -82,7 +82,7 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 
 	customer, err := s.usersRepo.GetById(userId, true)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	sheetMap := f.GetSheetMap()
@@ -94,16 +94,16 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 
 		rows, err := f.GetRows(sheetName)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		if len(rows) < 2 || len(rows[0]) < 4 || len(rows[1]) < 1 {
-			return errors.New("wrong excel format, check documentation")
+			return 0, errors.New("wrong excel format, check documentation")
 		}
 
 		task.Amount, err = strconv.Atoi(rows[0][3])
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		task.CustomerId = userId
@@ -112,12 +112,12 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 		task.Description = rows[0][1]
 		task.DeliveryDate, err = time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", rows[0][2]))
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		mainOption, err := s.optionsRepo.GetByTitle(rows[1][0], 0)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		task.Options = append(task.Options, mainOption)
@@ -126,7 +126,7 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 			for _, optionTitle := range rows[2] {
 				option, err := s.optionsRepo.GetByTitle(optionTitle, mainOption.Id)
 				if err != nil {
-					return err
+					return 0, err
 				}
 
 				task.Options = append(task.Options, option)
@@ -138,22 +138,25 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 	}
 
 	if customer.Balance < price {
-		return errors.New("wrong user balance")
+		return 0, errors.New("wrong user balance")
 	}
 	userNewBalance := customer.Balance - price
 
+	amountTasksPrice := 0.00
 	for _, task := range tasks {
 		taskId, err := s.tasksRepo.Create(task)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		for _, option := range task.Options {
 			_, err = s.taskOptionsRepo.Create(taskId, option.Id)
 			if err != nil {
-				return err
+				return 0, err
 			}
 		}
+
+		amountTasksPrice += task.CalculatePrice()
 	}
 
 	updateUserInput := taskexchange.UpdateUserInput{
@@ -162,38 +165,39 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) error {
 
 	err = s.usersRepo.Update(customer.Id, updateUserInput)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return amountTasksPrice, nil
 }
 
-func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error {
+func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) (float64, error) {
 	task, err := s.GetById(id)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if task.Amount < 1 && input.Status != nil {
 		if *input.Status != 0 {
-			return errors.New("wrong task amount")
+			return 0, errors.New("wrong task amount")
 		}
 	}
 
 	if input.Options != nil {
 		if len(*input.Options) < 1 {
-			return errors.New("wrong task options")
+			return 0, errors.New("wrong task options")
 		}
 
 		taskOptions, err := s.taskOptionsRepo.GetByTaskId(task.Id)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		customer, err := s.usersRepo.GetById(task.CustomerId, true)
 		if err != nil {
-			return err
+			return 0, err
 		}
+		customerInitialBalance := customer.Balance
 		customer.Balance += task.CalculatePrice()
 
 		for _, option := range task.Options {
@@ -208,7 +212,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 			if taskOptionId != 0 {
 				err = s.taskOptionsRepo.Delete(taskOptionId)
 				if err != nil {
-					return err
+					return 0, err
 				}
 			}
 		}
@@ -218,7 +222,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 		for _, optionId := range *input.Options {
 			option, err := s.optionsRepo.GetById(optionId, true)
 			if err != nil {
-				return errors.New(fmt.Sprintf("wrong option id: %d", optionId))
+				return 0, errors.New(fmt.Sprintf("wrong option id: %d", optionId))
 			}
 
 			if option.ParentId != nil {
@@ -231,7 +235,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 				}
 
 				if !parentIdFound {
-					return errors.New(fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
+					return 0, errors.New(fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
 				}
 			}
 
@@ -245,7 +249,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 		taskPrice := task.CalculatePrice()
 
 		if customer.Balance < taskPrice {
-			return errors.New("wrong user balance")
+			return 0, errors.New("wrong user balance")
 		}
 		customer.Balance -= taskPrice
 
@@ -253,7 +257,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 			_, err := s.taskOptionsRepo.Create(id, option.Id)
 
 			if err != nil {
-				return err
+				return 0, err
 			}
 		}
 
@@ -262,9 +266,13 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) error 
 		}
 
 		err = s.usersRepo.Update(customer.Id, updateUserInput)
+
+		customerBalanceDifference := customerInitialBalance - customer.Balance
+
+		return customerBalanceDifference, s.tasksRepo.Update(id, input)
 	}
 
-	return s.tasksRepo.Update(id, input)
+	return 0, s.tasksRepo.Update(id, input)
 }
 
 func (s *TasksService) GetById(id int) (taskexchange.Task, error) {

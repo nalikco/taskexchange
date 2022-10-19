@@ -23,7 +23,7 @@ import {moment} from "@/moment";
                 <div class="flex flex-col space-y-1 mt-2 -mx-2 px-3 overflow-y-auto max-h-64">
                   <button v-for="(conversation, i) in conversations" @click="goToDialogWithUser(getConversationRecipient(conversation).id)" class="relative flex flex-row items-center rounded-xl p-2" :class="{
                     'hover:bg-gray-200': selectedConversationIndex !== i,
-                    'bg-blue-500 text-white': selectedConversationIndex === i
+                    'bg-indigo-500 text-white': selectedConversationIndex === i
                   }">
                     <div v-if="getConversationUnViewedMessagesCount(conversation) > 0" class="absolute right-0 text-sm mr-5 bg-blue-500 rounded-full h-5 w-5 text-white font-semibold">
                       {{ getConversationUnViewedMessagesCount(conversation) }}
@@ -37,15 +37,18 @@ import {moment} from "@/moment";
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
                       <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs -mt-1 text-left" :class="{
-                          'text-white': selectedConversationIndex === i,
+                          'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-600': selectedConversationIndex !== i
                         }">
                         <span :class="{
-                          'text-white': selectedConversationIndex === i,
+                          'text-indigo-200': selectedConversationIndex === i,
                           'text-slate-400': selectedConversationIndex !== i
                         }">Вы:</span> {{ conversation.messages[0].text.substring(0, 15) }}...
                       </div>
-                      <div v-else class="text-xs -mt-1 text-left text-slate-600">
+                      <div v-else class="text-xs -mt-1 text-left" :class="{
+                          'text-indigo-200': selectedConversationIndex === i,
+                          'text-slate-600': selectedConversationIndex !== i
+                        }">
                         {{ conversation.messages[0].text.substring(0, 18) }}...
                       </div>
                     </div>

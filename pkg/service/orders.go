@@ -15,9 +15,10 @@ type OrdersService struct {
 	eventsRepo      repository.Events
 	tasksRepo       repository.Tasks
 	taskOptionsRepo repository.TaskOptions
+	paymentsRepo repository.Payments
 }
 
-func NewOrdersService(ordersRepo repository.Orders, usersRepo repository.Users, optionsRepo repository.Options, tasksRepo repository.Tasks, taskOptionsRepo repository.TaskOptions, eventsRepo repository.Events) *OrdersService {
+func NewOrdersService(ordersRepo repository.Orders, usersRepo repository.Users, optionsRepo repository.Options, tasksRepo repository.Tasks, taskOptionsRepo repository.TaskOptions, eventsRepo repository.Events, paymentsRepo repository.Payments) *OrdersService {
 	return &OrdersService{
 		ordersRepo:      ordersRepo,
 		usersRepo:       usersRepo,
@@ -25,6 +26,7 @@ func NewOrdersService(ordersRepo repository.Orders, usersRepo repository.Users, 
 		tasksRepo:       tasksRepo,
 		eventsRepo:      eventsRepo,
 		taskOptionsRepo: taskOptionsRepo,
+		paymentsRepo: paymentsRepo,
 	}
 }
 
@@ -202,6 +204,17 @@ func (s *OrdersService) Update(orderId int, userId int, input taskexchange.Updat
 					err = s.usersRepo.Update(performer.Id, taskexchange.UpdateUserInput{
 						Balance: &newPerformerBalance,
 					})
+					if err != nil {
+						return err
+					}
+
+					payment := taskexchange.Payment{
+						User: performer,
+						Type: 2,
+						Comment: "Выполнение задач",
+						Sum: order.Task.CalculatePriceForOne(),
+					}
+					_, err = s.paymentsRepo.Create(payment)
 					if err != nil {
 						return err
 					}
