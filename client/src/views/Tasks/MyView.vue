@@ -14,62 +14,77 @@ import {moment} from "@/moment";
         <ProfileInfo />
         <div class="mt-7 mx-3 md:mx-0">
           <div v-for="task in tasks" v-bind:key="task.id" :id="'task_' + task.id" class="bg-white text-sm mt-3 shadow rounded-xl hover:shadow-xl transition duration-300 flex flex-col">
-            <div class="px-4 py-3 bg-blue-400 text-white rounded-t-xl" :class="{
+            <div class="px-4 py-3 bg-blue-400 text-white font-semibold rounded-t-xl" :class="{
               'bg-slate-400': task.status === 0 && !task.deleted_at && moment(task.delivery_date).utc(0).add(1, 'days') > moment().utc(0),
               'bg-blue-400': task.status === 1 && !task.deleted_at && moment(task.delivery_date).utc(0).add(1, 'days') > moment().utc(0),
               'bg-red-400': task.deleted_at,
               'bg-yellow-400': !task.deleted_at && moment(task.delivery_date).utc(0).add(1, 'days') <= moment().utc(0)
             }">
-              Задача <span class="font-medium">#{{ task.id }}</span>
-              <span v-if="!task.deleted_at" class="ml-1">&#x2022; Осталось: <strong class="font-medium">{{ task.amount }} шт.</strong></span>
-              &#x2022; <span v-if="task.deleted_at" class="font-medium">удалено</span>
-              <span v-else-if="moment(task.delivery_date).utc(0).add(1, 'days') <= moment().utc(0)" class="font-medium">просрочено</span>
-              <span v-else-if="task.status === 0" class="font-medium">приостановлено</span>
-              <span v-else-if="task.status === 1" class="font-medium">активно</span>
-              <div v-if="!task.deleted_at" class="font-medium sm:float-right mt-4 text-center md:text-left md:mt-0">на сумму {{ $filters.currencyFormat(task.structed.overallPrice) }}</div>
+              Задача <span>#{{ task.id }}</span>
+              <span v-if="!task.deleted_at" class="ml-1">&#x2022; Осталось: <strong>{{ task.amount }} шт.</strong></span>
+              &#x2022; <span v-if="task.deleted_at">удалено</span>
+              <span v-else-if="moment(task.delivery_date).utc(0).add(1, 'days') <= moment().utc(0)">просрочено</span>
+              <span v-else-if="task.status === 0">приостановлено</span>
+              <span v-else-if="task.status === 1">активно</span>
+              <div v-if="!task.deleted_at" class="sm:float-right mt-4 text-center md:text-left md:mt-0">на сумму {{ $filters.currencyFormat(task.structed.overallPrice) }}</div>
             </div>
             <div class="text-base px-4 py-2 pb-4">
-              <div class="text-center text-sm mt-1 mb-2 text-slate-500">
-                Дата сдачи: {{ moment(task.delivery_date).utc(0).format('dddd, Do MMMM YYYY') }}
+              <div class="flex flex-row mt-7 mb-10">
+                <div class="grid place-items-center w-40">
+                  <div class="bg-sky-800 text-white text-5xl rounded-md text-center h-28 w-28 flex justify-center items-center">
+                    {{ task.structed.main.short }}
+                  </div>
+                </div>
+                <div class="mt-2 ml-4">
+                  <div class="flex gap-5 items-center">
+                    <h2 class="text-xl font-semibold">
+                      {{ task.structed.main.title }}
+                    </h2>
+                    <div v-for="option in task.structed.options" class="text-sm bg-gray-300 text-gray-700 font-semibold px-7 py-1 rounded">
+                      {{ option.title }}
+                    </div>
+                  </div>
+                  <p class="mt-3">
+                    {{ task.description }}
+                  </p>
+                  <p class="mt-3 text-gray-600 text-sm">
+                    Дата сдачи: {{ moment(task.delivery_date).utc(0).format('dddd, Do MMMM YYYY') }}
+                  </p>
+                </div>
               </div>
-              <h1 class="font-medium text-lg">
-                {{ task.structed.main.title }}
-              </h1>
-              <p class="text-slate-600 text-sm mb-2">{{ task.description }}</p>
-              <a :href="task.link" class="text-sm font-medium text-blue-500" target="_blank">{{ task.link }}</a>
               <div v-if="task.status !== 0" class="text-sm mt-2 mb-1 border-t-2 pt-3 pb-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                <button @click="setTaskStatus(0, task.id)" class="bg-slate-200 text-slate-700 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-slate-300 transition duration-300">Остановить задачу</button>
-                <button v-if="showOffers !== task.id" @click="showOffers = task.id" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button @click="setTaskStatus(0, task.id)" class="bg-slate-200 text-slate-700 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-slate-300 transition duration-300">Остановить задачу</button>
+                <button v-if="showOffers !== task.id" @click="showOffers = task.id" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   <span v-if="task.offers">{{ task.offers.length }} {{ $filters.declOfNum(task.offers.length, ['предложение', 'предложения', 'предложений']) }}</span>
                   <span v-else>0 {{ $filters.declOfNum(0, ['предложение', 'предложения', 'предложений']) }}</span>
                 </button>
-                <button v-if="showOffers === task.id" @click="showOffers = 0" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button v-if="showOffers === task.id" @click="showOffers = 0" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Закрыть предложения
                 </button>
-                <button v-if="showFull !== task.id" @click="showFull = task.id" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button v-if="showFull !== task.id" @click="showFull = task.id" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Полное описание
                 </button>
-                <button v-if="showFull === task.id" @click="showFull = 0" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button v-if="showFull === task.id" @click="showFull = 0" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Закрыть
                 </button>
               </div>
               <div v-else-if="task.status === 0" class="text-sm mt-2 border-t-2 pt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                <button v-if="!task.deleted_at && task.amount > 0" @click="setTaskStatus(1, task.id)" class="bg-blue-200 text-blue-700 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-300 transition duration-300">Запустить</button>
-                <button v-else-if="!task.deleted_at" disabled class="bg-slate-200 text-slate-700 font-medium py-3 px-2 rounded-lg shadow">
+                <button v-if="!task.deleted_at && task.amount > 0" @click="setTaskStatus(1, task.id)" class="bg-blue-200 text-blue-700 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-300 transition duration-300">Запустить</button>
+                <button v-else-if="!task.deleted_at" disabled class="bg-slate-200 text-slate-700 font-semibold py-3 px-2 rounded-lg shadow">
                   Запустить
                   <br>
                   <p class="text-xs -mt-1 text-slate-500">укажите количество</p>
                 </button>
-                <button v-if="!task.deleted_at" @click="editTask(task.id)" class="bg-green-200 text-center py-3 text-green-700 font-medium py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</button>
-                <button v-if="!task.deleted_at" @click="deleteTask(task.id)" class="bg-red-200 text-red-700 font-medium py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-red-300 transition duration-300">
+                <button v-if="!task.deleted_at" @click="editTask(task.id)" class="bg-green-200 text-center py-3 text-green-700 font-semibold py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</button>
+                <button v-if="!task.deleted_at" @click="deleteTask(task.id)" class="bg-red-200 text-red-700 font-semibold py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-red-300 transition duration-300">
                   Удалить
                   <br>
                   <p class="text-xs -mt-1 text-red-500">сумма задачи вернется на баланс</p>
                 </button>
-                <button v-if="showFull !== task.id" @click="showFull = task.id" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button v-if="showFull !== task.id" @click="showFull = task.id" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Полное описание
                 </button>
-                <button v-if="showFull === task.id" @click="showFull = 0" class="bg-blue-100 text-blue-500 font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
+                <button v-if="showFull === task.id" @click="showFull = 0" class="bg-blue-100 text-blue-500 font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-blue-200 transition duration-300">
                   Закрыть
                 </button>
               </div>
@@ -81,14 +96,6 @@ import {moment} from "@/moment";
                 </div>
                 <div class="pb-2 px-4" v-if="task.deleted_at">
                   Удалено: <span class="font-medium">{{ moment(task.deleted_at).utc(0).format('dddd, Do MMMM YYYY, в HH:mm') }}</span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 px-3 py-3">
-                  <div class="text-sm py-2 px-4 rounded-full bg-slate-500 text-white shadow-lg">
-                    Категория: <span class="font-medium">{{ task.structed.main.title }}</span> <span class="text-white">{{ $filters.currencyFormat(task.structed.main.price) }}</span>
-                  </div>
-                  <div v-for="option in task.structed.options" class="text-sm py-2 px-4 rounded-full bg-blue-500 text-white shadow-lg">
-                    <span class="font-medium">{{ option.title }}</span> <span class="text-white">{{ $filters.currencyFormat(option.price) }}</span>
-                  </div>
                 </div>
               </div>
             </transition>
@@ -144,12 +151,9 @@ import {moment} from "@/moment";
         <div v-if="tasks.length === 0" class="text-gray-500 mt-7 text-sm text-center">
           У Вас пока нет задач
         </div>
-        <div v-if="tasks.length > 0" class="mt-7 text-sm grid justify-items-center">
-          <div class="text-sm text-gray-500 dark:text-gray-400">
-            Показано <span class="font-semibold text-gray-700 dark:text-white">{{ offset + 1 }}-{{ offsetEnd }}</span> из <span class="font-semibold text-gray-700 dark:text-white">{{ count }}</span> {{ $filters.declOfNum(count, ['задачи', 'задач', 'задач']) }}
-          </div>
+        <div v-if="tasks.length > 0" class="mt-7 text-sm flex flex-row justify-between">
           <div>
-            <nav class="mt-8">
+            <nav>
               <ul class="inline-flex -space-x-px">
                 <li v-for="page in pages">
                   <RouterLink v-if="page === 1" :to="{ 'name': 'tasks-my' }" @click="currentPage = page" class="rounded-l-xl" :class="{'py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white': page === currentPage, 'py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== currentPage }">{{ page }}</RouterLink>
@@ -158,6 +162,9 @@ import {moment} from "@/moment";
                 </li>
               </ul>
             </nav>
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            Показано <span class="font-semibold text-gray-700 dark:text-white">{{ offset + 1 }}-{{ offsetEnd }}</span> из <span class="font-semibold text-gray-700 dark:text-white">{{ count }}</span> {{ $filters.declOfNum(count, ['задачи', 'задач', 'задач']) }}
           </div>
         </div>
       </div>

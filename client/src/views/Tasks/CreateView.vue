@@ -151,12 +151,25 @@ import {moment} from "@/moment";
               <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
               <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
                 <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
-                  <div @click="selectParent(parent)" class=" cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-blue-500': selectedParent === parent.id, 'bg-slate-100': selectedParent !== parent.id, 'rounded-t-lg': showOptions === parent.id}">
-                    <div class="py-3 px-4 font-medium text-center">
-                      {{ parent.title }}
-                      <p class="text-xs -mt-1" :class="{'text-white': selectedParent === parent.id, 'text-gray-500': selectedParent !== parent.id}">{{ $filters.currencyFormat(parent.price) }}</p>
-                      <button v-if="selectedParent === parent.id" class="mt-2 text-white w-full text-sm">Выбрано</button>
-                      <button v-else class="mt-2 text-gray-500 w-full text-sm">Выбрать</button>
+                  <div @click="selectParent(parent)" class=" cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-sky-800': selectedParent === parent.id, 'bg-slate-100': selectedParent !== parent.id, 'rounded-t-lg': showOptions === parent.id}">
+                    <div class="py-3 px-4 font-medium flex items-center flex-row gap-4">
+                      <div class="basis-1/5">
+                        <div class="uppercase h-16 w-16 flex justify-center items-center text-xl rounded-md font-semibold" :class="{
+                          'bg-white text-sky-800': selectedParent === parent.id,
+                          'bg-sky-800 text-white': selectedParent !== parent.id
+                        }">
+                          {{ parent.short }}
+                        </div>
+                      </div>
+                      <div class="basis-3/5 text-sm font-semibold">
+                        <p class="leading-none">{{ parent.title }}</p>
+                        <p class="text-xs mt-1" :class="{'text-white': selectedParent === parent.id, 'text-gray-500': selectedParent !== parent.id}">от {{ $filters.currencyFormat(parent.price) }}</p>
+                      </div>
+                      <div class="basis-1/5 text-sm font-semibold">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M10 5C10 6.10457 10.8954 7 12 7C13.1046 7 14 6.10457 14 5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5ZM12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14ZM12 21C10.8954 21 10 20.1046 10 19C10 17.8954 10.8954 17 12 17C13.1046 17 14 17.8954 14 19C14 20.1046 13.1046 21 12 21Z" fill="#2E363E"/>
+                        </svg>
+                      </div>
                     </div>
                   </div>
                   <transition name="slide-fade">
