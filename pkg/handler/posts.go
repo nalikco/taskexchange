@@ -37,11 +37,12 @@ func (h *Handler) CreatePost(c *gin.Context) {
 	}
 
 	post := taskexchange.Post{
-		Author: user,
-		Status: *input.Status,
-		Title:  *input.Title,
-		Short:  *input.Short,
-		Text:   *input.Text,
+		Author:    user,
+		MainImage: "",
+		Status:    *input.Status,
+		Title:     *input.Title,
+		Short:     *input.Short,
+		Text:      *input.Text,
 	}
 
 	for _, categoryId := range *input.Categories {
