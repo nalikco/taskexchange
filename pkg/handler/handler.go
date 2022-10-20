@@ -30,6 +30,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}))
 	}
 
+	router.Static("/uploads/img", "./uploads/img")
+
 	api := router.Group("/api")
 	{
 		auth := api.Group("/auth")

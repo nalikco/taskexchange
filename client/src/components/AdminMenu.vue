@@ -29,5 +29,11 @@
         <p class="text-xs text-blue-500 -mt-1">управление</p>
       </RouterLink>
     </div>
+    <div class="flex text-center">
+      <RouterLink :to="{ name: 'ap-posts' }" class="w-full font-medium py-3 px-2 rounded-lg" :class="{'text-slate-700 bg-slate-200': $route.name === 'ap-posts', 'shadow bg-blue-200 text-blue-700 hover:bg-blue-300 hover:shadow-lg transition duration-300': $route.name !== 'ap-posts'}">
+        Публикации
+        <p class="text-xs text-blue-500 -mt-1">управление</p>
+      </RouterLink>
+    </div>
   </div>
 </template>

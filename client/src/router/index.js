@@ -74,6 +74,14 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/Profile.vue'),
       meta: { requiredAuth: true }
+    }, {
+      path: '/posts',
+      name: 'posts',
+      component: () => import('../views/Posts/ListView.vue'),
+    }, {
+      path: '/posts/:id',
+      name: 'posts-full',
+      component: () => import('../views/Posts/FullView.vue'),
     },
 
     {
@@ -100,6 +108,21 @@ const router = createRouter({
       path: '/ap/orders',
       name: 'ap-orders',
       component: () => import('../views/Admin/Orders.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/posts',
+      name: 'ap-posts',
+      component: () => import('../views/Admin/Posts/ListView.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/posts/create',
+      name: 'ap-posts-create',
+      component: () => import('../views/Admin/Posts/CreateView.vue'),
+      meta: { requiredAdmin: true }
+    }, {
+      path: '/ap/posts/categories',
+      name: 'ap-posts-categories',
+      component: () => import('../views/Admin/Posts/CategoriesView.vue'),
       meta: { requiredAdmin: true }
     },
   ]

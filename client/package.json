@@ -7,6 +7,7 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "@vueup/vue-quill": "^1.0.0-beta.10",
     "@vueuse/core": "^9.3.0",
     "axios": "^1.1.2",
     "flowbite": "^1.5.3",

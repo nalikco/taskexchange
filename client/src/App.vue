@@ -74,7 +74,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                   <div v-if="user.type !== 0" class="text-sm text-gray-700 px-4 py-2 font-semibold border-b-2 border-gray-200">
                     {{ user.username }}
                     <br>
-                    <div class="text-gray-500">
+                    <div v-if="user.type !== 3" class="text-gray-500">
                       <div>{{ $filters.currencyFormat(user.balance) }}</div>
                       <div class="flex">
                         <RouterLink :to="{ name: 'payments' }" @click="showProfileMenu = false" class="bg-indigo-600 text-white text-center rounded-lg mt-1 py-1 w-full shadow-lg">Финансы</RouterLink>
@@ -129,7 +129,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
               </div>
               <div v-if="user.type !== 0" class="ml-3">
                 <div class="text-base font-semibold leading-none text-white">{{ user.username }}</div>
-                <div class="text-sm mt-1 font-semibold leading-none text-gray-400">
+                <div v-if="user.type !== 3" class="text-sm mt-1 font-semibold leading-none text-gray-400">
                   {{ $filters.currencyFormat(user.balance) }}
                   <div class="flex mt-1">
                     <RouterLink :to="{ name: 'payments' }" @click="showMobileMenu = false" class="bg-indigo-600 text-white text-center rounded-lg mt-1 py-1 w-full shadow-lg">Финансы</RouterLink>
@@ -184,6 +184,7 @@ export default {
     return {
       topMenu: [
         {'to': 'home', 'title': 'Главная'},
+        {'to': 'posts', 'title': 'Новости'},
       ],
       alerts: [],
       alertTimers: [],
