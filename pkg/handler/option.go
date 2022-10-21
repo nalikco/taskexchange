@@ -10,7 +10,7 @@ import (
 type createOptionInput struct {
 	ParentId int     `json:"parent_id"`
 	Title    string  `json:"title" binding:"required,max=100"`
-	Short    string  `json:"short" binding:"required,max=100"`
+	Short    string  `json:"short" binding:"max=100"`
 	Price    float64 `json:"price" binding:"required,numeric"`
 }
 

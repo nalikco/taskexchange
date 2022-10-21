@@ -155,7 +155,7 @@ export default {
       editUser: null,
       editUserId: 0,
       editUsername: '',
-      editType: 0,
+      editType: 1,
       editBalance: 0,
       editEmail: '',
       editPassword: '',
@@ -176,7 +176,7 @@ export default {
     toggleEditModal(user = null) {
       this.editUserId = 0
       this.editUsername = ''
-      this.editType = 0
+      this.editType = 1
       this.editBalance = 0
       this.editEmail = ''
       this.editPassword = ''

@@ -18,6 +18,10 @@ func NewOptionsPostgres(db *sqlx.DB) *OptionsPostgres {
 func (r *OptionsPostgres) Create(parentId int, option taskexchange.Option) (int, error) {
 	var id int
 
+	if option.Short == nil {
+		*option.Short = ""
+	}
+
 	if parentId == 0 {
 		query := fmt.Sprintf("INSERT INTO %s (title, price, short) VALUES ($1, $2, $3) RETURNING id", optionsTable)
 		row := r.db.QueryRow(query, option.Title, option.Price, option.Short)
