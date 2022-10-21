@@ -3,7 +3,7 @@ import {moment} from "@/moment";
 </script>
 <template>
   <main>
-    <section v-if="userProfile" class="w-1/3 my-10 mx-auto bg-[#20354b] rounded-2xl px-8 py-6 shadow-lg">
+    <section v-if="userProfile" class="mx-10 md:w-1/3 my-10 md:mx-auto bg-[#20354b] rounded-2xl px-8 py-6 shadow-lg">
       <div class="flex items-center justify-between">
         <span class="text-gray-300 text-sm font-semibold">
           {{ getOnline(userProfile.last_online) }}

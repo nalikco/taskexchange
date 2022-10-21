@@ -106,11 +106,21 @@ export default {
     onSubmit(e) {
       e.preventDefault()
 
+      if (this.password !== this.r_password) {
+        this.e.emit('alert', {
+          title: 'Ошибка!',
+          message: 'Пароль повторен неверно.',
+          alertType: 0
+        })
+
+        return
+      }
+
       axios.post(import.meta.env.VITE_API_URL + "auth/sign-up", {
         username: this.username,
         email: this.email,
         password: this.password,
-        type: this.accountType
+        type: parseInt(this.accountType)
       }).then(res => {
         axios.post(import.meta.env.VITE_API_URL + "auth/sign-in", {
           email: this.email,

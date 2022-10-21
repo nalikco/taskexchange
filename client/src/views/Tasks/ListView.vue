@@ -32,7 +32,7 @@ import {moment} from "@/moment";
                 </div>
                 <div class="mt-5 md:mt-2 md:ml-4">
                   <div class="flex flex-col md:flex-row gap-5 items-center">
-                    <h2 class="text-xl mx-auto font-semibold">
+                    <h2 class="text-xl mx-auto md:mx-0 font-semibold">
                       {{ task.structed.main.title }}
                     </h2>
                     <div class="flex gap-5 items-center">
@@ -50,12 +50,12 @@ import {moment} from "@/moment";
                 </div>
               </div>
               <div v-if="task.customer_id === user.id" class="text-sm mt-2 mb-1 border-t-2 pt-3 flex justify-center text-center">
-                <RouterLink :to="{ name: 'tasks-my' }" class="bg-gray-200 text-gray-700 w-full font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-gray-300 transition duration-300">Ваша задача</RouterLink>
+                <RouterLink :to="{ name: 'tasks-my' }" class="bg-gray-200 text-gray-700 w-full font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-gray-300 transition duration-300">Ваша задача</RouterLink>
               </div>
               <div v-if="user.type === 1" class="text-sm mt-2 mb-1 border-t-2 pt-3">
                 <button v-if="!checkIfOfferSendForTask(task.id) && !checkIfExistsActiveOrderForTask(task.id)" @click="sendOffer(task.id)" class="bg-green-200 text-green-700 w-full font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Отправить предложение</button>
-                <button v-else-if="checkIfOfferSendForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-medium py-3 px-2 rounded-lg shadow">Предложение отправлено</button>
-                <button v-else-if="checkIfExistsActiveOrderForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-medium py-3 px-2 rounded-lg shadow">В работе</button>
+                <button v-else-if="checkIfOfferSendForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Предложение отправлено</button>
+                <button v-else-if="checkIfExistsActiveOrderForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">В работе</button>
               </div>
             </div>
           </div>

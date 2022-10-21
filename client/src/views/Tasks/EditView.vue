@@ -194,7 +194,9 @@ export default {
       NProgress.done()
     },
     getTask(taskId) {
-      axios.get(import.meta.env.VITE_API_URL + 'tasks/' + taskId).then(res => {
+      axios.get(import.meta.env.VITE_API_URL + 'tasks/' + taskId, {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
         if(res.data.data) {
           this.task = res.data.data
           document.title = document.title + ' #' + this.task.id

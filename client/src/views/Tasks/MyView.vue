@@ -29,19 +29,21 @@ import {moment} from "@/moment";
               <div v-if="!task.deleted_at" class="sm:float-right mt-4 text-center md:text-left md:mt-0">на сумму {{ $filters.currencyFormat(task.structed.overallPrice) }}</div>
             </div>
             <div class="text-base px-4 py-2 pb-4">
-              <div class="flex flex-row mt-7 mb-10">
-                <div class="grid place-items-center w-40">
+              <div class="md:flex md:flex-row mt-7 mb-10">
+                <div class="grid place-items-center mx-auto md:mx-0 w-40">
                   <div class="bg-sky-800 text-white text-5xl rounded-md text-center h-28 w-28 flex justify-center items-center">
                     {{ task.structed.main.short }}
                   </div>
                 </div>
-                <div class="mt-2 ml-4">
-                  <div class="flex gap-5 items-center">
-                    <h2 class="text-xl font-semibold">
+                <div class="mt-5 md:mt-2 md:ml-4">
+                  <div class="flex flex-col md:flex-row gap-5 items-center">
+                    <h2 class="text-xl mx-auto md:mx-0 font-semibold">
                       {{ task.structed.main.title }}
                     </h2>
-                    <div v-for="option in task.structed.options" class="text-sm bg-gray-300 text-gray-700 font-semibold px-7 py-1 rounded">
-                      {{ option.title }}
+                    <div class="flex gap-5 items-center">
+                      <div v-for="option in task.structed.options" class="text-sm bg-gray-300 text-gray-700 font-semibold px-7 py-1 rounded">
+                        {{ option.title }}
+                      </div>
                     </div>
                   </div>
                   <p class="mt-3">

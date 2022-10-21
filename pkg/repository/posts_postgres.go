@@ -52,8 +52,8 @@ func (r *PostsPostgres) CreateCategory(category taskexchange.PostCategory) (int,
 func (r *PostsPostgres) CreatePost(post taskexchange.Post) (int, error) {
 	var id int
 
-	query := fmt.Sprintf("INSERT INTO %s (user_id, status, title, short, text) VALUES ($1, $2, $3, $4, $5) RETURNING id", postsTable)
-	row := r.db.QueryRow(query, post.Author.Id, post.Status, post.Title, post.Short, post.Text)
+	query := fmt.Sprintf("INSERT INTO %s (user_id, status, title, short, text, main_image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", postsTable)
+	row := r.db.QueryRow(query, post.Author.Id, post.Status, post.Title, post.Short, post.Text, post.MainImage)
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
