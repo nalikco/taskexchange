@@ -15,7 +15,8 @@ import {moment} from "@/moment";
 
       <div class="mt-8 ">
         <h2 class="text-white font-bold text-2xl tracking-wide">
-          {{ userProfile.username }} <br/>
+          {{ userProfile.first_name }} <br/>
+          {{ userProfile.last_name }}
         </h2>
       </div>
       <p v-if="userProfile.type === 1" class="text-emerald-400 font-semibold mt-2.5" >

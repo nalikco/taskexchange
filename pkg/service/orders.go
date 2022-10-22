@@ -15,7 +15,7 @@ type OrdersService struct {
 	eventsRepo      repository.Events
 	tasksRepo       repository.Tasks
 	taskOptionsRepo repository.TaskOptions
-	paymentsRepo repository.Payments
+	paymentsRepo    repository.Payments
 }
 
 func NewOrdersService(ordersRepo repository.Orders, usersRepo repository.Users, optionsRepo repository.Options, tasksRepo repository.Tasks, taskOptionsRepo repository.TaskOptions, eventsRepo repository.Events, paymentsRepo repository.Payments) *OrdersService {
@@ -26,7 +26,7 @@ func NewOrdersService(ordersRepo repository.Orders, usersRepo repository.Users, 
 		tasksRepo:       tasksRepo,
 		eventsRepo:      eventsRepo,
 		taskOptionsRepo: taskOptionsRepo,
-		paymentsRepo: paymentsRepo,
+		paymentsRepo:    paymentsRepo,
 	}
 }
 
@@ -37,7 +37,7 @@ func (s *OrdersService) FindAllByPerformerId(performerId int) ([]taskexchange.Or
 	}
 
 	for i, order := range orders {
-		orders[i].Task.Customer, err = s.usersRepo.GetById(order.Task.CustomerId, false)
+		orders[i].Task.Customer, err = s.usersRepo.GetByIdHidden(order.Task.CustomerId)
 		if err != nil {
 			return []taskexchange.Order{}, err
 		}
@@ -70,7 +70,7 @@ func (s *OrdersService) FindAllByCustomerId(customerId int) ([]taskexchange.Orde
 	}
 
 	for i, order := range orders {
-		orders[i].Offer.Performer, err = s.usersRepo.GetById(order.Offer.PerformerId, false)
+		orders[i].Offer.Performer, err = s.usersRepo.GetByIdHidden(order.Offer.PerformerId)
 		if err != nil {
 			return []taskexchange.Order{}, err
 		}
@@ -103,12 +103,12 @@ func (s *OrdersService) FindAll() ([]taskexchange.Order, error) {
 	}
 
 	for i, order := range orders {
-		orders[i].Task.Customer, err = s.usersRepo.GetById(order.Task.CustomerId, false)
+		orders[i].Task.Customer, err = s.usersRepo.GetByIdHidden(order.Task.CustomerId)
 		if err != nil {
 			return []taskexchange.Order{}, err
 		}
 
-		orders[i].Offer.Performer, err = s.usersRepo.GetById(order.Offer.PerformerId, false)
+		orders[i].Offer.Performer, err = s.usersRepo.GetByIdHidden(order.Offer.PerformerId)
 		if err != nil {
 			return []taskexchange.Order{}, err
 		}
@@ -139,7 +139,7 @@ func (s *OrdersService) FindActiveByPerformerId(performerId int) ([]taskexchange
 }
 
 func (s *OrdersService) Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error {
-	user, err := s.usersRepo.GetById(userId, true)
+	user, err := s.usersRepo.GetById(userId)
 	if err != nil {
 		return err
 	}
@@ -195,24 +195,22 @@ func (s *OrdersService) Update(orderId int, userId int, input taskexchange.Updat
 
 					order.Task.Options = options
 
-					performer, err := s.usersRepo.GetById(order.Offer.PerformerId, true)
+					performer, err := s.usersRepo.GetById(order.Offer.PerformerId)
 					if err != nil {
 						return err
 					}
-					newPerformerBalance := performer.Balance + order.Task.CalculatePriceForOne()
+					performer.Balance = performer.Balance + order.Task.CalculatePriceForOne()
 
-					err = s.usersRepo.Update(performer.Id, taskexchange.UpdateUserInput{
-						Balance: &newPerformerBalance,
-					})
+					err = s.usersRepo.Update(performer)
 					if err != nil {
 						return err
 					}
 
 					payment := taskexchange.Payment{
-						User: performer,
-						Type: 2,
+						User:    performer,
+						Type:    2,
 						Comment: "Выполнение задач",
-						Sum: order.Task.CalculatePriceForOne(),
+						Sum:     order.Task.CalculatePriceForOne(),
 					}
 					_, err = s.paymentsRepo.Create(payment)
 					if err != nil {

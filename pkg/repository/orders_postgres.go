@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"strings"
 	"taskexchange"
 
@@ -9,12 +10,14 @@ import (
 )
 
 type OrdersPostgres struct {
-	db *sqlx.DB
+	db   *sqlx.DB
+	gorm *gorm.DB
 }
 
-func NewOrdersPostgres(db *sqlx.DB) *OrdersPostgres {
+func NewOrdersPostgres(db *sqlx.DB, gorm *gorm.DB) *OrdersPostgres {
 	return &OrdersPostgres{
-		db: db,
+		db:   db,
+		gorm: gorm,
 	}
 }
 
@@ -316,11 +319,7 @@ func (r *OrdersPostgres) GetAllCompleted() ([]taskexchange.Order, error) {
 		for _, taskOption := range orders[i].Task.TaskOptions {
 			var option taskexchange.Option
 
-			query = fmt.Sprintf("SELECT * FROM %s WHERE id=$1", optionsTable)
-			err = r.db.Get(&option, query, taskOption.OptionId)
-			if err != nil {
-				return []taskexchange.Order{}, err
-			}
+			r.gorm.Table("options").Find(&option, taskOption.OptionId)
 
 			orders[i].Task.Options = append(orders[i].Task.Options, option)
 		}

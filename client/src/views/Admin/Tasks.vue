@@ -20,7 +20,7 @@ import {moment} from "@/moment";
                 ID
               </th>
               <th scope="col" class="py-3 px-6">
-                Название
+                Заказчик
               </th>
               <th scope="col" class="py-3 px-6">
                 Статус

@@ -17,7 +17,7 @@ func (h *Handler) adminStatistics(c *gin.Context) {
 		return
 	}
 
-	users, err := h.services.Users.GetAll(true)
+	users, err := h.services.Users.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

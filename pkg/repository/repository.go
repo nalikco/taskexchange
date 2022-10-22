@@ -1,34 +1,37 @@
 package repository
 
 import (
+	"gorm.io/gorm"
 	"taskexchange"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type Users interface {
-	Create(user taskexchange.User) (int, error)
-	GetAll(full bool) ([]taskexchange.User, error)
-	GetById(id int, full bool) (taskexchange.User, error)
+	Create(user taskexchange.User) (taskexchange.User, error)
+	GetAll() ([]taskexchange.User, error)
+	GetAllHidden() ([]taskexchange.UserHidden, error)
+	GetById(id int) (taskexchange.User, error)
+	GetByIdHidden(id int) (taskexchange.UserHidden, error)
 	GetByEmail(email string) (taskexchange.User, error)
+	GetByUsername(username string) (taskexchange.User, error)
 	GetByEmailAndPassword(email, password string) (taskexchange.User, error)
-	CountAll(sort taskexchange.SortUsersCount) (int, error)
-	Update(id int, input taskexchange.UpdateUserInput) error
-	Delete(id int) error
-	Restore(id int) error
-	UpdateOnline(id int) error
+	CountAll(sort taskexchange.SortUsersCount) (int64, error)
+	Update(user taskexchange.User) error
+	Delete(user taskexchange.User) error
+	Restore(user taskexchange.User) error
 }
 
 type Options interface {
-	Create(parentId int, option taskexchange.Option) (int, error)
-	GetAll(full bool) ([]taskexchange.Option, error)
+	Create(option taskexchange.Option) (taskexchange.Option, error)
+	GetAll(sort taskexchange.SortOptions) ([]taskexchange.Option, error)
 	GetCategories() ([]taskexchange.Option, error)
-	GetById(id int, full bool) (taskexchange.Option, error)
+	GetById(id int, deleted bool) (taskexchange.Option, error)
 	GetByIds(ids []int) ([]taskexchange.Option, error)
 	GetByTitle(title string, parentId int) (taskexchange.Option, error)
-	Update(id int, input taskexchange.UpdateOptionInput) error
-	Delete(id int) error
-	Restore(id int) error
+	Update(option taskexchange.Option) error
+	Delete(option taskexchange.Option) error
+	Restore(option taskexchange.Option) error
 }
 
 type Events interface {
@@ -135,16 +138,16 @@ type Repository struct {
 	Posts
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *sqlx.DB, gorm *gorm.DB) *Repository {
 	return &Repository{
-		Users:       NewUsersPostgres(db),
-		Options:     NewOptionsPostgres(db),
+		Users:       NewUsersPostgres(gorm),
+		Options:     NewOptionsPostgres(gorm),
 		Events:      NewEventsPostgres(db),
 		Tasks:       NewTasksPostgres(db),
 		TaskOptions: NewTaskOptionsPostgres(db),
 		Offers:      NewOffersPostgres(db),
-		Orders:      NewOrdersPostgres(db),
-		Messages:    NewMessagesPostgres(db),
+		Orders:      NewOrdersPostgres(db, gorm),
+		Messages:    NewMessagesPostgres(db, gorm),
 		Payments:    NewPaymentsPostgres(db),
 		Posts:       NewPostsPostgres(db),
 	}

@@ -8,9 +8,9 @@ import (
 )
 
 type createOptionInput struct {
-	ParentId int     `json:"parent_id"`
+	ParentId *int    `json:"parent_id"`
 	Title    string  `json:"title" binding:"required,max=100"`
-	Short    string  `json:"short" binding:"max=100"`
+	Short    *string `json:"short" binding:"max=100"`
 	Price    float64 `json:"price" binding:"required,numeric"`
 }
 
@@ -31,10 +31,39 @@ func (h *Handler) createOption(c *gin.Context) {
 		return
 	}
 
-	id, err := h.services.Options.Create(input.ParentId, taskexchange.Option{
-		Title: input.Title,
-		Short: &input.Short,
-		Price: input.Price,
+	nullParentId := 0
+	if input.ParentId == &nullParentId {
+		input.ParentId = nil
+	}
+
+	var parent taskexchange.Option
+	if input.ParentId != nil {
+		input.Short = nil
+
+		parent, err = h.services.Options.GetById(*input.ParentId, true)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	var parentForStore *taskexchange.Option
+	if parent.Id == 0 {
+		parentForStore = nil
+	} else {
+		parentForStore = &parent
+	}
+
+	nullShort := ""
+	if input.Short == &nullShort {
+		input.Short = nil
+	}
+
+	id, err := h.services.Options.Create(taskexchange.Option{
+		Parent: parentForStore,
+		Title:  input.Title,
+		Short:  input.Short,
+		Price:  input.Price,
 	})
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -55,11 +84,13 @@ func (h *Handler) getAllOptions(c *gin.Context) {
 
 	var err error
 	var options []taskexchange.Option
-	if isAdmin {
-		options, err = h.services.Options.GetAll(true)
-	} else {
-		options, err = h.services.Options.GetAll(false)
+	sort := taskexchange.SortOptions{
+		Deleted: false,
 	}
+	if isAdmin {
+		sort.Deleted = true
+	}
+	options, err = h.services.Options.GetAll(sort)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

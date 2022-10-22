@@ -6,26 +6,28 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(user taskexchange.User) (int, error)
+	CreateUser(user taskexchange.User) (taskexchange.User, error)
 	GenerateToken(email, password string) (string, error)
 	ParseToken(token string) (int, error)
-	UpdateOnline(id int) error
+	UpdateOnline(user taskexchange.User) error
 }
 
 type Users interface {
-	CreateUser(user taskexchange.User) (int, error)
-	GetAll(full bool) ([]taskexchange.User, error)
-	GetById(id int, full bool) (taskexchange.User, error)
-	Update(id int, input taskexchange.UpdateUserInput) error
-	CountAll(sort taskexchange.SortUsersCount) (int, error)
+	CreateUser(user taskexchange.User) (taskexchange.User, error)
+	GetAll() ([]taskexchange.User, error)
+	GetAllHidden() ([]taskexchange.UserHidden, error)
+	GetById(id int) (taskexchange.User, error)
+	GetByIdHidden(id int) (taskexchange.UserHidden, error)
+	Update(user taskexchange.User, input taskexchange.UpdateUserInput) error
+	CountAll(sort taskexchange.SortUsersCount) (int64, error)
 	Delete(id int) error
 }
 
 type Options interface {
-	Create(parentId int, option taskexchange.Option) (int, error)
-	GetAll(full bool) ([]taskexchange.Option, error)
+	Create(option taskexchange.Option) (taskexchange.Option, error)
+	GetAll(sort taskexchange.SortOptions) ([]taskexchange.Option, error)
 	GetCategories() ([]taskexchange.Option, error)
-	GetById(id int, full bool) (taskexchange.Option, error)
+	GetById(id int, deleted bool) (taskexchange.Option, error)
 	Update(id int, input taskexchange.UpdateOptionInput) error
 	Delete(id int) error
 }

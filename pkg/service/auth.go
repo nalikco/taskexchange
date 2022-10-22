@@ -2,10 +2,10 @@ package service
 
 import (
 	"crypto/sha1"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"gorm.io/gorm"
 	"regexp"
 	"taskexchange"
 	"taskexchange/pkg/repository"
@@ -13,7 +13,9 @@ import (
 )
 
 const hashSalt = "jIdYUOExRflDd5zLnawESdryvjj5pEDNsiTdYD4C97agltuyDcSsnFtjJUVwdUdV"
-const usernameRegexp = "^[a-zA-Zа-яА-Я]+ [a-zA-Zа-яА-Я]+$"
+const usernameRegexp = "^[a-zA-Z0-9]+$"
+const firstNameRegexp = "^[a-zA-Zа-яА-Я]+$"
+const lastNameRegexp = "^[a-zA-Zа-яА-Я]+$"
 const signingKey = "rRRCregcbAbk21yICfoySs4kVjicuAsC8Rf9zt2CZbSSiCUvKDvjipnLclRAYPXL"
 const tokenTTL = 31 * 24 * time.Hour
 
@@ -30,23 +32,39 @@ func NewAuthService(repo repository.Users) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUser(user taskexchange.User) (int, error) {
+func (s *AuthService) CreateUser(user taskexchange.User) (taskexchange.User, error) {
 	user.Password = generatePasswordHash(user.Password)
 
 	if match := regexp.MustCompile(usernameRegexp).Match([]byte(user.Username)); match == false {
-		return 0, errors.New("not valid username")
+		return taskexchange.User{}, errors.New("not valid username")
+	}
+
+	if match := regexp.MustCompile(firstNameRegexp).Match([]byte(user.FirstName)); match == false {
+		return taskexchange.User{}, errors.New("not valid first name")
+	}
+
+	if match := regexp.MustCompile(lastNameRegexp).Match([]byte(user.LastName)); match == false {
+		return taskexchange.User{}, errors.New("not valid last name")
 	}
 
 	userByEmail, err := s.repo.GetByEmail(user.Email)
-	if err != nil && err != sql.ErrNoRows {
-		return 0, err
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return taskexchange.User{}, err
 	}
 	if userByEmail.Email == user.Email {
-		return 0, errors.New("email is already taken")
+		return taskexchange.User{}, errors.New("email is already taken")
+	}
+
+	userByUsername, err := s.repo.GetByUsername(user.Username)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return taskexchange.User{}, err
+	}
+	if userByUsername.Username == user.Username {
+		return taskexchange.User{}, errors.New("username is already taken")
 	}
 
 	if user.Type != 1 && user.Type != 2 {
-		return 0, errors.New("not valid type")
+		return taskexchange.User{}, errors.New("not valid type")
 	}
 
 	return s.repo.Create(user)
@@ -90,8 +108,9 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	return claims.UserId, nil
 }
 
-func (s *AuthService) UpdateOnline(id int) error {
-	return s.repo.UpdateOnline(id)
+func (s *AuthService) UpdateOnline(user taskexchange.User) error {
+	user.LastOnline = time.Now()
+	return s.repo.Update(user)
 }
 
 func generatePasswordHash(password string) string {

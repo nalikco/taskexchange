@@ -4,7 +4,7 @@ import "time"
 
 type Offer struct {
 	Id          int        `json:"id" db:"id"`
-	Performer   User       `json:"performer" db:"performer"`
+	Performer   UserHidden `json:"performer" db:"performer"`
 	PerformerId int        `json:"performer_id" db:"performer_id"`
 	TaskId      int        `json:"task_id" db:"task_id"`
 	Status      int        `json:"status" db:"status"`

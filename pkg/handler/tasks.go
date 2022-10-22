@@ -19,8 +19,10 @@ type inputCreateOneTask struct {
 	Status       int    `json:"status" binding:"required"`
 	Amount       int    `json:"amount" binding:"required"`
 	DeliveryDate string `json:"delivery_date" binding:"required"`
+	DeadlineType int    `json:"deadline_type" binding:"required"`
 	Link         string `json:"link" binding:"required,max=255,url"`
 	Description  string `json:"description" binding:"required"`
+	Report       string `json:"report" binding:"required"`
 	Options      []int  `json:"options" binding:"required"`
 }
 
@@ -79,17 +81,17 @@ func (h *Handler) createTask(c *gin.Context) {
 				return
 			}
 
-			if option.ParentId != nil {
+			if option.Parent != nil {
 				var parentIdFound = false
 
 				for _, parentId := range input.Options {
-					if parentId == *option.ParentId {
+					if parentId == option.Parent.Id {
 						parentIdFound = true
 					}
 				}
 
 				if !parentIdFound {
-					newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
+					newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("parent id %d not found in options array for option: %d", option.Parent.Id, optionId))
 					return
 				}
 			}
@@ -104,6 +106,7 @@ func (h *Handler) createTask(c *gin.Context) {
 			DeliveryDate: deliveryDate,
 			Link:         input.Link,
 			Description:  input.Description,
+			Report:       input.Report,
 			Options:      options,
 		}
 
@@ -422,11 +425,6 @@ func (h *Handler) deleteTask(c *gin.Context) {
 	}
 	if task.CustomerId != user.Id && user.Type != 3 {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user id")
-		return
-	}
-	task.Customer, err = h.services.Users.GetById(task.CustomerId, true)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

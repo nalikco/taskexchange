@@ -4,17 +4,20 @@ import (
 	"net/http"
 	"strconv"
 	"taskexchange"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createUserInput struct {
-	Email    string  `json:"email" binding:"required,max=255" db:"email"`
-	Password string  `json:"password" binding:"required,max=255"`
-	Username string  `json:"username" binding:"required,max=255" db:"username"`
-	Type     int     `json:"type" binding:"required" db:"type"`
-	Balance  float64 `json:"balance" db:"balance"`
-	Points   int     `json:"points" db:"points"`
+	Email     string  `json:"email" binding:"required,max=255"`
+	Password  string  `json:"password" binding:"required,max=255"`
+	Username  string  `json:"username" binding:"required,max=255"`
+	FirstName string  `json:"first_name" binding:"required,max=255"`
+	LastName  string  `json:"last_name" binding:"required,max=255"`
+	Type      int     `json:"type" binding:"required"`
+	Balance   float64 `json:"balance"`
+	Points    int     `json:"points"`
 }
 
 func (h *Handler) createUser(c *gin.Context) {
@@ -35,12 +38,17 @@ func (h *Handler) createUser(c *gin.Context) {
 	}
 
 	id, err := h.services.Users.CreateUser(taskexchange.User{
-		Username: input.Username,
-		Email:    input.Email,
-		Password: input.Password,
-		Type:     input.Type,
-		Balance:  input.Balance,
-		Points:   input.Points,
+		Username:   input.Username,
+		FirstName:  input.FirstName,
+		LastName:   input.LastName,
+		Email:      input.Email,
+		Password:   input.Password,
+		Type:       input.Type,
+		Balance:    input.Balance,
+		Points:     input.Points,
+		LastOnline: time.Now(),
+		CreatedAt:  time.Now(),
+		DeletedAt:  nil,
 	})
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -56,30 +64,38 @@ type getAllUsersResponse struct {
 	Data []taskexchange.User `json:"data"`
 }
 
+type getHiddenUsersResponse struct {
+	Data []taskexchange.UserHidden `json:"data"`
+}
+
 func (h *Handler) getAllUsers(c *gin.Context) {
 	isAdmin := h.checkIsAdmin(c)
 
-	var err error
-	var users []taskexchange.User
 	if isAdmin {
-		users, err = h.services.Users.GetAll(true)
+		users, err := h.services.Users.GetAll()
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusOK, getAllUsersResponse{
+			Data: users,
+		})
 	} else {
-		users, err = h.services.Users.GetAll(false)
-	}
+		users, err := h.services.Users.GetAllHidden()
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
+		c.JSON(http.StatusOK, getHiddenUsersResponse{
+			Data: users,
+		})
 	}
-
-	c.JSON(http.StatusOK, getAllUsersResponse{
-		Data: users,
-	})
 }
 
-type getOneUserResponse struct {
-	Data             taskexchange.User `json:"data"`
-	ActiveTasksCount int               `json:"active_tasks_count"`
+type getOneUserHiddenResponse struct {
+	Data taskexchange.UserHidden `json:"data"`
 }
 
 func (h *Handler) getUserById(c *gin.Context) {
@@ -89,29 +105,35 @@ func (h *Handler) getUserById(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Users.GetById(id, false)
+	user, err := h.services.Users.GetByIdHidden(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getOneUserResponse{
+	c.JSON(http.StatusOK, getOneUserHiddenResponse{
 		Data: user,
 	})
 }
 
 func (h *Handler) updateUser(c *gin.Context) {
-	user, err := getUser(c)
+	currentUser, err := getUser(c)
 	if err != nil {
 		return
 	}
 
-	if user.Type != 3 {
+	if currentUser.Type != 3 {
 		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
 		return
 	}
 
 	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	user, err := h.services.Users.GetById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
@@ -123,7 +145,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Users.Update(id, input)
+	err = h.services.Users.Update(user, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

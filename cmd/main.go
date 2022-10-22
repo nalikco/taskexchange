@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -9,6 +10,8 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	gormPostgres "gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,6 +35,21 @@ func main() {
 		DBName:   os.Getenv("DB_NAME"),
 		SSLMode:  os.Getenv("DB_SSLMODE"),
 	})
+
+	if err != nil {
+		logrus.Fatalf("failed to initialize db: %s", err.Error())
+	}
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Europe/Moscow",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_SSLMODE"),
+	)
+	gorm, err := gorm.Open(gormPostgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
@@ -49,7 +67,7 @@ func main() {
 		logrus.Fatalf("failed to apply migrations: %s", err.Error())
 	}
 
-	repos := repository.NewRepository(db)
+	repos := repository.NewRepository(db, gorm)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 

@@ -148,7 +148,7 @@ import {moment} from "@/moment";
           </transition>
           <transition name="slide-fade">
             <div v-if="selectedType === 1 && !closeSubmitForm || selectedType === 2 && !closeSubmitForm">
-              <h2 class="text-2xl font-medium mt-10">Укажите задачу</h2>
+              <h2 class="text-2xl font-medium mt-10">Выберите сервис</h2>
               <div class="bg-white mt-3 py-4 px-5 grid grid-cols-1 gap-4 md:grid-cols-4 rounded-xl shadow hover:shadow-lg transition duration-300">
                 <div v-for="parent in optionsToShow" @mouseenter="showOptions = parent.id" @mouseleave="showOptions = 0" class="relative">
                   <div @click="selectParent(parent)" class=" cursor-pointer shadow hover:shadow-lg hover:ring ring-slate-100 rounded-lg py-1 px-1 transition duration-300" :class="{'text-white bg-sky-800': selectedParent === parent.id, 'bg-slate-100': selectedParent !== parent.id, 'rounded-t-lg': showOptions === parent.id}">
@@ -184,7 +184,8 @@ import {moment} from "@/moment";
                   </transition>
                 </div>
               </div>
-              <div class="mt-7 bg-white rounded-lg py-3 px-7 shadow">
+              <h2 v-if="showSubmitForm" class="text-2xl font-medium mt-10">Укажите необходимую информацию</h2>
+              <div v-if="showSubmitForm" class="mt-7 bg-white rounded-lg py-3 px-7 shadow">
                 <form @submit="onFormSubmit">
                   <div class="mt-4">
                     <label for="link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ссылка на задачу</label>
@@ -195,12 +196,20 @@ import {moment} from "@/moment";
                     <textarea id="description" @input="onInputChange($event, 'description')" rows="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Описание задачи нужно для того, чтобы исполнители поняли суть задачи" :value="description" required></textarea>
                   </div>
                   <div class="mt-6">
+                    <label for="report" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Укажите информацию, которую необходимо предоставить в отчёте</label>
+                    <textarea id="report" @input="onInputChange($event, 'report')" rows="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, ссылка на аккаунт, с которого было выполнено задание" :value="report" required></textarea>
+                  </div>
+                  <div class="mt-6">
                     <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Количество</label>
                     <input type="number" min="1" @input="onInputChange($event, 'amount')" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" :value="amount" required>
                   </div>
                   <div class="mt-6">
                     <label for="amount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Дата сдачи</label>
-                    <input type="date" :min="new Date().toLocaleDateString('en-ca')" @input="onInputChange($event, 'deliveryDate')" :value="deliveryDate" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
+                    <select id="countries" @change="onInputChange($event, 'deliveryDate')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                      <option value="">другая (выберите или введите ниже)</option>
+                      <option v-for="date in deliveryDatesHelper" :value="date.variable" :selected="date.variable == deliveryDate">{{ date.title }}</option>
+                    </select>
+                    <input type="date" :min="new Date().toLocaleDateString('en-ca')" @input="onInputChange($event, 'deliveryDate')" :value="deliveryDate" id="amount" class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Например, количество необходимых комментариев под пост ВКонтакте" required>
                   </div>
                   <div class="mt-6">
                     <transition name="slide-fade">
@@ -253,9 +262,11 @@ export default {
       showOptions: 0,
       link: "",
       description: "",
+      report: "",
       amount: 1,
       selectedOptions: [],
-      deliveryDate: "",
+      deliveryDate: new Date().toLocaleDateString('en-ca'),
+      showSubmitForm: false,
       tasks: [],
       showTask: 0,
       editTaskIndex: null,
@@ -272,6 +283,7 @@ export default {
       if (this.link === '') return false
       if (this.description === '') return false
       if (this.deliveryDate === '') return false
+      if (this.report === '') return false
       if (parseInt(this.amount) <= 0) return false
       if (this.userBalance < this.priceForCurrentTask) return false
       if (this.loading) return false
@@ -283,6 +295,41 @@ export default {
       if (this.loading) return false
 
       return true
+    },
+    deliveryDatesHelper() {
+      return [
+        {
+          title: 'В течении дня',
+          variable: this.addDaysToCurrentDate(0).toLocaleDateString('en-ca'),
+        }, {
+          title: 'Завтра',
+          variable: this.addDaysToCurrentDate(1).toLocaleDateString('en-ca'),
+        }, {
+          title: '2 дня',
+          variable: this.addDaysToCurrentDate(2).toLocaleDateString('en-ca'),
+        }, {
+          title: '3 дня',
+          variable: this.addDaysToCurrentDate(3).toLocaleDateString('en-ca'),
+        }, {
+          title: '4 дня',
+          variable: this.addDaysToCurrentDate(4).toLocaleDateString('en-ca'),
+        }, {
+          title: '5 дней',
+          variable: this.addDaysToCurrentDate(5).toLocaleDateString('en-ca'),
+        }, {
+          title: '6 дней',
+          variable: this.addDaysToCurrentDate(6).toLocaleDateString('en-ca'),
+        }, {
+          title: '7 дней',
+          variable: this.addDaysToCurrentDate(7).toLocaleDateString('en-ca'),
+        }, {
+          title: '2 недели',
+          variable: this.addDaysToCurrentDate(14).toLocaleDateString('en-ca'),
+        }, {
+          title: 'месяц',
+          variable: this.addDaysToCurrentDate(31).toLocaleDateString('en-ca'),
+        },
+      ]
     },
     priceForCurrentTask() {
       let price = 0
@@ -312,14 +359,6 @@ export default {
       for (let i = 0; i < this.options.length; i++) {
         if(!this.options[i].parent_id) {
           let parent = this.options[i]
-          parent.options = []
-
-          for (let i = 0; i < this.options.length; i++) {
-            if(this.options[i].parent_id && this.options[i].parent_id === parent.id) {
-              parent.options.push(this.options[i])
-            }
-          }
-
           parents.push(parent)
         }
       }
@@ -345,6 +384,12 @@ export default {
     this.userBalance = this.user.balance
   },
   methods: {
+    addDaysToCurrentDate(days) {
+      let current = new Date()
+      current.setDate(current.getDate() + days)
+
+      return current
+    },
     onInputChange(e, field) {
       this[field] = e.target.value
     },
@@ -361,9 +406,11 @@ export default {
       this.amount = parseInt(this.tasks[taskIndex].amount)
       this.link = this.tasks[taskIndex].link
       this.description = this.tasks[taskIndex].description
+      this.report = this.tasks[taskIndex].report
       this.deliveryDate = this.tasks[taskIndex].delivery_date
 
       this.closeSubmitForm = false
+      this.showSubmitForm = true
     },
     selectType(type) {
       this.selectedType = type
@@ -393,14 +440,21 @@ export default {
       return parent
     },
     selectParent(parent) {
-      if(this.selectedParent === 0 || this.selectedParent !== parent.id) this.selectedParent = parent.id
-      else this.selectedParent = 0
+      if(this.selectedParent === 0 || this.selectedParent !== parent.id) {
+        this.selectedParent = parent.id
+        this.showSubmitForm = true
+      }
+      else {
+        this.selectedParent = 0
+        this.showSubmitForm = false
+      }
 
       this.selectedOptions = []
     },
     selectOption(option) {
       if(this.selectedParent !== option.parent_id) {
         this.selectedParent = option.parent_id
+        this.showSubmitForm = true
         this.selectedOptions = []
       }
 
@@ -441,6 +495,7 @@ export default {
           delivery_date: this.tasks[i].delivery_date,
           link: this.tasks[i].link,
           description: this.tasks[i].description,
+          report: this.tasks[i].report,
           options: this.tasks[i].options,
         })
       }
@@ -487,6 +542,7 @@ export default {
           delivery_date: this.deliveryDate,
           link: this.link,
           description: this.description,
+          report: this.report,
           options: this.collectSelectedOptions(),
           taskOptions: this.taskOptionsToShow(this.collectSelectedOptions())
         }
@@ -509,6 +565,7 @@ export default {
               delivery_date: this.deliveryDate,
               link: this.link,
               description: this.description,
+              report: this.report,
               options: this.collectSelectedOptions(),
             }
           ]
@@ -546,6 +603,7 @@ export default {
           delivery_date: this.deliveryDate,
           link: this.link,
           description: this.description,
+          report: this.report,
           options: this.collectSelectedOptions(),
           taskOptions: this.taskOptionsToShow(this.collectSelectedOptions())
         }
@@ -599,6 +657,7 @@ export default {
       this.deliveryDate = ''
       this.link = ''
       this.description = ''
+      this.report = ''
       this.selectedParent = 0
       this.selectedOptions = []
     }

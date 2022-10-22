@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"taskexchange"
@@ -10,7 +11,8 @@ import (
 )
 
 type MessagesPostgres struct {
-	db *sqlx.DB
+	db   *sqlx.DB
+	gorm *gorm.DB
 }
 
 type conversationMembers struct {
@@ -31,8 +33,11 @@ type messagesDb struct {
 	DeletedAt      *time.Time `db:"deleted_at"`
 }
 
-func NewMessagesPostgres(db *sqlx.DB) *MessagesPostgres {
-	return &MessagesPostgres{db: db}
+func NewMessagesPostgres(db *sqlx.DB, gorm *gorm.DB) *MessagesPostgres {
+	return &MessagesPostgres{
+		db:   db,
+		gorm: gorm,
+	}
 }
 
 func (r *MessagesPostgres) GetUserConversations(user taskexchange.User) ([]taskexchange.Conversation, error) {
@@ -78,7 +83,7 @@ func (r *MessagesPostgres) GetUserConversations(user taskexchange.User) ([]taske
 
 			if conversation.ID == conversationMember.ConversationId {
 				var member taskexchange.User
-				query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+				query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 				err = r.db.Get(&member, query, conversationMember.UserId)
 				if err != nil {
 					return conversations, err
@@ -127,7 +132,7 @@ func (r *MessagesPostgres) GetConversationById(id int) (taskexchange.Conversatio
 	for _, conversationMember := range conversationMembers {
 		var member taskexchange.User
 
-		query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+		query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 		err = r.db.Get(&member, query, conversationMember.UserId)
 		if err != nil {
 			return conversation, err
@@ -148,7 +153,7 @@ func (r *MessagesPostgres) GetMessageById(id int) (taskexchange.Message, error) 
 		return message, err
 	}
 
-	query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+	query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 	err = r.db.Get(&message.Sender, query, messageDb.SenderId)
 	if err != nil {
 		return message, err
@@ -221,7 +226,7 @@ func (r *MessagesPostgres) GetMessagesByConversation(conversation taskexchange.C
 	for _, messageDb := range messagesDb {
 		var sender taskexchange.User
 
-		query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+		query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 		err = r.db.Get(&sender, query, messageDb.SenderId)
 		if err != nil {
 			return messages, err

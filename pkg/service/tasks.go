@@ -32,7 +32,7 @@ func NewTasksService(tasksRepo repository.Tasks, taskOptionsRepo repository.Task
 }
 
 func (s *TasksService) Create(task taskexchange.Task) (int, error) {
-	customer, err := s.usersRepo.GetById(task.CustomerId, true)
+	customer, err := s.usersRepo.GetById(task.CustomerId)
 	if err != nil {
 		return 0, err
 	}
@@ -42,7 +42,7 @@ func (s *TasksService) Create(task taskexchange.Task) (int, error) {
 	if customer.Balance < taskPrice {
 		return 0, errors.New("wrong user balance")
 	}
-	userNewBalance := customer.Balance - taskPrice
+	customer.Balance = customer.Balance - taskPrice
 
 	taskId, err := s.tasksRepo.Create(task)
 	if err != nil {
@@ -56,11 +56,7 @@ func (s *TasksService) Create(task taskexchange.Task) (int, error) {
 		}
 	}
 
-	updateUserInput := taskexchange.UpdateUserInput{
-		Balance: &userNewBalance,
-	}
-
-	err = s.usersRepo.Update(customer.Id, updateUserInput)
+	err = s.usersRepo.Update(customer)
 
 	return taskId, nil
 }
@@ -80,7 +76,7 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) (float64
 		}
 	}()
 
-	customer, err := s.usersRepo.GetById(userId, true)
+	customer, err := s.usersRepo.GetById(userId)
 	if err != nil {
 		return 0, err
 	}
@@ -159,11 +155,9 @@ func (s *TasksService) CreateFromExcelFile(userId int, filename string) (float64
 		amountTasksPrice += task.CalculatePrice()
 	}
 
-	updateUserInput := taskexchange.UpdateUserInput{
-		Balance: &userNewBalance,
-	}
+	customer.Balance = userNewBalance
 
-	err = s.usersRepo.Update(customer.Id, updateUserInput)
+	err = s.usersRepo.Update(customer)
 	if err != nil {
 		return 0, err
 	}
@@ -193,7 +187,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) (float
 			return 0, err
 		}
 
-		customer, err := s.usersRepo.GetById(task.CustomerId, true)
+		customer, err := s.usersRepo.GetById(task.CustomerId)
 		if err != nil {
 			return 0, err
 		}
@@ -225,17 +219,17 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) (float
 				return 0, errors.New(fmt.Sprintf("wrong option id: %d", optionId))
 			}
 
-			if option.ParentId != nil {
+			if option.Parent != nil {
 				var parentIdFound = false
 
 				for _, parentId := range *input.Options {
-					if parentId == *option.ParentId {
+					if parentId == option.Parent.Id {
 						parentIdFound = true
 					}
 				}
 
 				if !parentIdFound {
-					return 0, errors.New(fmt.Sprintf("parent id %d not found in options array for option: %d", *option.ParentId, optionId))
+					return 0, errors.New(fmt.Sprintf("parent id %d not found in options array for option: %d", option.Parent.Id, optionId))
 				}
 			}
 
@@ -261,11 +255,7 @@ func (s *TasksService) Update(id int, input taskexchange.UpdateTaskInput) (float
 			}
 		}
 
-		updateUserInput := taskexchange.UpdateUserInput{
-			Balance: &customer.Balance,
-		}
-
-		err = s.usersRepo.Update(customer.Id, updateUserInput)
+		err = s.usersRepo.Update(customer)
 
 		customerBalanceDifference := customerInitialBalance - customer.Balance
 
@@ -337,7 +327,7 @@ func (s *TasksService) GetAll(userId int, pagination taskexchange.Pagination) ([
 	}
 
 	for i, task := range tasks {
-		tasks[i].Customer, err = s.usersRepo.GetById(task.CustomerId, false)
+		tasks[i].Customer, err = s.usersRepo.GetByIdHidden(task.CustomerId)
 		if err != nil {
 			return []taskexchange.Task{}, pagination, err
 		}
@@ -382,16 +372,19 @@ func (s *TasksService) CountActiveByUser(userId int) (int, error) {
 
 func (s *TasksService) Delete(id int, task taskexchange.Task, user taskexchange.User) error {
 	taskPrice := task.CalculatePrice()
+	customer, err := s.usersRepo.GetById(task.Customer.Id)
+	if err != nil {
+		return err
+	}
+
 	if task.DeletedAt != nil && user.Type == 3 {
-		if task.Customer.Balance < taskPrice {
+		if customer.Balance < taskPrice {
 			return errors.New("wrong user balance")
 		}
 
-		newCustomerBalance := task.Customer.Balance - taskPrice
+		customer.Balance -= taskPrice
 
-		err := s.usersRepo.Update(task.Customer.Id, taskexchange.UpdateUserInput{
-			Balance: &newCustomerBalance,
-		})
+		err := s.usersRepo.Update(customer)
 		if err != nil {
 			return err
 		}
@@ -399,11 +392,9 @@ func (s *TasksService) Delete(id int, task taskexchange.Task, user taskexchange.
 		return s.tasksRepo.Restore(id)
 	}
 
-	newCustomerBalance := task.Customer.Balance + taskPrice
+	customer.Balance += taskPrice
 
-	err := s.usersRepo.Update(task.Customer.Id, taskexchange.UpdateUserInput{
-		Balance: &newCustomerBalance,
-	})
+	err = s.usersRepo.Update(customer)
 	if err != nil {
 		return err
 	}

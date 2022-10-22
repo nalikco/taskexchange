@@ -1,6 +1,6 @@
 <template>
-  <div class="mx-3 md:mx-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div @mouseenter="activeIcon = 1" @mouseleave="activeIcon = 0" class="bg-white flex flex-row gap-4 pl-5 items-center shadow rounded-lg text-sm py-2 px-2 hover:shadow-xl transition duration-300">
+  <div class="overflow-x-auto md:mx-0 flex flex-row gap-4">
+    <div @mouseenter="activeIcon = 1" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#D9D9D9"/>
@@ -8,12 +8,12 @@
         </svg>
       </div>
       <div class="py-3">
-        {{ user.username }}
+        {{ user.first_name }} {{ user.last_name }}
         <br>
         <span class="text-gray-500 font-medium">id:{{ user.id }}</span>
       </div>
     </div>
-    <div @mouseenter="activeIcon = 2" @mouseleave="activeIcon = 0" class="bg-white flex flex-row gap-4 pl-5 items-center shadow rounded-lg text-sm py-2 px-2 hover:shadow-xl transition duration-300">
+    <div @mouseenter="activeIcon = 2" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 2" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#94C091"/>
@@ -30,7 +30,7 @@
         <span class="text-gray-500 font-medium">{{ $filters.currencyFormat(user.balance) }}</span>
       </div>
     </div>
-    <div @mouseenter="activeIcon = 3" @mouseleave="activeIcon = 0" class="bg-white flex flex-row gap-4 pl-5 items-center shadow rounded-lg text-sm py-2 px-2 hover:shadow-xl transition duration-300">
+    <div @mouseenter="activeIcon = 3" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 3" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#3A538C"/>
@@ -48,7 +48,7 @@
         <span class="text-gray-500 font-medium">{{ user.activeTasksCount }} {{ $filters.declOfNum(user.activeTasksCount, ['активная', 'активных', 'активных']) }}</span>
       </div>
     </div>
-    <div @mouseenter="activeIcon = 4" @mouseleave="activeIcon = 0" class="bg-white flex flex-row gap-4 pl-5 items-center shadow rounded-lg text-sm py-2 px-2 hover:shadow-xl transition duration-300">
+    <div @mouseenter="activeIcon = 4" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 4" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#6A69FB"/>

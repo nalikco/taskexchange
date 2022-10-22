@@ -6,13 +6,15 @@ import (
 )
 
 type Option struct {
-	Id        int        `json:"id" db:"id"`
-	ParentId  *int       `json:"parent_id" db:"parent_id"`
-	Short     *string    `json:"short" db:"short"`
-	Title     string     `json:"title" db:"title"`
-	Price     float64    `json:"price" db:"price"`
-	CreatedAt time.Time  `json:"created_at" db:"created_at"`
-	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
+	Id        int        `json:"id" gorm:"id"`
+	ParentID  *int       `json:"parent_id"`
+	Parent    *Option    `json:"parent"`
+	Options   []Option   `json:"options" gorm:"foreignkey:parent_id"`
+	Short     *string    `json:"short" gorm:"short"`
+	Title     string     `json:"title" gorm:"title"`
+	Price     float64    `json:"price" gorm:"price"`
+	CreatedAt time.Time  `json:"created_at" gorm:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at" gorm:"deleted_at"`
 }
 
 type UpdateOptionInput struct {
@@ -28,4 +30,8 @@ func (i UpdateOptionInput) Validate() error {
 	}
 
 	return nil
+}
+
+type SortOptions struct {
+	Deleted bool
 }

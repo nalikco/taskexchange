@@ -46,8 +46,14 @@ import {moment} from "@/moment";
                       </div>
                     </div>
                   </div>
+                  <p class="mt-6 md:mt-3">
+                    <span class="font-semibold">Описание:</span> {{ task.description }}
+                  </p>
                   <p class="mt-3">
-                    {{ task.description }}
+                    <span class="font-semibold">Предоставить в отчёте:</span> {{ task.report }}
+                  </p>
+                  <p class="text-sm border-t-2 mt-1 pt-1">
+                    <span class="font-semibold">Ссылка:</span> <a :href="task.link" class="text-blue-500 font-semibold" target="_blank">{{ task.link }}</a>
                   </p>
                   <p class="mt-3 text-gray-600 text-sm">
                     Дата сдачи: {{ moment(task.delivery_date).utc(0).format('dddd, Do MMMM YYYY') }}

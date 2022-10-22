@@ -14,7 +14,7 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
         <ProfileInfo />
         <div class="mx-3 mt-7 md:mx-0 grid grid-cols-1 lg:grid-cols-4">
           <div class="bg-white shadow rounded-lg text-center text-sm lg:mr-3 py-4 hover:shadow-lg transition duration-300">
-            Здравствуйте, <span class="font-medium">{{ user.username }}</span>
+            Здравствуйте, <span class="font-medium">{{ user.first_name }} {{ user.last_name }}</span>
 
             <div class="mt-4 flex flex-wrap">
               <RouterLink :to="{ name: 'tasks-my' }" v-if="user.type === 2" class="text-gray-800 text-white mt-1 py-1 text-center w-full font-medium hover:underline">Мои задачи</RouterLink>

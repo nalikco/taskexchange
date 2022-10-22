@@ -18,9 +18,9 @@ func NewTasksPostgres(db *sqlx.DB) *TasksPostgres {
 
 func (r *TasksPostgres) Create(task taskexchange.Task) (int, error) {
 	var id int
-	query := fmt.Sprintf("INSERT INTO %s (customer_id, status, amount, delivery_date, link, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", tasksTable)
+	query := fmt.Sprintf("INSERT INTO %s (customer_id, status, amount, delivery_date, link, description, report) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id", tasksTable)
 
-	row := r.db.QueryRow(query, task.CustomerId, task.Status, task.Amount, task.DeliveryDate, task.Link, task.Description)
+	row := r.db.QueryRow(query, task.CustomerId, task.Status, task.Amount, task.DeliveryDate, task.Link, task.Description, task.Report)
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
@@ -63,6 +63,12 @@ func (r *TasksPostgres) Update(id int, input taskexchange.UpdateTaskInput) error
 		argId++
 	}
 
+	if input.Report != nil {
+		setValues = append(setValues, fmt.Sprintf("report=$%d", argId))
+		args = append(args, *input.Report)
+		argId++
+	}
+
 	args = append(args, id)
 
 	setQuery := strings.Join(setValues, ", ")
@@ -94,15 +100,6 @@ func (r *TasksPostgres) FindAllForAdmin(limit, offset int) ([]taskexchange.Task,
 
 	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC LIMIT %d OFFSET %d", tasksTable, limit, offset)
 	err := r.db.Select(&tasks, query)
-
-	for i, task := range tasks {
-		query := fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", usersAllColumns, usersTable)
-		err := r.db.Get(&tasks[i].Customer, query, task.CustomerId)
-		if err != nil {
-			return []taskexchange.Task{}, err
-		}
-
-	}
 
 	return tasks, err
 }

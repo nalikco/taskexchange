@@ -33,7 +33,7 @@ import {moment} from "@/moment";
                     </div>
                     <div class="ml-2 text-sm font-semibold">
                       <div class="flex items-center">
-                        {{ getConversationRecipient(conversation).username }}
+                        {{ getConversationRecipient(conversation).first_name }} {{ getConversationRecipient(conversation).last_name }}
                         <div v-if="checkIsOnline(getConversationRecipient(conversation).last_online)" class="ml-1 h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
                       </div>
                       <div v-if="conversation.messages[0].sender.id === user.id" class="text-xs text-left" :class="{
@@ -65,7 +65,7 @@ import {moment} from "@/moment";
                   <div class="flex flex-row items-center">
                     <img src="@/assets/img/user.png" class="h-10 w-10 rounded-full">
                     <div class="ml-4 font-semibold">
-                      <RouterLink :to="{ name: 'profile', params: { user_id: getConversationRecipient(conversations[selectedConversationIndex]).id }}">{{ getConversationRecipient(conversations[selectedConversationIndex]).username }}</RouterLink><br>
+                      <RouterLink :to="{ name: 'profile', params: { user_id: getConversationRecipient(conversations[selectedConversationIndex]).id }}">{{ getConversationRecipient(conversations[selectedConversationIndex]).first_name }} {{ getConversationRecipient(conversations[selectedConversationIndex]).last_name }}</RouterLink><br>
                       <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                         <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
                       </div>
@@ -144,10 +144,10 @@ import {moment} from "@/moment";
                 </div>
               </div>
             </div>
-            <div class="flex flex-col flex-auto h-full px-4" v-if="newRecipient !== null">
+            <div class="flex flex-col flex-auto h-full mt-10 md:mt-0 md:px-4" v-if="newRecipient !== null">
               <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full">
                 <div class="bg-white w-full font-semibold text-sm shadow rounded-t-2xl py-3 px-5">
-                  {{ newRecipient.username }}<br>
+                  {{ newRecipient.first_name }} {{ newRecipient.last_name }}<br>
                   <div v-if="checkIsOnline(newRecipient.last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                     <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
                   </div>
@@ -263,7 +263,7 @@ export default {
         for(let m = 0; m < this.conversations[c].members.length; m++) {
           if(this.conversations[c].members[m].id == recipientId) {
             this.selectedConversationIndex = c
-            document.title = 'Диалог с ' + this.getConversationRecipient(this.conversations[c]).username
+            document.title = 'Диалог с ' + this.getConversationRecipient(this.conversations[c]).first_name + ' ' + this.getConversationRecipient(this.conversations[c]).last_name
 
             this.viewConversation(this.conversations[c].id)
             return
@@ -386,7 +386,7 @@ export default {
         headers: { Authorization: `Bearer ${this.token}` }
       }).then(res => {
         this.newRecipient = res.data.data
-        document.title = 'Диалог с ' + this.newRecipient.username
+        document.title = 'Диалог с ' + this.newRecipient.first_name + ' ' + this.newRecipient.last_name
 
         NProgress.done();
       }).catch(err => {

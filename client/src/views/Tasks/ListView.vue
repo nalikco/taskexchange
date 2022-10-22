@@ -16,48 +16,77 @@ import {moment} from "@/moment";
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <ProfileInfo v-if="user.type !== 0" />
         <div class="mt-7 mx-3 md:mx-0">
-          <div v-for="task in tasks" v-bind:key="task.id" :id="'task_' + task.id" class="bg-white text-sm mt-3 shadow rounded-xl hover:shadow-xl transition duration-300 flex flex-col">
-            <div class="px-4 py-3 bg-slate-500 text-white rounded-t-xl">
-              Задача <span class="font-semibold">#{{ task.id }}</span>
-              &#x2022; Количество: <span class="font-semibold">{{ task.amount }} шт.</span>
-              &#x2022; Заказчик: <RouterLink :to="{'name': 'profile', params: { user_id: task.customer.id }}" class="font-semibold">{{ task.customer.username }}</RouterLink>
-              <div class="font-semibold sm:float-right mt-4 text-center md:text-left md:mt-0">{{ $filters.currencyFormat(task.structed.price) }} за задачу</div>
+          <div v-for="task in tasks" v-bind:key="task.id" :id="'task_' + task.id" @click="toggleShowFull(task.id)" class="shadow-md cursor-pointer rounded-md mb-5">
+            <div class="hidden md:grid grid-cols-12 bg-slate-500 text-white py-2 rounded-t-md">
+              <div class="col-span-2 text-center">
+                Название
+              </div>
+              <div class="col-start-10 col-span-2">
+                Оплата
+              </div>
             </div>
-            <div class="text-base px-4 py-2 pb-4">
-              <div class="md:flex md:flex-row mt-7 mb-10">
-                <div class="grid place-items-center mx-auto md:mx-0 w-40">
-                  <div class="bg-sky-800 text-white text-5xl rounded-md text-center h-28 w-28 flex justify-center items-center">
-                    {{ task.structed.main.short }}
-                  </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 bg-white pt-8 rounded-b-md" :class="{
+              'pb-8': showFull !== task.id
+            }">
+              <div class="col-span-2 text-center">
+                <div class="bg-sky-800 text-white mx-5 rounded-md h-36 flex items-center justify-center">
+                  <h2 class="text-4xl font-semibold">{{ task.structed.main.short }}</h2>
                 </div>
-                <div class="mt-5 md:mt-2 md:ml-4">
-                  <div class="flex flex-col md:flex-row gap-5 items-center">
-                    <h2 class="text-xl mx-auto md:mx-0 font-semibold">
-                      {{ task.structed.main.title }}
-                    </h2>
-                    <div class="flex gap-5 items-center">
-                      <div v-for="option in task.structed.options" class="text-sm bg-gray-300 text-gray-700 font-semibold px-7 py-1 rounded">
-                        {{ option.title }}
-                      </div>
+              </div>
+              <div class="col-span-7">
+                <transition name="slide-fade">
+                  <div v-if="showFull !== task.id" class="md:absolute text-center mt-5 md:mt-0">
+                    <span class="font-semibold">Задача:</span> 0000{{ task.id }}
+                  </div>
+                </transition>
+                <div class="md:mt-10">
+                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ task.structed.main.title }}</h1>
+                </div>
+                <div class="mt-5 flex flex-col md:flex-row px-5 md:px-0 gap-1 md:gap-4 text-sm">
+                  <span v-for="option in task.structed.options" class="bg-gray-200 text-gray-700 py-1 px-7 rounded-md">
+                    {{ option.title }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-span-2">
+                <div class="mt-7 md:mt-10">
+                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ $filters.currencyFormat(task.structed.main.price) }}</h1>
+                </div>
+              </div>
+            </div>
+            <transition name="slide-fade">
+              <div v-if="showFull === task.id">
+                <div class="grid pt-7 md:pt-0 px-5 md:px-0 md:grid-cols-12 bg-white">
+                  <div class="col-start-3 col-span-10 text-sm md:pr-12 pb-8">
+                    <div class="bg-gray-200 px-4 py-5 rounded-md">
+                      {{ task.description }}
+                    </div>
+                    <div class="mt-4">
+                      <RouterLink :to="{ name: 'profile', params: { user_id: task.customer.id }}">
+                        <span class="font-semibold">Заказчик:</span> {{ task.customer.first_name }} {{ task.customer.last_name }}
+                      </RouterLink>
+                    </div>
+                    <div class="mt-4">
+                      <span class="font-semibold">Дата сдачи:</span> {{ moment(task.delivery_date).utc(0).format('dddd, DD MMMM YYYY') }}
+                    </div>
+                    <div class="mt-4">
+                      <span class="font-semibold">Время для работы:</span> {{ workTime(task.delivery_date) }}
+                    </div>
+                    <div class="mt-4">
+                      <span class="font-semibold">Предоставить в отчёте:</span> {{ task.report }}
                     </div>
                   </div>
-                  <p class="mt-3">
-                    {{ task.description }}
-                  </p>
-                  <p class="mt-3 text-gray-600 text-sm">
-                    Дата сдачи: {{ moment(task.delivery_date).utc(0).format('dddd, Do MMMM YYYY') }}
-                  </p>
+                </div>
+                <div v-if="task.customer_id === user.id" class="text-sm flex justify-center text-center">
+                  <RouterLink :to="{ name: 'tasks-my' }" class="bg-gray-200 text-gray-700 w-full font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-gray-300 transition duration-300">Ваша задача</RouterLink>
+                </div>
+                <div v-if="user.type === 1" class="text-sm">
+                  <button v-if="!checkIfOfferSendForTask(task.id) && !checkIfExistsActiveOrderForTask(task.id)" @click="sendOffer(task.id)" class="bg-green-200 text-green-700 w-full font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Отправить предложение</button>
+                  <button v-else-if="checkIfOfferSendForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Предложение отправлено</button>
+                  <button v-else-if="checkIfExistsActiveOrderForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">В работе</button>
                 </div>
               </div>
-              <div v-if="task.customer_id === user.id" class="text-sm mt-2 mb-1 border-t-2 pt-3 flex justify-center text-center">
-                <RouterLink :to="{ name: 'tasks-my' }" class="bg-gray-200 text-gray-700 w-full font-semibold py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-gray-300 transition duration-300">Ваша задача</RouterLink>
-              </div>
-              <div v-if="user.type === 1" class="text-sm mt-2 mb-1 border-t-2 pt-3">
-                <button v-if="!checkIfOfferSendForTask(task.id) && !checkIfExistsActiveOrderForTask(task.id)" @click="sendOffer(task.id)" class="bg-green-200 text-green-700 w-full font-medium py-3 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Отправить предложение</button>
-                <button v-else-if="checkIfOfferSendForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Предложение отправлено</button>
-                <button v-else-if="checkIfExistsActiveOrderForTask(task.id)" disabled class="bg-slate-200 text-slate-700 w-full font-semibold py-3 px-2 rounded-lg shadow">В работе</button>
-              </div>
-            </div>
+            </transition>
           </div>
         </div>
         <div v-if="tasks.length === 0" class="text-gray-500 mt-7 text-sm text-center">
@@ -100,6 +129,7 @@ export default {
       offset: 0,
       pages: 0,
       count: 0,
+      showFull: 2,
       performerOffers: [],
       performerOrders: [],
       e: emitter
@@ -123,6 +153,28 @@ export default {
     this.getTasks()
   },
   methods: {
+    workTime(deliveryDate) {
+      let currentTimestamp = moment().unix()
+      let deliveryTimestamp = moment(deliveryDate).utc(0).unix()
+
+      let minutes = Math.round((deliveryTimestamp - currentTimestamp) / 60)
+      if (minutes < 60) return minutes + " " + this.$filters.declOfNum(minutes, ['минута', 'минуты', 'минут'])
+
+      let hours = Math.round(minutes / 60)
+      if (hours < 24) return hours + " " + this.$filters.declOfNum(hours, ['час', 'часа', 'часов'])
+
+      let days = Math.round(hours / 24)
+
+      return days + " " + this.$filters.declOfNum(days, ['день', 'дня', 'дней'])
+    },
+    toggleShowFull(taskId) {
+      if(this.showFull === 0) {
+        this.showFull = taskId
+        return
+      }
+
+      this.showFull = 0
+    },
     checkIfOfferSendForTask(taskId) {
       let send = false
 

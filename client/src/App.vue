@@ -72,7 +72,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                 >
                 <div v-if="showProfileMenu" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                   <div v-if="user.type !== 0" class="text-sm text-gray-700 px-4 py-2 font-semibold border-b-2 border-gray-200">
-                    {{ user.username }}
+                    {{ user.first_name }} {{ user.last_name }}
                     <br>
                     <div v-if="user.type !== 3" class="text-gray-500">
                       <div>{{ $filters.currencyFormat(user.balance) }}</div>
@@ -128,7 +128,7 @@ import NotificationsPopup from "@/components/NotificationsPopup.vue";
                 <img class="h-10 w-10 rounded-full" src="@/assets/img/user.png" alt="User">
               </div>
               <div v-if="user.type !== 0" class="ml-3">
-                <div class="text-base font-semibold leading-none text-white">{{ user.username }}</div>
+                <div class="text-base font-semibold leading-none text-white">{{ user.first_name }} {{ user.last_name }}</div>
                 <div v-if="user.type !== 3" class="text-sm mt-1 font-semibold leading-none text-gray-400">
                   {{ $filters.currencyFormat(user.balance) }}
                   <div class="flex mt-1">

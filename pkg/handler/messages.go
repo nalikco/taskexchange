@@ -94,7 +94,7 @@ func (h *Handler) sendMessage(c *gin.Context) {
 		return
 	}
 
-	recipient, err := h.services.Users.GetById(input.RecipientId, false)
+	recipient, err := h.services.Users.GetById(input.RecipientId)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

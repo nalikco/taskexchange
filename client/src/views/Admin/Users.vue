@@ -26,6 +26,9 @@ import {moment} from '@/moment'
                 Имя
               </th>
               <th scope="col" class="py-3 px-6">
+                Никнейм
+              </th>
+              <th scope="col" class="py-3 px-6">
                 Тип
               </th>
               <th scope="col" class="py-3 px-6">
@@ -47,17 +50,20 @@ import {moment} from '@/moment'
                 <th v-if="!user.deleted_at" scope="row" class="flex items-center py-4 px-6 text-gray-900 whitespace-nowrap dark:text-white">
                   <img class="w-10 h-10 rounded-full" src="@/assets/img/user.png" alt="Jese image">
                   <div class="pl-3">
-                    <div class="text-base font-semibold">{{ user.username }}</div>
+                    <div class="text-base font-semibold">{{ user.first_name }} {{ user.last_name }}</div>
                     <div class="font-normal text-gray-500">{{ user.email }}</div>
                   </div>
                 </th>
                 <th v-else scope="row" class="flex items-center py-4 px-6 text-gray-400 whitespace-nowrap dark:text-white">
                   <img class="w-10 h-10 rounded-full" src="@/assets/img/user.png" alt="Jese image">
                   <div class="pl-3">
-                    <div class="text-base font-semibold">{{ user.username }}</div>
+                    <div class="text-base font-semibold">{{ user.first_name }} {{ user.last_name }}</div>
                     <div class="font-normal text-gray-500">{{ user.email }} (архив)</div>
                   </div>
                 </th>
+                <td class="py-4 px-6">
+                  {{ user.username }}
+                </td>
                 <td v-if="user.type === 1" class="py-4 px-6">
                   Исполнитель
                 </td>
@@ -102,8 +108,16 @@ import {moment} from '@/moment'
                   <h3 v-else class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Добавление пользователя</h3>
                   <div class="mt-2">
                     <div class="mt-6 mb-6">
+                      <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Никнейм</label>
+                      <input type="text" @input="onEditFormChange($event, 'editUsername')"  @change="onEditFormChange($event, 'editUsername')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editUsername" placeholder="Никнейм" required>
+                    </div>
+                    <div class="mt-6 mb-6">
                       <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Имя</label>
-                      <input type="text" @input="onEditFormChange($event, 'editUsername')"  @change="onEditFormChange($event, 'editUsername')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editUsername" placeholder="Имя" required>
+                      <input type="text" @input="onEditFormChange($event, 'editFirstName')"  @change="onEditFormChange($event, 'editFirstName')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editFirstName" placeholder="Имя" required>
+                    </div>
+                    <div class="mt-6 mb-6">
+                      <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Фамилия</label>
+                      <input type="text" @input="onEditFormChange($event, 'editLastName')"  @change="onEditFormChange($event, 'editLastName')" name="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :value="editLastName" placeholder="Фамилия" required>
                     </div>
                     <div class="mb-6">
                       <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Тип</label>
@@ -155,6 +169,8 @@ export default {
       editUser: null,
       editUserId: 0,
       editUsername: '',
+      editFirstName: '',
+      editLastName: '',
       editType: 1,
       editBalance: 0,
       editEmail: '',
@@ -176,6 +192,8 @@ export default {
     toggleEditModal(user = null) {
       this.editUserId = 0
       this.editUsername = ''
+      this.editFirstName = ''
+      this.editLastName = ''
       this.editType = 1
       this.editBalance = 0
       this.editEmail = ''
@@ -183,6 +201,8 @@ export default {
       if(user) {
         this.editUserId = user.id
         this.editUsername = user.username
+        this.editFirstName = user.first_name
+        this.editLastName = user.last_name
         this.editType = user.type
         this.editBalance = user.balance
         this.editEmail = user.email
@@ -228,6 +248,8 @@ export default {
 
       axios.post(import.meta.env.VITE_API_URL + 'users/', {
         username: this.editUsername,
+        first_name: this.editFirstName,
+        last_name: this.editLastName,
         type: parseInt(this.editType),
         balance: parseFloat(this.editBalance),
         email: this.editEmail,
@@ -245,6 +267,8 @@ export default {
 
       let data = {}
       if (this.editUser.username !== this.editUsername) data.username = this.editUsername
+      if (this.editUser.first_name !== this.editFirstName) data.first_name = this.editFirstName
+      if (this.editUser.last_name !== this.editLastName) data.last_name = this.editLastName
       if (this.editUser.type !== parseInt(this.editType)) data.type = parseInt(this.editType)
       if (this.editUser.balance !== parseFloat(this.editBalance)) data.balance = parseFloat(this.editBalance)
       if (this.editUser.email !== this.editEmail) data.email = this.editEmail

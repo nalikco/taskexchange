@@ -29,7 +29,7 @@ import {moment} from "@/moment";
             <div class="text-center md:text-left border-t-2 md:border-none py-1 md:py-0">
               <div class="text-slate-500">Заказчик:</div>
               <div>
-                <span class="font-medium">{{ order.task.customer.username }}</span><br>
+                <span class="font-medium">{{ order.task.customer.first_name }} {{ order.task.customer.last_name }}</span><br>
                 <span class="text-slate-500">онлайн {{ moment(order.task.customer.last_online).utcOffset(+6, true).fromNow() }}</span>
               </div>
             </div>

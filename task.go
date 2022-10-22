@@ -5,12 +5,13 @@ import "time"
 type Task struct {
 	Id           int          `json:"id" db:"id"`
 	CustomerId   int          `json:"customer_id" db:"customer_id"`
-	Customer     User         `json:"customer" db:"customer"`
+	Customer     UserHidden   `json:"customer" db:"customer"`
 	Status       int          `json:"status" db:"status"`
 	Amount       int          `json:"amount" db:"amount"`
 	DeliveryDate time.Time    `json:"delivery_date" db:"delivery_date"`
 	Link         string       `json:"link" db:"link"`
 	Description  string       `json:"description" db:"description"`
+	Report       string       `json:"report" db:"report"`
 	Options      []Option     `json:"options"`
 	TaskOptions  []TaskOption `json:"task_options" db:"task_options"`
 	Offers       []Offer      `json:"offers"`
@@ -31,6 +32,7 @@ type UpdateTaskInput struct {
 	DeliveryDate       *time.Time
 	Link               *string `json:"link"`
 	Description        *string `json:"description"`
+	Report             *string `json:"report"`
 	Options            *[]int  `json:"options"`
 }
 

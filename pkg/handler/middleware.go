@@ -32,14 +32,14 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Authorization.UpdateOnline(userId); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, "failed while updating online")
+	user, err := h.services.Users.GetById(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "failed while getting user")
 		return
 	}
 
-	user, err := h.services.Users.GetById(userId, true)
-	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, "failed while getting user")
+	if err := h.services.Authorization.UpdateOnline(user); err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "failed while updating online")
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) checkIsAdmin(c *gin.Context) bool {
 	if len(headerParts) == 2 {
 		userId, err := h.services.Authorization.ParseToken(headerParts[1])
 		if err == nil {
-			user, err := h.services.Users.GetById(userId, true)
+			user, err := h.services.Users.GetById(userId)
 			if err == nil {
 				if user.Type == 3 {
 					return true

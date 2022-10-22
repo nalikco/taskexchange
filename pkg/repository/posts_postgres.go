@@ -95,7 +95,7 @@ func (r *PostsPostgres) GetById(id int, deleted bool) (taskexchange.Post, error)
 		DeletedAt: postFromDb.DeletedAt,
 	}
 
-	query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+	query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 	err = r.db.Get(&post.Author, query, postFromDb.AuthorId)
 	if err != nil {
 		return post, err
@@ -180,7 +180,7 @@ func (r *PostsPostgres) GetAll(limit, offset int) ([]taskexchange.Post, error) {
 		}
 		var postCategoriesDb []postCategoryDb
 
-		query = fmt.Sprintf("SELECT id,username,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
+		query = fmt.Sprintf("SELECT id,username,first_name,last_name,type,last_online,created_at FROM %s WHERE id=$1", usersTable)
 		err = r.db.Get(&post.Author, query, db.AuthorId)
 		if err != nil {
 			return posts, err

@@ -62,8 +62,8 @@ func (r *OffersPostgres) FindAllByTask(taskId int) ([]taskexchange.Offer, error)
 	}
 	fieldsQuery := strings.Join(fields, ", ")
 
-	query := fmt.Sprintf("SELECT %s FROM %s AS o JOIN %s AS u ON o.performer_id = u.id WHERE o.deleted_at is null ORDER BY o.created_at DESC", fieldsQuery, offersTable, usersTable)
-	err := r.db.Select(&offers, query)
+	query := fmt.Sprintf("SELECT %s FROM %s AS o JOIN %s AS u ON o.performer_id = u.id WHERE o.deleted_at is null AND o.task_id = $1 ORDER BY o.created_at DESC", fieldsQuery, offersTable, usersTable)
+	err := r.db.Select(&offers, query, taskId)
 
 	return offers, err
 }

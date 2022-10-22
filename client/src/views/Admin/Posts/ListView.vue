@@ -51,7 +51,7 @@ import AdminMenu from '@/components/AdminMenu.vue'
                 {{ post.id }}
               </td>
               <td class="py-4 px-6">
-                {{ post.author.username }}
+                {{ post.author.first_name }} {{ post.author.last_name }}
               </td>
               <td class="py-4 px-6">
                 <a :href="mainUrl + post.main_image" target="_blank">

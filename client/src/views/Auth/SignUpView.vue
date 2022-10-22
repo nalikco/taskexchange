@@ -24,7 +24,15 @@
               </div>
               <div>
                 <label for="username" class="sr-only">Email address</label>
-                <input id="username" name="username" v-model="username" type="text" required class="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" placeholder="Имя (Илья Васильев)">
+                <input id="username" name="username" v-model="username" type="text" required class="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" placeholder="Никнейм (ilyavasiliev22)">
+              </div>
+              <div>
+                <label for="username" class="sr-only">Email address</label>
+                <input id="username" name="username" v-model="firstName" type="text" required class="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" placeholder="Имя (Илья)">
+              </div>
+              <div>
+                <label for="username" class="sr-only">Email address</label>
+                <input id="username" name="username" v-model="lastName" type="text" required class="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" placeholder="Фамилия (Васильев)">
               </div>
               <div>
                 <label for="password" class="sr-only">Password</label>
@@ -85,6 +93,8 @@ export default {
     return {
       email: '',
       username: '',
+      firstName: '',
+      lastName: '',
       password: '',
       r_password: '',
       accountType: 1,
@@ -118,6 +128,8 @@ export default {
 
       axios.post(import.meta.env.VITE_API_URL + "auth/sign-up", {
         username: this.username,
+        first_name: this.firstName,
+        last_name: this.lastName,
         email: this.email,
         password: this.password,
         type: parseInt(this.accountType)
@@ -156,7 +168,21 @@ export default {
             case "not valid username":
               this.e.emit('alert', {
                 title: 'Ошибка!',
+                message: 'Укажите верный ник.',
+                alertType: 0
+              })
+              break;
+            case "not valid first name":
+              this.e.emit('alert', {
+                title: 'Ошибка!',
                 message: 'Укажите верное имя.',
+                alertType: 0
+              })
+              break;
+            case "not valid last name":
+              this.e.emit('alert', {
+                title: 'Ошибка!',
+                message: 'Укажите верную фамилию.',
                 alertType: 0
               })
               break;
@@ -164,6 +190,13 @@ export default {
               this.e.emit('alert', {
                 title: 'Ошибка!',
                 message: 'Адрес электронной почты занят.',
+                alertType: 0
+              })
+              break;
+            case "username is already taken":
+              this.e.emit('alert', {
+                title: 'Ошибка!',
+                message: 'Ник занят.',
                 alertType: 0
               })
               break;

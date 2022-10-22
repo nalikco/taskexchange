@@ -70,7 +70,7 @@ const router = createRouter({
       component: () => import('../views/Payments.vue'),
       meta: { requiredAuth: true }
     }, {
-      path: '/user-:user_id',
+      path: '/@:user_id',
       name: 'profile',
       component: () => import('../views/Profile.vue'),
       meta: { requiredAuth: true }
