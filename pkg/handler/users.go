@@ -115,6 +115,19 @@ func (h *Handler) getUserById(c *gin.Context) {
 		Data: user,
 	})
 }
+func (h *Handler) getUserByUsername(c *gin.Context) {
+	username := c.Param("username")
+
+	user, err := h.services.Users.GetByUsernameHidden(username)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getOneUserHiddenResponse{
+		Data: user,
+	})
+}
 
 func (h *Handler) updateUser(c *gin.Context) {
 	currentUser, err := getUser(c)

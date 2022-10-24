@@ -2,21 +2,28 @@ package taskexchange
 
 import "time"
 
+/*
+ Статусы:
+	0 - приостановлена
+	1 - активна
+*/
+
 type Task struct {
-	Id           int          `json:"id" db:"id"`
-	CustomerId   int          `json:"customer_id" db:"customer_id"`
-	Customer     UserHidden   `json:"customer" db:"customer"`
-	Status       int          `json:"status" db:"status"`
-	Amount       int          `json:"amount" db:"amount"`
-	DeliveryDate time.Time    `json:"delivery_date" db:"delivery_date"`
-	Link         string       `json:"link" db:"link"`
-	Description  string       `json:"description" db:"description"`
-	Report       string       `json:"report" db:"report"`
-	Options      []Option     `json:"options"`
-	TaskOptions  []TaskOption `json:"task_options" db:"task_options"`
-	Offers       []Offer      `json:"offers"`
-	CreatedAt    time.Time    `json:"created_at" db:"created_at"`
-	DeletedAt    *time.Time   `json:"deleted_at" db:"deleted_at"`
+	Id                int          `json:"id" db:"id"`
+	CustomerId        int          `json:"customer_id" db:"customer_id"`
+	Customer          UserHidden   `json:"customer" db:"customer"`
+	Status            int          `json:"status" db:"status"`
+	Amount            int          `json:"amount" db:"amount"`
+	DeliveryDate      time.Time    `json:"delivery_date" db:"delivery_date"`
+	Link              string       `json:"link" db:"link"`
+	Description       string       `json:"description" db:"description"`
+	Report            string       `json:"report" db:"report"`
+	Options           []Option     `json:"options"`
+	TaskOptions       []TaskOption `json:"task_options" db:"task_options"`
+	Offers            []Offer      `json:"offers"`
+	ActiveOrdersCount int          `json:"active_orders_count"`
+	CreatedAt         time.Time    `json:"created_at" db:"created_at"`
+	DeletedAt         *time.Time   `json:"deleted_at" db:"deleted_at"`
 }
 
 type TaskOption struct {

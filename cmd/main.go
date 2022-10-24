@@ -78,6 +78,12 @@ func main() {
 		}
 	}()
 
+	go func() {
+		if err := services.Queue.Run(); err != nil {
+			logrus.Fatalf("error occured while running queue: %s", err.Error())
+		}
+	}()
+
 	logrus.Print("Task Exchange app has started")
 
 	quit := make(chan os.Signal, 1)

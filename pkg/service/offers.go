@@ -88,6 +88,9 @@ func (s *OffersService) ChangeStatus(offerId, customerId, status int) error {
 	if task.CustomerId != customerId {
 		return errors.New("access denied")
 	}
+	if task.Status != 1 {
+		return errors.New("wrong task status")
+	}
 
 	err = s.offersRepo.Update(offerId, taskexchange.UpdateOfferInput{
 		Status: status,

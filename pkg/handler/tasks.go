@@ -261,6 +261,14 @@ func (h *Handler) getUserAllTasks(c *gin.Context) {
 		return
 	}
 
+	for i, task := range tasks {
+		tasks[i].ActiveOrdersCount, err = h.services.Orders.FindActiveCountByTaskId(task.Id)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, getAllTasksResponse{
 		Pagination: paginationResponse{
 			Count:       pagination.Count,
@@ -362,6 +370,32 @@ func (h *Handler) updateTask(c *gin.Context) {
 			Status: "ok",
 		})
 
+		return
+	}
+
+	if input.Status != nil && task.Status == 0 {
+		_, err = h.services.Tasks.Update(id, taskexchange.UpdateTaskInput{
+			Status: input.Status,
+		})
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusOK, statusResponse{
+			Status: "ok",
+		})
+
+		return
+	}
+
+	taskActiveOrdersCount, err := h.services.Orders.FindActiveCountByTaskId(task.Id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if taskActiveOrdersCount > 0 {
+		newErrorResponse(c, http.StatusBadRequest, "active orders exists")
 		return
 	}
 

@@ -18,6 +18,8 @@ type Users interface {
 	GetAllHidden() ([]taskexchange.UserHidden, error)
 	GetById(id int) (taskexchange.User, error)
 	GetByIdHidden(id int) (taskexchange.UserHidden, error)
+	GetByUsername(username string) (taskexchange.User, error)
+	GetByUsernameHidden(username string) (taskexchange.UserHidden, error)
 	Update(user taskexchange.User, input taskexchange.UpdateUserInput) error
 	CountAll(sort taskexchange.SortUsersCount) (int64, error)
 	Delete(id int) error
@@ -62,7 +64,9 @@ type Offers interface {
 
 type Orders interface {
 	FindAllByPerformerId(performerId int) ([]taskexchange.Order, error)
+	FindActiveCountByTaskId(taskId int) (int, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
+	FindActiveByCustomerId(customerId int) ([]taskexchange.Order, error)
 	FindAll() ([]taskexchange.Order, error)
 	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
 	Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error
@@ -101,6 +105,10 @@ type Posts interface {
 	DeleteCategory(id int) error
 }
 
+type Queue interface {
+	Run() error
+}
+
 type Service struct {
 	Authorization
 	Users
@@ -112,6 +120,7 @@ type Service struct {
 	Messages
 	Payments
 	Posts
+	Queue
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -126,5 +135,6 @@ func NewService(repos *repository.Repository) *Service {
 		Messages:      NewMessagesService(repos.Messages),
 		Payments:      NewPaymentsService(repos.Payments),
 		Posts:         NewPostsService(repos.Posts),
+		Queue:         NewQueueService(repos.Tasks, repos.Orders),
 	}
 }

@@ -42,6 +42,17 @@ func (r *OrdersPostgres) FindActiveByTaskId(taskId int) ([]taskexchange.Order, e
 	return orders, err
 }
 
+func (r *OrdersPostgres) GetActiveCountByTaskId(taskId int) (int, error) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE task_id=$1 AND status IN (0, 1) AND deleted_at IS NULL", ordersTable)
+	if err := r.db.QueryRow(query, taskId).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *OrdersPostgres) FindAllByPerformerId(performerId int) ([]taskexchange.Order, error) {
 	var orders []taskexchange.Order
 	fields := []string{
@@ -193,6 +204,41 @@ func (r *OrdersPostgres) FindActiveByPerformerId(performerId int) ([]taskexchang
 
 	query := fmt.Sprintf("SELECT %s FROM %s AS ord JOIN %s AS ofe ON ord.offer_id = ofe.id WHERE ord.deleted_at is null AND ord.status IN (0, 1) AND ofe.performer_id=$1 ORDER BY ord.created_at DESC", fieldsQuery, ordersTable, offersTable)
 	err := r.db.Select(&orders, query, performerId)
+
+	return orders, err
+}
+
+func (r *OrdersPostgres) FindActiveByCustomerId(customerId int) ([]taskexchange.Order, error) {
+	var orders []taskexchange.Order
+	fields := []string{
+		"ofe.id as \"offer.id\"",
+		"ofe.performer_id as \"offer.performer_id\"",
+		"ofe.status as \"offer.status\"",
+		"ofe.created_at as \"offer.created_at\"",
+
+		"tas.id as \"task.id\"",
+		"tas.customer_id as \"task.customer_id\"",
+		"tas.status as \"task.status\"",
+		"tas.amount as \"task.amount\"",
+		"tas.delivery_date as \"task.delivery_date\"",
+		"tas.link as \"task.link\"",
+		"tas.description as \"task.description\"",
+		"tas.created_at as \"task.created_at\"",
+
+		"ord.id as id",
+		"ord.task_id as task_id",
+		"ord.status as status",
+		"ord.canceled_user_id as canceled_user_id",
+		"ord.return_comment as return_comment",
+		"ord.surrender_comment as surrender_comment",
+		"ord.cancel_comment as cancel_comment",
+		"ord.created_at as created_at",
+		"ord.deleted_at as deleted_at",
+	}
+	fieldsQuery := strings.Join(fields, ", ")
+
+	query := fmt.Sprintf("SELECT %s FROM %s AS ord JOIN %s AS tas ON ord.task_id = tas.id JOIN %s AS ofe ON ord.offer_id = ofe.id WHERE ord.deleted_at is null AND ord.status IN (0, 1) AND tas.customer_id=$1 ORDER BY ord.created_at DESC", fieldsQuery, ordersTable, tasksTable, offersTable)
+	err := r.db.Select(&orders, query, customerId)
 
 	return orders, err
 }

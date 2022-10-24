@@ -1,6 +1,6 @@
 <template>
   <div class="overflow-x-auto md:mx-0 flex flex-row gap-4">
-    <div @mouseenter="activeIcon = 1" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
+    <RouterLink :to="{ name: 'profile', params: { username: user.username }}" @mouseenter="activeIcon = 1" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#D9D9D9"/>
@@ -12,8 +12,8 @@
         <br>
         <span class="text-gray-500 font-medium">id:{{ user.id }}</span>
       </div>
-    </div>
-    <div @mouseenter="activeIcon = 2" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
+    </RouterLink>
+    <RouterLink :to="{ name: 'payments' }" @mouseenter="activeIcon = 2" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 2" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#94C091"/>
@@ -29,8 +29,8 @@
         <br>
         <span class="text-gray-500 font-medium">{{ $filters.currencyFormat(user.balance) }}</span>
       </div>
-    </div>
-    <div @mouseenter="activeIcon = 3" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
+    </RouterLink>
+    <RouterLink :to="{ name: user.type === 1 ? 'orders-performer': 'tasks-my' }" @mouseenter="activeIcon = 3" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 3" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="70" height="70" rx="8" fill="#3A538C"/>
@@ -47,7 +47,7 @@
         <br>
         <span class="text-gray-500 font-medium">{{ user.activeTasksCount }} {{ $filters.declOfNum(user.activeTasksCount, ['активная', 'активных', 'активных']) }}</span>
       </div>
-    </div>
+    </RouterLink>
     <div @mouseenter="activeIcon = 4" @mouseleave="activeIcon = 0" class="bg-white w-full min-w-max flex flex-row gap-4 items-center rounded text-sm py-2 px-5">
       <div>
         <svg v-if="activeIcon === 4" width="50" height="50" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">

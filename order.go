@@ -2,6 +2,15 @@ package taskexchange
 
 import "time"
 
+/*
+ Статусы:
+	0 - выполняется
+	1 - сдан на проверку
+	2 - выполнен
+	3 - отменен
+	4 - просрочен
+*/
+
 type Order struct {
 	Id               int        `json:"id"`
 	OfferId          int        `json:"offer_id" db:"offer_id"`

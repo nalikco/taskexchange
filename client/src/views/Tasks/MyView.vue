@@ -83,7 +83,14 @@ import {moment} from "@/moment";
                   <br>
                   <p class="text-xs -mt-1 text-slate-500">укажите количество</p>
                 </button>
-                <button v-if="!task.deleted_at" @click="editTask(task.id)" class="bg-green-200 text-center py-3 text-green-700 font-semibold py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</button>
+                <button v-if="!task.deleted_at && task.active_orders_count === 0" @click="editTask(task.id)" class="bg-green-200 text-center py-3 text-green-700 font-semibold py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-green-300 transition duration-300">Редактировать</button>
+                <button v-if="!task.deleted_at && task.active_orders_count > 0" disabled class="bg-gray-100 text-center py-3 text-gray-400 font-semibold py-1 px-2 rounded-lg shadow">
+                  Редактировать
+                  <br>
+                  <p class="font-normal text-xs -mt-1">
+                    недоступно: есть активные заказы
+                  </p>
+                </button>
                 <button v-if="!task.deleted_at" @click="deleteTask(task.id)" class="bg-red-200 text-red-700 font-semibold py-1 px-2 rounded-lg shadow hover:shadow-md hover:bg-red-300 transition duration-300">
                   Удалить
                   <br>
@@ -159,7 +166,7 @@ import {moment} from "@/moment";
         <div v-if="tasks.length === 0" class="text-gray-500 mt-7 text-sm text-center">
           У Вас пока нет задач
         </div>
-        <div v-if="tasks.length > 0" class="mt-7 text-sm flex flex-row justify-between">
+        <div v-if="tasks.length > 0" class="mt-7 text-sm px-3 md:px-0 flex flex-row justify-between">
           <div>
             <nav>
               <ul class="inline-flex -space-x-px">

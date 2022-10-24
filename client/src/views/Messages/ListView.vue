@@ -65,7 +65,7 @@ import {moment} from "@/moment";
                   <div class="flex flex-row items-center">
                     <img src="@/assets/img/user.png" class="h-10 w-10 rounded-full">
                     <div class="ml-4 font-semibold">
-                      <RouterLink :to="{ name: 'profile', params: { user_id: getConversationRecipient(conversations[selectedConversationIndex]).id }}">{{ getConversationRecipient(conversations[selectedConversationIndex]).first_name }} {{ getConversationRecipient(conversations[selectedConversationIndex]).last_name }}</RouterLink><br>
+                      <RouterLink :to="{ name: 'profile', params: { username: getConversationRecipient(conversations[selectedConversationIndex]).username }}">{{ getConversationRecipient(conversations[selectedConversationIndex]).first_name }} {{ getConversationRecipient(conversations[selectedConversationIndex]).last_name }}</RouterLink><br>
                       <div v-if="checkIsOnline(getConversationRecipient(conversations[selectedConversationIndex]).last_online)" class="flex items-center text-slate-500 -mt-1 text-xs">
                         <div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн
                       </div>

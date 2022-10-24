@@ -5,8 +5,9 @@ import {moment} from "@/moment";
   <main>
     <section v-if="userProfile" class="mx-10 md:w-1/3 my-10 md:mx-auto bg-[#20354b] rounded-2xl px-8 py-6 shadow-lg">
       <div class="flex items-center justify-between">
+        <span class="text-gray-300 text-sm font-semibold flex items-center" v-html="getOnline(userProfile.last_online)"></span>
         <span class="text-gray-300 text-sm font-semibold">
-          {{ getOnline(userProfile.last_online) }}
+          @{{ userProfile.username }}
         </span>
       </div>
       <div class="mt-6 w-fit mx-auto">
@@ -60,11 +61,11 @@ export default {
   mounted() {
     document.title = 'Профиль'
 
-    this.getUser(this.$route.params.user_id)
+    this.getUser(this.$route.params.username)
   },
   methods: {
-    getUser(userId) {
-      axios.get(import.meta.env.VITE_API_URL + 'users/' + userId, {
+    getUser(username) {
+      axios.get(import.meta.env.VITE_API_URL + 'users/username/' + username, {
         headers: { Authorization: `Bearer ${this.token}` },
       }).then(res => {
         if(res.data.data) {
@@ -82,7 +83,7 @@ export default {
       let currentDateObj = moment()
 
       if (onlineDateObj.diff(currentDateObj, 'minutes') > -15) {
-        return 'онлайн'
+        return '<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div> онлайн'
       }
 
       return 'был(-а) онлайн ' + onlineDateObj.utcOffset(+6, true).fromNow()

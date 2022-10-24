@@ -64,6 +64,13 @@ func (r *UsersPostgres) GetByUsername(username string) (taskexchange.User, error
 	return user, result.Error
 }
 
+func (r *UsersPostgres) GetByUsernameHidden(username string) (taskexchange.UserHidden, error) {
+	var user taskexchange.UserHidden
+	result := r.db.Table("users").Where("username = ?", username).Where("deleted_at is null").First(&user)
+
+	return user, result.Error
+}
+
 func (r *UsersPostgres) GetByEmailAndPassword(email, password string) (taskexchange.User, error) {
 	var user taskexchange.User
 	result := r.db.Table("users").Where(&taskexchange.User{Email: email, Password: password}).First(&user)

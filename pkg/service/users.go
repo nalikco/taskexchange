@@ -61,6 +61,14 @@ func (s *UsersService) GetByIdHidden(id int) (taskexchange.UserHidden, error) {
 	return s.repo.GetByIdHidden(id)
 }
 
+func (s *UsersService) GetByUsername(username string) (taskexchange.User, error) {
+	return s.repo.GetByUsername(username)
+}
+
+func (s *UsersService) GetByUsernameHidden(username string) (taskexchange.UserHidden, error) {
+	return s.repo.GetByUsernameHidden(username)
+}
+
 func (s *UsersService) Update(user taskexchange.User, input taskexchange.UpdateUserInput) error {
 	if input.Email != nil {
 		userByEmail, err := s.repo.GetByEmail(*input.Email)

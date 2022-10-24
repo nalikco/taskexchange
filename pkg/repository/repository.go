@@ -15,6 +15,7 @@ type Users interface {
 	GetByIdHidden(id int) (taskexchange.UserHidden, error)
 	GetByEmail(email string) (taskexchange.User, error)
 	GetByUsername(username string) (taskexchange.User, error)
+	GetByUsernameHidden(username string) (taskexchange.UserHidden, error)
 	GetByEmailAndPassword(email, password string) (taskexchange.User, error)
 	CountAll(sort taskexchange.SortUsersCount) (int64, error)
 	Update(user taskexchange.User) error
@@ -87,10 +88,12 @@ type Orders interface {
 	FindAllByCustomerId(customerId int) ([]taskexchange.Order, error)
 	CountAllByCustomerId(customerId int) (int, error)
 	FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error)
+	FindActiveByCustomerId(customerId int) ([]taskexchange.Order, error)
 	Update(id int, input taskexchange.UpdateOrderInput) error
 	FindOneById(orderId int) (taskexchange.Order, error)
 	CountAllActive() (int, error)
 	GetAllCompleted() ([]taskexchange.Order, error)
+	GetActiveCountByTaskId(taskId int) (int, error)
 }
 
 type Messages interface {

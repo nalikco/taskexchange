@@ -18,51 +18,51 @@ import {moment} from "@/moment";
         <div class="mt-7 mx-3 md:mx-0">
           <div v-for="task in tasks" v-bind:key="task.id" :id="'task_' + task.id" @click="toggleShowFull(task.id)" class="shadow-md cursor-pointer rounded-md mb-5">
             <div class="hidden md:grid grid-cols-12 bg-slate-500 text-white py-2 rounded-t-md">
-              <div class="col-span-2 text-center">
+              <div class="col-span-2 text-sm text-center">
                 Название
               </div>
-              <div class="col-start-10 col-span-2">
+              <div class="col-start-10 text-sm col-span-2">
                 Оплата
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-12 bg-white pt-8 rounded-b-md" :class="{
+            <div class="grid grid-cols-1 md:grid-cols-12 bg-white pt-8 pb-8 rounded-b-md" :class="{
               'pb-8': showFull !== task.id
             }">
-              <div class="col-span-2 text-center">
-                <div class="bg-sky-800 text-white mx-5 rounded-md h-36 flex items-center justify-center">
-                  <h2 class="text-4xl font-semibold">{{ task.structed.main.short }}</h2>
+              <div class="col-span-2 text-center flex justify-center">
+                <div class="bg-sky-800 text-white mx-5 rounded-md h-20 w-20 flex items-center justify-center">
+                  <h2 class="text-2xl font-semibold">{{ task.structed.main.short }}</h2>
                 </div>
               </div>
               <div class="col-span-7">
                 <transition name="slide-fade">
-                  <div v-if="showFull !== task.id" class="md:absolute text-center mt-5 md:mt-0">
-                    <span class="font-semibold">Задача:</span> {{ showTaskId(task.id) }}
+                  <div v-if="showFull !== task.id" class="md:absolute text-center text-sm mt-5 md:-mt-1">
+                    Задача: {{ showTaskId(task.id) }}
                   </div>
                 </transition>
-                <div class="mt-5 md:mt-10">
-                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ task.structed.main.title }}</h1>
+                <div class="mt-5 md:mt-5">
+                  <h1 class="text-xl font-semibold text-center md:text-left">{{ task.structed.main.title }}</h1>
                 </div>
-                <div class="mt-5 flex flex-col md:flex-row px-5 md:px-0 gap-1 md:gap-4 text-sm">
+                <div class="mt-2 flex flex-col md:flex-row px-5 md:px-0 gap-1 md:gap-4 text-xs">
                   <span v-for="option in task.structed.options" class="bg-gray-200 text-gray-700 py-1 px-7 rounded-md">
                     {{ option.title }}
                   </span>
                 </div>
               </div>
               <div class="col-span-2">
-                <div class="mt-7 md:mt-10">
-                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ $filters.currencyFormat(task.structed.price) }}</h1>
+                <div class="mt-7 md:mt-5">
+                  <h1 class="text-xl font-semibold text-center md:text-left">{{ $filters.currencyFormat(task.structed.price) }}</h1>
                 </div>
               </div>
             </div>
             <transition name="slide-fade">
               <div v-if="showFull === task.id">
-                <div class="grid pt-7 md:pt-0 px-5 md:px-0 md:grid-cols-12 bg-white">
+                <div class="grid px-5 md:px-0 md:grid-cols-12 bg-white">
                   <div class="col-start-3 col-span-10 text-sm md:pr-12 pb-8">
                     <div class="bg-gray-200 px-4 py-5 rounded-md">
                       {{ task.description }}
                     </div>
                     <div class="mt-4">
-                      <RouterLink :to="{ name: 'profile', params: { user_id: task.customer.id }}">
+                      <RouterLink :to="{ name: 'profile', params: { username: task.customer.username }}">
                         <span class="font-semibold">Заказчик:</span> {{ task.customer.first_name }} {{ task.customer.last_name }}
                       </RouterLink>
                     </div>
@@ -92,7 +92,7 @@ import {moment} from "@/moment";
         <div v-if="tasks.length === 0" class="text-gray-500 mt-7 text-sm text-center">
           Пока нет задач
         </div>
-        <div v-if="tasks.length > 0" class="mt-7 text-sm flex flex-row justify-between">
+        <div v-if="tasks.length > 0" class="mt-7 px-3 md:px-0 text-sm flex flex-row justify-between">
           <div>
             <nav>
               <ul class="inline-flex -space-x-px">

@@ -104,6 +104,28 @@ func (h *Handler) getAllCustomerOrders(c *gin.Context) {
 	})
 }
 
+func (h *Handler) getAllCustomerActiveOrders(c *gin.Context) {
+	user, err := getUser(c)
+	if err != nil {
+		return
+	}
+
+	if user.Type != 2 && user.Type != 3 {
+		newErrorResponse(c, http.StatusBadRequest, "wrong user type")
+		return
+	}
+
+	orders, err := h.services.Orders.FindActiveByCustomerId(user.Id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, findOrdersResponse{
+		Data: orders,
+	})
+}
+
 func (h *Handler) getOrderById(c *gin.Context) {
 
 }

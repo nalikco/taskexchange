@@ -88,7 +88,7 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                 <div class="ml-5 py-3">
                   Активных задач
                   <br>
-                  <span class="text-gray-500 font-medium">0 в работе</span>
+                  <span class="text-gray-500 font-medium">{{ performerActiveOrdersCount }} в работе</span>
                 </div>
               </div>
               <div v-if="user.type === 2" class="bg-white shadow flex flex-row items-center pl-5 hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
@@ -100,7 +100,7 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
                 <div class="ml-5 py-3">
                   Активных заказов
                   <br>
-                  <span class="text-gray-500 font-medium">0 в работе</span>
+                  <span class="text-gray-500 font-medium">{{ customerActiveOrdersCount }} в работе</span>
                 </div>
               </div>
               <RouterLink v-if="user.type === 1" :to="{name:'messages'}" class="bg-white shadow flex flex-row items-center pl-5 hover:shadow-lg text-sm py-2 px-2 rounded-lg text-gray-800 transition duration-300">
@@ -139,19 +139,28 @@ import ProfileInfo from "@/components/ProfileInfo.vue";
 import {mapActions, mapState} from "pinia";
 import {useUserStore} from "@/stores/user";
 import NProgress from "nprogress";
+import axios from "axios"
 
 export default {
   data() {
     return {
-      unViewedMessagesCount: 0
+      unViewedMessagesCount: 0,
+      customerActiveOrdersCount: 0,
+      performerActiveOrdersCount: 0
     }
   },
   computed: {
     ...mapState(useUserStore, ['user', 'token']),
   },
   mounted() {
-    if(this.user.type === 1) document.title = 'Кабинет исполнителя'
-    else if(this.user.type === 2) document.title = 'Кабинет заказчика'
+    if(this.user.type === 1) {
+      document.title = 'Кабинет исполнителя'
+      this.getActivePerformerOrders()
+    }
+    else if(this.user.type === 2) {
+      document.title = 'Кабинет заказчика'
+      this.getActiveCustomerOrders()
+    }
 
     NProgress.done()
   },
@@ -178,6 +187,24 @@ export default {
         }
       })
     },
+    getActiveCustomerOrders() {
+      axios.get(import.meta.env.VITE_API_URL + 'orders/customer-active', {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        if (res.data.data) {
+          this.customerActiveOrdersCount = res.data.data.length
+        }
+      })
+    },
+    getActivePerformerOrders() {
+      axios.get(import.meta.env.VITE_API_URL + 'orders/performer-active', {
+        headers: { Authorization: `Bearer ${this.token}` },
+      }).then(res => {
+        if (res.data.data) {
+          this.performerActiveOrdersCount = res.data.data.length
+        }
+      })
+    }
   }
 }
 </script>

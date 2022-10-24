@@ -38,32 +38,37 @@ import {moment} from "@/moment";
               <div class="font-medium">{{ moment(order.created_at).utc(0).format('lll') }}</div>
             </div>
             <div class="border-t-2 md:border-none py-1 md:py-0">
-              <button v-if="order.status === 0" disabled class="bg-blue-200 text-blue-700 w-full font-medium py-3 px-2 rounded-lg shadow">Выполняется</button>
-              <button v-if="order.status === 1" disabled class="bg-yellow-200 text-yellow-700 w-full font-medium py-3 px-2 rounded-lg shadow">Сдан на проверку</button>
-              <button v-if="order.status === 2" disabled class="bg-green-200 text-green-700 w-full font-medium py-3 px-2 rounded-lg shadow">Выполнено</button>
-              <button v-if="order.status === 3 && order.canceled_user_id === order.task.customer_id" disabled class="bg-red-200 text-red-700 w-full font-medium py-3 px-2 rounded-lg shadow">Отменено Вами</button>
-              <button v-if="order.status === 3 && order.canceled_user_id === order.offer.performer_id" disabled class="bg-red-200 text-red-700 w-full font-medium py-3 px-2 rounded-lg shadow">Отменено исполнителем</button>
+              <button v-if="order.status === 0" disabled class="bg-blue-200 text-blue-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Выполняется</button>
+              <button v-if="order.status === 1" disabled class="bg-yellow-200 text-yellow-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Сдан на проверку</button>
+              <button v-if="order.status === 2" disabled class="bg-green-200 text-green-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Выполнено</button>
+              <button v-if="order.status === 3 && order.canceled_user_id === order.task.customer_id" disabled class="bg-red-200 text-red-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Отменено Вами</button>
+              <button v-if="order.status === 3 && order.canceled_user_id === order.offer.performer_id" disabled class="bg-red-200 text-red-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Отменено исполнителем</button>
+              <button v-if="order.status === 4" disabled class="bg-red-200 text-red-700 w-full font-semibold py-3 px-2 rounded-lg shadow">Время вышло</button>
             </div>
           </div>
           <transition name="slide-fade">
             <div v-if="fullShow === order.id" class="border-t-2">
               <div class="py-3 px-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                  <div class="text-sm py-2 px-4 rounded-full bg-slate-500 text-white shadow-lg">
-                    Категория: <span class="font-medium">{{ order.task.structed.main.title }}</span> <span class="text-white">{{ $filters.currencyFormat(order.task.structed.main.price) }}</span>
+                  <div class="text-sm py-2 px-4 rounded-md bg-slate-500 text-white shadow-lg">
+                    Категория: <span class="font-semibold">{{ order.task.structed.main.title }}</span> <span class="text-white">{{ $filters.currencyFormat(order.task.structed.main.price) }}</span>
                   </div>
-                  <div v-for="option in order.task.structed.options" class="text-sm py-2 px-4 rounded-full bg-blue-500 text-white shadow-lg">
-                    <span class="font-medium">{{ option.title }}</span> <span class="text-white">{{ $filters.currencyFormat(option.price) }}</span>
+                  <div v-for="option in order.task.structed.options" class="text-sm py-2 px-4 rounded-md bg-blue-500 text-white shadow-lg">
+                    <span class="font-semibold">{{ option.title }}</span> <span class="text-white">{{ $filters.currencyFormat(option.price) }}</span>
                   </div>
                 </div>
-                <div v-if="order.cancel_comment" class="mt-2 text-sm bg-red-200 text-red-700 py-2 px-3 rounded-full">
+                <div v-if="order.cancel_comment" class="mt-2 text-sm bg-red-200 text-red-700 py-2 px-3 rounded-md">
                   Комментарий отмены: <span class="font-medium">{{ order.cancel_comment }}</span>
                 </div>
-                <div v-if="order.status === 1 && order.surrender_comment" class="mt-2 text-sm bg-yellow-200 text-yellow-700 py-2 px-3 rounded-full">
+                <div v-if="order.status === 1 && order.surrender_comment" class="mt-2 text-sm bg-yellow-200 text-yellow-700 py-2 px-3 rounded-md">
                   Комментарий исполнителя: <span class="font-medium">{{ order.surrender_comment }}</span>
                 </div>
-                <div v-if="order.status === 0 && order.return_comment" class="mt-2 text-sm bg-yellow-200 text-yellow-700 py-2 px-3 rounded-full">
+                <div v-if="order.status === 0 && order.return_comment" class="mt-2 text-sm bg-yellow-200 text-yellow-700 py-2 px-3 rounded-md">
                   Ваш комментарий о возврате в работу: <span class="font-medium">{{ order.return_comment }}</span>
+                </div>
+                <div v-if="order.status === 4" class="mt-2 text-sm bg-red-200 text-red-700 py-2 px-3 rounded-md">
+                  Вышло время, данное исполнителю для выполнения задачи. Количество у задачи, по которой был создан заказ, увеличелось на 1, т.е. вернулось на прежнее значение и средства не были утеряны.
+                  <br>Рейтинг исполнителя снижен.
                 </div>
               </div>
               <div v-if="order.status < 2" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 text-sm border-t-2 py-2 px-2 gap-2">

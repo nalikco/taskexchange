@@ -45,6 +45,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			users.POST("/", h.userIdentity, h.createUser)
 			users.GET("/", h.getAllUsers)
 			users.GET("/:id", h.getUserById)
+			users.GET("/username/:username", h.getUserByUsername)
 			users.GET("/me", h.userIdentity, h.getMyUser)
 			users.PUT("/:id", h.userIdentity, h.updateUser)
 			users.DELETE("/:id", h.userIdentity, h.deleteUser)
@@ -96,6 +97,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			orders.GET("/performer", h.userIdentity, h.getAllPerformerOrders)
 			orders.GET("/performer-active", h.userIdentity, h.getAllPerformerActiveOrders)
 			orders.GET("/customer", h.userIdentity, h.getAllCustomerOrders)
+			orders.GET("/customer-active", h.userIdentity, h.getAllCustomerActiveOrders)
 			orders.GET("/:id", h.userIdentity, h.getOrderById)
 			orders.PUT("/:id", h.userIdentity, h.updateOrder)
 		}

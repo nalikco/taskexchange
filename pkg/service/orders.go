@@ -134,8 +134,16 @@ func (s *OrdersService) FindAll() ([]taskexchange.Order, error) {
 	return orders, nil
 }
 
+func (s *OrdersService) FindActiveCountByTaskId(taskId int) (int, error) {
+	return s.ordersRepo.GetActiveCountByTaskId(taskId)
+}
+
 func (s *OrdersService) FindActiveByPerformerId(performerId int) ([]taskexchange.Order, error) {
 	return s.ordersRepo.FindActiveByPerformerId(performerId)
+}
+
+func (s *OrdersService) FindActiveByCustomerId(customerId int) ([]taskexchange.Order, error) {
+	return s.ordersRepo.FindActiveByCustomerId(customerId)
 }
 
 func (s *OrdersService) Update(orderId int, userId int, input taskexchange.UpdateOrderInput) error {
