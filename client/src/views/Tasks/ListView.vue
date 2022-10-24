@@ -36,10 +36,10 @@ import {moment} from "@/moment";
               <div class="col-span-7">
                 <transition name="slide-fade">
                   <div v-if="showFull !== task.id" class="md:absolute text-center mt-5 md:mt-0">
-                    <span class="font-semibold">Задача:</span> 0000{{ task.id }}
+                    <span class="font-semibold">Задача:</span> {{ showTaskId(task.id) }}
                   </div>
                 </transition>
-                <div class="md:mt-10">
+                <div class="mt-5 md:mt-10">
                   <h1 class="text-4xl font-semibold text-center md:text-left">{{ task.structed.main.title }}</h1>
                 </div>
                 <div class="mt-5 flex flex-col md:flex-row px-5 md:px-0 gap-1 md:gap-4 text-sm">
@@ -50,7 +50,7 @@ import {moment} from "@/moment";
               </div>
               <div class="col-span-2">
                 <div class="mt-7 md:mt-10">
-                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ $filters.currencyFormat(task.structed.main.price) }}</h1>
+                  <h1 class="text-4xl font-semibold text-center md:text-left">{{ $filters.currencyFormat(task.structed.price) }}</h1>
                 </div>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default {
       offset: 0,
       pages: 0,
       count: 0,
-      showFull: 2,
+      showFull: 0,
       performerOffers: [],
       performerOrders: [],
       e: emitter
@@ -153,6 +153,16 @@ export default {
     this.getTasks()
   },
   methods: {
+    showTaskId(taskId) {
+      if (taskId < 10) return `0000000${taskId}`
+      if (taskId < 100) return `000000${taskId}`
+      if (taskId < 1000) return `00000${taskId}`
+      if (taskId < 10000) return `0000${taskId}`
+      if (taskId < 100000) return `000${taskId}`
+      if (taskId < 1000000) return `00${taskId}`
+      if (taskId < 10000000) return `0${taskId}`
+      return taskId
+    },
     workTime(deliveryDate) {
       let currentTimestamp = moment().unix()
       let deliveryTimestamp = moment(deliveryDate).utc(0).unix()

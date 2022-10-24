@@ -11,9 +11,9 @@ import {moment} from "@/moment";
     <main>
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row bg-white shadow rounded-md py-7 px-6">
-          <div class="basis-1/3 text-center flex flex-row justify-center items-center">
+          <div class="basis-1/3 text-center flex flex-col md:flex-row justify-center items-center">
             <h2 class="text-2xl font-semibold">{{ $filters.currencyFormat(user.balance) }}</h2>
-            <div class="ml-5">
+            <div class="md:ml-5">
               <p class="text-sm text-gray-900 font-semibold text-left">Баланс аккаунта</p>
               <p class="text-sm text-gray-500 text-left">
                 Последнее списание:
@@ -22,9 +22,9 @@ import {moment} from "@/moment";
               </p>
             </div>
           </div>
-          <div v-if="user.type === 2" class="basis-1/3 text-center flex flex-row justify-center items-center">
+          <div v-if="user.type === 2" class="basis-1/3 mt-7 md:mt-0 text-center flex flex-col md:flex-row justify-center items-center">
             <h2 class="text-2xl font-semibold">{{ $filters.currencyFormat(activeTasksSum) }}</h2>
-            <div class="ml-0 md:ml-5">
+            <div class="md:ml-5">
               <p class="text-sm text-gray-900 font-semibold text-left">Заморожено</p>
               <p class="text-sm text-gray-500 text-left">{{ activeTasks.length }} {{ $filters.declOfNum(activeTasks.length, ['задание', 'задания', 'заданий']) }} в работе</p>
             </div>
@@ -32,7 +32,7 @@ import {moment} from "@/moment";
           <div v-else class="basis-1/3">
 
           </div>
-          <div class="basis-1/3 text-center flex flex-row gap-2 justify-center items-center">
+          <div class="basis-1/3 mt-5 md:mt-0 text-center flex flex-row gap-2 justify-center items-center">
             <button class="font-semibold bg-green-500 text-white px-7 py-3 rounded-lg shadow hover:bg-green-600">Пополнить</button>
             <button class="font-semibold bg-indigo-500 text-white px-7 py-3 rounded-lg shadow hover:bg-indigo-600">Вывести</button>
           </div>
